@@ -6,7 +6,7 @@
 
 #include <math.h>
 
-#include <FeatureSet.h>
+#include <FeatureInfo.h>
 #include <GreyImage.h>
 #include <ImageCache.h>
 #include <ImageInfo.h>
@@ -99,11 +99,11 @@ QImage EigenFace::normalize(const QImage & input,
         } // for(c)
     } // for(r)
 
-    FeatureSet fSet;
+    FeatureInfo tFeatureInfo;
     ImageInfo ii;
-    fSet.replace((int)Feature::LeftEye, outEyes.p1());
-    fSet.replace((int)Feature::RightEye, outEyes.p2());
-    fSet.calculate();
+    tFeatureInfo.leftEye(outEyes.p1());
+    tFeatureInfo.rightEye(outEyes.p2());
+    tFeatureInfo.calculate();
     ii.addFace(fSet);
     ii.setImageText(&outImage);
 

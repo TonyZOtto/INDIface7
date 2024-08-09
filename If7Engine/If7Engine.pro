@@ -16,6 +16,7 @@ SOURCES += \
         ClothesMatchProperties.cpp \
         ClothesMatcher.cpp \
         ColorModel.cpp \
+    DomValuesElement.cpp \
         EigenFace.cpp \
         EigenFaceBitMask.cpp \
         EigenFaceData.cpp \
@@ -44,6 +45,7 @@ SOURCES += \
         FaceBase-Access.cpp \
         FaceBase-File.cpp \
         FaceBase.cpp \
+    FeatureInfo.cpp \
         FeatureSet.cpp \
         FileWriteProfile.cpp \
         FileWriter.cpp \
@@ -120,6 +122,7 @@ HEADERS += \
     ColorRangeWeightVector.inc \
     DDTcore.h \
     Detector.h \
+    DomValuesElement.h \
     DualMap.h \
     EigenFace.h \
     EigenFaceBitMask.h \
@@ -145,6 +148,8 @@ HEADERS += \
     Eyes.h \
     Eyes.hh \
     FaceBase.h \
+    FeatureInfo.h \
+    FeatureInfoData.h \
     FeatureSet.h \
     FileWriteProfile.h \
     FileWriter.h \

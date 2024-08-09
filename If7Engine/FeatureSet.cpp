@@ -61,6 +61,22 @@ FeatureSet::FeatureSet(const QDomElement & elementFeatureSet)
 	}
 }
 
+void FeatureSet::merge2(const FeatureSet &other)
+{
+    for (int ix = Feature::ImageSource.toInt();
+         ix <= Feature::Consistency.toInt();
+         ++ix)
+    {
+        const QVariant cVariant = get(ix);
+        const QVariant cOther = other.get(ix);
+        const QMetaType cFeatureMT = QMetaType::fromName("Feature");
+        Q_ASSERT(cVariant.canConvert(cFeatureMT));
+        const Feature cFeature = cVariant.value<Feature>();
+        if ( ! cFeature.isValid())
+            set(ix, cOther);
+    }
+}
+
 void FeatureSet::calculate(void)
 {
 	QPoint leftEye = get(Feature::LeftEye).toPoint();

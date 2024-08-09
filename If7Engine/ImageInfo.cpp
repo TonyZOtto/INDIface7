@@ -15,8 +15,8 @@
 
 ImageInfo::ImageInfo(void)
 {
-	aSet.clear();
-	fSets.clear();
+    mAttributeSet.clear();
+    mFInfoList.clear();
 } // default c'tor
 		
 ImageInfo::ImageInfo(const QImage & image)
@@ -43,9 +43,9 @@ ImageInfo::~ImageInfo()
 ImageInfo & ImageInfo::operator=(const ImageInfo & that)
 {
 //	aSet.clear();
-	this->aSet  = that.aSet;
+    this->mAttributeSet  = that.mAttributeSet;
 //	fSets.clear();
-	this->fSets = that.fSets;
+    this->mFInfoList = that.mFInfoList;
 	return *this;
 }
 		
@@ -59,22 +59,29 @@ bool ImageInfo::read(const QDomElement & de)
 		while ( ! elementFeatureSet.isNull())
 		{
 			FeatureSet fSet(elementFeatureSet);
-			fSets << fSet;
+            mFInfoList << fSet;
 			elementFeatureSet = elementFeatureSet.nextSiblingElement("FeatureSet");
 		}
 	}
 	return true;
 } // read(QDomElement)
 
-void ImageInfo::addFace(const FeatureSet & fSet)
+void ImageInfo::addFace(const tFeatureInfo &fInfo)
 {
-	fSets.append(fSet);
+    mFInfoList.append(fInfo);
+}
+
+FeatureInfo ImageInfo::face(int x) const
+{
+    return (x >=0 && x < mFInfoList.size())
+               ? mFInfoList.at(x)
+               : FeatureInfo();
 }
 		
 QList<QPoint> ImageInfo::eyes(void) const
 {
 	QList<QPoint> list;
-	foreach(FeatureSet fSet, fSets)
+    foreach(FeatureSet fSet, mFInfoList)
 	{
 		QPoint l = fSet.get(Feature::LeftEye).toPoint();
 		QPoint r = fSet.get(Feature::RightEye).toPoint();
@@ -87,7 +94,7 @@ QList<QPoint> ImageInfo::eyes(void) const
 QList<QRect> ImageInfo::heads(void) const
 {
 	QList<QRect> list;
-	foreach(FeatureSet fSet, fSets)
+    foreach(FeatureSet fSet, mFInfoList)
 	{
 		QRect rect = fSet.get(Feature::HeadBox).toRect();
 		if (rect.isValid())
@@ -99,7 +106,7 @@ QList<QRect> ImageInfo::heads(void) const
 QList<QRect> ImageInfo::heads(QString usage) const
 {
 	QList<QRect> list;
-	foreach(FeatureSet fSet, fSets)
+    foreach(FeatureSet fSet, mFInfoList)
 	{
 		QRect rect = fSet.get(Feature::HeadBox).toRect();
 		QString u = fSet.get(Feature::Usage).toString();
@@ -111,22 +118,24 @@ QList<QRect> ImageInfo::heads(QString usage) const
 
 bool ImageInfo::isEmpty(void)
 {
-	return aSet.isEmpty() && fSets.isEmpty();
+    return mAttributeSet.isEmpty() && mFInfoList.isEmpty();
 //	return fSets.isEmpty();
 }
 		
-bool ImageInfo::writeDomElement(QDomElement * de) const
+bool ImageInfo::writeDomElement(QDomElement * pDE) const
 {
-	QDomElement faces = de->ownerDocument().createElement("Faces");
-    de->appendChild(faces);
-	foreach(FeatureSet fSet, fSets)
+    QDomElement faces = pDE->ownerDocument()
+                            .createElement("Faces");
+    pDE->appendChild(faces);
+    foreach(const FeatureInfo cFInfo, mFInfoList)
 	{
-		QDomElement face = de->ownerDocument().createElement("FeatureSet");
-		fSet.fillDomElement(&face);
-		faces.appendChild(face);
+        QDomElement tFaceDE = pDE->ownerDocument()
+                        .createElement("FeatureInfo");
+        cFInfo.fillDomElement(&tFaceDE);
+        faces.appendChild(tFaceDE);
 	}
 	return true;
-} // toDomDocument()
+} // writeDomElement()
 		
 bool ImageInfo::setImageText(QImage * image, QString tag)
 {

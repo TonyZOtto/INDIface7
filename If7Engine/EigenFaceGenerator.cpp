@@ -9,10 +9,17 @@
 
 
 
-EigenFaceGenerator::EigenFaceGenerator(QObject * parent, EigenFaceData * data, 
-                                       EigenFaceParameters * parms, int instance)
-                                           : QObject(parent), data(data), parms(parms), instanceId(instance)
-                                           , ffd(0), leyed(0), reyed(0)
+EigenFaceGenerator::EigenFaceGenerator(QObject * parent,
+                                       EigenFaceData * data,
+                                       EigenFaceParameters * parms,
+                                       int instance)
+    : QObject(parent)
+    , data(data)
+    , parms(parms)
+    , instanceId(instance)
+    , ffd(0)
+    , leyed(0)
+    , reyed(0)
 {
     Return::add(EigenFace::ReturnStatusNull, "INDI EigenFace Null Status", Warning);
     Return::add(EigenFace::ReturnNoData, "INDI EigenFace No Data", Error);
@@ -156,8 +163,9 @@ Return EigenFaceGenerator::setImage(const QImage & image,
     originalImage = image;
     ImageInfo ii(image);
     fSet = ii.face(0);
-    fSet.merge(info.face(0));
-    if (fSet.get(Feature::ImageSource).isNull() && ! imageSource.isEmpty())
+    fSet.merge2(info.face(0));
+    if (fSet.get(Feature::ImageSource).isNull()
+            && ! imageSource.isEmpty())
         fSet.set(Feature::ImageSource, imageSource);
 
     head = fSet.get(Feature::HeadBox).toRect();

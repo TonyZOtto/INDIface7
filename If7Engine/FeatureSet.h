@@ -44,6 +44,7 @@ class QDomElement;
 	public:
 		FeatureSet(void);
 		FeatureSet(const QDomElement & elementFeatureSet);
+        void merge2(const FeatureSet &other);
 		void calculate(void);
 		void translate(const QPoint center, const QSize size, qreal scale=0.0);
 		void crop(const QRect rect);

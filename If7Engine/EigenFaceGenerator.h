@@ -163,8 +163,8 @@ private:
 
 private:
     EigenFaceTemplate tpl;
-    EigenFaceParameters * parms;
     EigenFaceData * data;
+    EigenFaceParameters * parms;
     FrontalFaceDetector * ffd;
     EyeDetector * leyed;
     EyeDetector * reyed;
