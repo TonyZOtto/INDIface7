@@ -53,27 +53,27 @@ void IfSearch::init(void)
         Info::add(new InfoOutputFile(stdout));
 
     QString sDetail = optLogDetail->toString();
-    InfoSeverity logDetail = InfoSeverity::Info;
+    Info::Severity logDetail = Info::Severity::Info;
     if (0 == sDetail.compare("Null", Qt::CaseInsensitive))
-        logDetail = InfoSeverity::Null;
+        logDetail = Info::Severity::Null;
     else if (0 == sDetail.compare("Leave", Qt::CaseInsensitive))
-        logDetail = InfoSeverity::Leave;
+        logDetail = Info::Severity::Leave;
     else if (0 == sDetail.compare("Enter", Qt::CaseInsensitive))
-        logDetail = InfoSeverity::Enter;
+        logDetail = Info::Severity::Enter;
     else if (0 == sDetail.compare("Detail", Qt::CaseInsensitive))
-        logDetail = InfoSeverity::Detail;
+        logDetail = Info::Severity::Detail;
     else if (0 == sDetail.compare("Debug", Qt::CaseInsensitive))
-        logDetail = InfoSeverity::Debug;
+        logDetail = Info::Severity::Debug;
     else if (0 == sDetail.compare("Info", Qt::CaseInsensitive))
-        logDetail = InfoSeverity::Info;
+        logDetail = Info::Severity::Info;
     else if (0 == sDetail.compare("Progress", Qt::CaseInsensitive))
-        logDetail = InfoSeverity::Progress;
+        logDetail = Info::Severity::Progress;
     else if (0 == sDetail.compare("Warning", Qt::CaseInsensitive))
-        logDetail = InfoSeverity::Warning;
+        logDetail = Info::Severity::Warning;
     else if (0 == sDetail.compare("Error", Qt::CaseInsensitive))
-        logDetail = InfoSeverity::Error;
+        logDetail = Info::Severity::Error;
     else if (0 == sDetail.compare("Fatal", Qt::CaseInsensitive))
-        logDetail = InfoSeverity::Fatal;
+        logDetail = Info::Severity::Fatal;
     QString logFileName = optLogFile->toString();
     if (0 != logFileName.compare("none", Qt::CaseInsensitive))
     {
@@ -85,11 +85,11 @@ void IfSearch::init(void)
             logFileName += "/IfSearch-@.log";
         logFileName = logDir.absoluteFilePath(logFileName);
         Info::add(new InfoOutputFile(logFileName),
-                       logDetail.isValid() ? logDetail : InfoSeverity::Info);
+                       logDetail.isValid() ? logDetail : Info::Severity::Info);
     }
 
-    Info::add(infoSetting, InfoSeverity::Warning,
-                                InfoSeverity::Fatal);
+    Info::add(infoSetting, Info::Severity::Warning,
+                                Info::Severity::Fatal);
     Info::start(QThread::NormalPriority);
     PROGRESS("%3 %1 built %2", version.toString(),
              version.dateTimeString(), version.getAppName());
@@ -313,7 +313,7 @@ void IfSearch::run(void)
 
     appSettings->setValue(optShutdown->keyName(), false);
     appSettings->startTimers();
-    appSettings->dump(InfoSeverity::Info);
+    appSettings->dump(Info::Severity::Info);
 
     writer->start();
     writer->pumpAll();

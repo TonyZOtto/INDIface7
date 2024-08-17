@@ -14,20 +14,20 @@
 
 #include <Return.h>
 
-DECLARE_NAMEDENUM_INSTANCE(InfoSeverity)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Null)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Leave)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Enter)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Detail)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Debug)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Info)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Progress)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Warning)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Error)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Fatal)
-DECLARE_NAMEDENUM_ID(InfoSeverity, Unknown)
+DECLARE_NAMEDENUM_INSTANCE(Info::Severity)
+DECLARE_NAMEDENUM_ID(Info::Severity, Null)
+DECLARE_NAMEDENUM_ID(Info::Severity, Leave)
+DECLARE_NAMEDENUM_ID(Info::Severity, Enter)
+DECLARE_NAMEDENUM_ID(Info::Severity, Detail)
+DECLARE_NAMEDENUM_ID(Info::Severity, Debug)
+DECLARE_NAMEDENUM_ID(Info::Severity, Info)
+DECLARE_NAMEDENUM_ID(Info::Severity, Progress)
+DECLARE_NAMEDENUM_ID(Info::Severity, Warning)
+DECLARE_NAMEDENUM_ID(Info::Severity, Error)
+DECLARE_NAMEDENUM_ID(Info::Severity, Fatal)
+DECLARE_NAMEDENUM_ID(Info::Severity, Unknown)
 
-DECLARE_NAMEDARRAY_INSTANCE(InfoSeverity, QList<InfoOutputBase *>)
+DECLARE_NAMEDARRAY_INSTANCE(Info::Severity, QList<InfoOutputBase *>)
 
 QDateTime Info::TimeBase(QDateTime::currentDateTime());
 QQueue<InfoItem> Info::queue;
@@ -51,19 +51,19 @@ Info::~Info()
 
 void Info::add(const Return & rtn)
 {
-    InfoSeverity sev = InfoSeverity::Info;
+    Info::Severity sev = Info::Severity::Info;
     switch (rtn.ddtSeverity())
     {
-    case Null:			sev = InfoSeverity::Null;		break;
-    case Leave:			sev = InfoSeverity::Leave;		break;
-    case Enter:			sev = InfoSeverity::Enter;		break;
-    case Detail:		sev = InfoSeverity::Detail;		break;
-    case Debug:			sev = InfoSeverity::Debug;		break;
-    case Progress:		sev = InfoSeverity::Progress;	break;
-    case Warning:		sev = InfoSeverity::Warning;	break;
-    case Error:			sev = InfoSeverity::Error;		break;
-    case Fatal:			sev = InfoSeverity::Fatal;		break;
-    case Unknown:		sev = InfoSeverity::Unknown;	break;
+    case Null:			sev = Info::Severity::Null;		break;
+    case Leave:			sev = Info::Severity::Leave;		break;
+    case Enter:			sev = Info::Severity::Enter;		break;
+    case Detail:		sev = Info::Severity::Detail;		break;
+    case Debug:			sev = Info::Severity::Debug;		break;
+    case Progress:		sev = Info::Severity::Progress;	break;
+    case Warning:		sev = Info::Severity::Warning;	break;
+    case Error:			sev = Info::Severity::Error;		break;
+    case Fatal:			sev = Info::Severity::Fatal;		break;
+    case Unknown:		sev = Info::Severity::Unknown;	break;
     }
     InfoItem ii(sev, QString(), 0, rtn.msg(), rtn[1], rtn[2], rtn[3], rtn[4]);
     ii.setReturnCode(rtn.returnCode());
@@ -80,7 +80,7 @@ bool Info::expect(const QString & strValue,
     if (varValue == varTest)
         return true;
 
-    add(InfoItem(InfoSeverity::Debug, file, line, "Expected %1 (%2)==(%3) %4",
+    add(InfoItem(Info::Severity::Debug, file, line, "Expected %1 (%2)==(%3) %4",
                     strValue, varValue, varTest, strTest));
     return false;
 }
@@ -95,7 +95,7 @@ bool Info::expectNot(const QString & strValue,
     if (varValue != varTest)
         return true;
 
-    add(InfoItem(InfoSeverity::Debug, file, line, "Expected %1 (%2)!=(%3) %4",
+    add(InfoItem(Info::Severity::Debug, file, line, "Expected %1 (%2)!=(%3) %4",
                     strValue, varValue, varTest, strTest));
     return false;
 }
@@ -108,7 +108,7 @@ void Info::add(const InfoItem & item)
     }
     if (flushEvery_ && size() >= flushEvery_)
         flush();
-    if (item.severity() >= InfoSeverity::Fatal)
+    if (item.severity() >= Info::Severity::Fatal)
     {
         flush();
         qFatal("Shutdown by Fatal Error");
@@ -116,8 +116,8 @@ void Info::add(const InfoItem & item)
 }
 
 void Info::add(InfoOutputBase * out,
-               InfoSeverity minSev,
-               InfoSeverity maxSev)
+               Info::Severity minSev,
+               Info::Severity maxSev)
 {
     remove(out);
 
@@ -129,7 +129,7 @@ void Info::add(InfoOutputBase * out,
 void Info::remove(InfoOutputBase * out)
 {
     QWriteLocker lock(&outputLock);
-    for (int x = InfoSeverity::min(); x <= InfoSeverity::max(); ++x)
+    for (int x = Info::Severity::min(); x <= Info::Severity::max(); ++x)
         outputs[x].removeAll(out);
 }
 

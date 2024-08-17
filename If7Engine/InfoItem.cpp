@@ -15,19 +15,19 @@
 #include <Info.h>
 
 InfoItem::InfoItem(void)
-: thread(0), ts(QTime::currentTime()), sev(InfoSeverity::Null), rc(0), file(QString()), line(0)
+: thread(0), ts(QTime::currentTime()), sev(Info::Severity::Null), rc(0), file(QString()), line(0)
 , msg(QString()), v1(QVariant()), v2(QVariant()), v3(QVariant()), v4(QVariant())
 {
 }
 
-InfoItem::InfoItem(InfoSeverity Sev, const QString & File, const int Line, const QString & Msg,
+InfoItem::InfoItem(Info::Severity Sev, const QString & File, const int Line, const QString & Msg,
                        QVariant V1, QVariant V2, QVariant V3, QVariant V4)
     : ts(QTime::currentTime()), sev(Sev), rc(0), file(File), line(Line), msg(Msg), v1(V1), v2(V2), v3(V3), v4(V4)
 {
     thread = (qApp && qApp->thread() == QThread::currentThread()) ? 0 : QThread::currentThread();
 }
 
-InfoItem::InfoItem(InfoSeverity Sev, const QString & Msg,
+InfoItem::InfoItem(Info::Severity Sev, const QString & Msg,
                        QVariant V1, QVariant V2, QVariant V3, QVariant V4)
     : ts(QTime::currentTime()), sev(Sev), rc(0), file(QString()), line(0), msg(Msg), v1(V1), v2(V2), v3(V3), v4(V4)
 {

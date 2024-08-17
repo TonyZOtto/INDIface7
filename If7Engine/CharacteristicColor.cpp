@@ -202,12 +202,10 @@ qreal CharacteristicColor::distance(const QColor & qc) const
     return sqrt(result / 3.0);
 }
 qreal CharacteristicColor::hslDistance(const QColor & qc,
-                  qreal hWeight,
-                  qreal sWeight,
-                  qreal lWeight,
-                  qreal sThreshold) const
+                          qreal hWeight, qreal sWeight,
+                          qreal lWeight, qreal sThreshold) const
 {
-    qreal h1, l1, s1, h2, l2, s2, result=0.0;
+    float h1, l1, s1, h2, l2, s2, result=0.0;
     if (qIsNull(hWeight + sWeight + lWeight))
         return -1.0;
     QColor(toRgb()).toHsl().getHslF(&h1, &s1, &l1);

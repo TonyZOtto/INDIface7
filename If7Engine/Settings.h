@@ -141,7 +141,7 @@ public:
     int argSize(void) const { return args.size(); }
     QString argTake(void) { return args.size() ? args.takeFirst() : QString(); }
     QString arg(int x) { return (x < 0 || x > args.size()-1) ? QString() : args.at(x); }
-    void dump(InfoSeverity sev=InfoSeverity::Info,
+    void dump(Info::Severity sev=Info::Severity::Info,
               const QString & prefix=QString());
     bool clearGroup(const QString & groupName);
     QString source(void) const;

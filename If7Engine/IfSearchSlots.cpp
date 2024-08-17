@@ -279,7 +279,7 @@ void IfSearch::changed(QString key)
         {
             WARNING("Unsupported Input/URL scheme: %1", url.scheme());
         }
-        appSettings->dump(InfoSeverity::Info, "Input/");
+        appSettings->dump(Info::Severity::Info, "Input/");
     }
     else if (0 == key.compare(optPause->keyName(), Qt::CaseInsensitive))
     {

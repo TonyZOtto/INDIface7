@@ -1,5 +1,5 @@
-/** @file InfoSeverity.h
-*	Declaration of InfoSeverity class for DDT core library
+/** @file Info::Severity.h
+*	Declaration of Info::Severity class for DDT core library
 *
 *	@author	Dynamic DeZigns Technology
 */
@@ -7,18 +7,18 @@
 
 #include <NamedEnum.h>
 
-class  InfoSeverity : public NamedEnum<InfoSeverity>
+class  Info::Severity : public NamedEnum<Info::Severity>
 {
-    DECLARE_NAMEDENUM_CTORS(InfoSeverity)
-    static const InfoSeverity Null;
-    static const InfoSeverity Leave;
-    static const InfoSeverity Enter;
-    static const InfoSeverity Detail;
-    static const InfoSeverity Debug;
-    static const InfoSeverity Info;
-    static const InfoSeverity Progress;
-    static const InfoSeverity Warning;
-    static const InfoSeverity Error;
-    static const InfoSeverity Fatal;
-    static const InfoSeverity Unknown;
-}; // InfoSeverity
+    DECLARE_NAMEDENUM_CTORS(Info::Severity)
+    static const Info::Severity Null;
+    static const Info::Severity Leave;
+    static const Info::Severity Enter;
+    static const Info::Severity Detail;
+    static const Info::Severity Debug;
+    static const Info::Severity Info;
+    static const Info::Severity Progress;
+    static const Info::Severity Warning;
+    static const Info::Severity Error;
+    static const Info::Severity Fatal;
+    static const Info::Severity Unknown;
+}; // Info::Severity

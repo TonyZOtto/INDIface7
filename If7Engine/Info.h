@@ -14,7 +14,7 @@
 #include <InfoOutputSetting.h>
 #include <InfoOutputQDebug.h>
 #include <InfoOutputs.h>
-#include <InfoSeverity.h>
+#include <Info::Severity.h>
 #include <InfoThread.h>
 
 #include <QDateTime>
@@ -26,10 +26,29 @@
 
 class InfoOutputBase;
 
-class  Info
+class Info
 {
-public:
+public: // types
+    enum Severity
+    {
+        $null = 0,
+        Leave,
+        Enter,
+        Detail,
+        Debug,
+        Message,
+        Progress,
+        Warning,
+        Error,
+        Fatal,
+        Unknown,
+        $max
+    };
+
+public: // dtor
     ~Info();
+
+public: // static
     static void add(const InfoItem & item);
     static void add(const Return & rtn);
     static bool expect(const QString & strValue, const QVariant & varValue,
@@ -42,12 +61,12 @@ public:
     //		static void libraryVersion(VersionInfo * ver);
 #ifdef NDEBUG
     static void add(InfoOutputBase * out,
-                    const InfoSeverity minSev=InfoSeverity::Info,
-                    const InfoSeverity maxSev=InfoSeverity::Unknown);
+                    const Info::Severity minSev=Info::Severity::Info,
+                    const Info::Severity maxSev=Info::Severity::Unknown);
 #else
     static void add(InfoOutputBase * out,
-                    const InfoSeverity minSev=InfoSeverity::Debug,
-                    const InfoSeverity maxSev=InfoSeverity::Unknown);
+                    const Info::Severity minSev=Info::Severity::Debug,
+                    const Info::Severity maxSev=Info::Severity::Unknown);
 #endif
     static void remove(InfoOutputBase * out);
     static void flush(void);

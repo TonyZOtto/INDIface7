@@ -5,13 +5,13 @@
 */
 #pragma once
 
-#include <InfoSeverity.h>
+#include <Info::Severity.h>
 #include <NamedArray.h>
 
-class  InfoOutputs : public NamedArray<InfoSeverity, QList<InfoOutputBase *> >
+class  InfoOutputs : public NamedArray<Info::Severity, QList<InfoOutputBase *> >
 {
 public:
-    QList<InfoOutputBase *> outputs(InfoSeverity sev);
+    QList<InfoOutputBase *> outputs(Info::Severity sev);
     QSet<InfoOutputBase *> unique(void);
     void clear(void);
 }; // class InfoOutputs

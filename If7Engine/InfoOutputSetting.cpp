@@ -21,10 +21,10 @@ InfoOutputSetting::InfoOutputSetting(const QString & key)
 		
 QString InfoOutputSetting::pump(QString oldMessage)
 {
-	if (current_.severity() != InfoSeverity::Null)
+	if (current_.severity() != Info::Severity::Null)
 	{
 		if (oldMessage.isEmpty() 
-				|| (current_.severity() < InfoSeverity::Error
+				|| (current_.severity() < Info::Severity::Error
 						&& current_.msecSince() > 60000))
 		{
 			oldMessage = QString();
@@ -36,16 +36,16 @@ QString InfoOutputSetting::pump(QString oldMessage)
 		}
 	}
 
-	if (current_.severity() == InfoSeverity::Null 
+	if (current_.severity() == Info::Severity::Null 
 			&& ! queue_.isEmpty())
 	{
 		QIcon icon;
 		current_ = queue_.dequeue();
-		if (current_.severity() == InfoSeverity::Warning)
+		if (current_.severity() == Info::Severity::Warning)
 			oldMessage = "W", icon = icons_.at(IconWarning);
-		else if (current_.severity() == InfoSeverity::Error)
+		else if (current_.severity() == Info::Severity::Error)
 			oldMessage = "E", icon = icons_.at(IconError);
-		else if (current_.severity() == InfoSeverity::Fatal)
+		else if (current_.severity() == Info::Severity::Fatal)
 			oldMessage = "F", icon = icons_.at(IconFatal);
 		else 
 			oldMessage = "?", icon = icons_.at(IconNormal);
@@ -63,7 +63,7 @@ QString InfoOutputSetting::pump(QString oldMessage)
 void InfoOutputSetting::write(const InfoItem & item)
 { 
 	QWriteLocker wLock(lock()); 
-	if (item.severity() >= InfoSeverity::Fatal)
+	if (item.severity() >= Info::Severity::Fatal)
 		queue_.clear();
 	queue_.enqueue(item);
 }

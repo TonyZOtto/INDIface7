@@ -274,7 +274,7 @@ void IfSearch::changed(const QString & key)
         {
             WARNING("Unsupported Input/URL scheme: %1", url.scheme());
         }
-        appSettings->dump(DDT::InfoSeverity::Info, "Input/");
+        appSettings->dump(DDT::Info::Severity::Info, "Input/");
     }
     else if (0 == key.compare(optPause->keyName(), Qt::CaseInsensitive))
     {

@@ -1,16 +1,11 @@
 #ifndef EIGENFACESIMILARITYENTRY_H
 #define EIGENFACESIMILARITYENTRY_H
-#include <qglobal.h>
-#ifdef INDIEF_LIB
-# define  Q_DECL_EXPORT
-#else
-# define  Q_DECL_IMPORT
-#endif
 
+#include <qglobal.h>
 #include <QtCore/QSharedDataPointer>
 #include <QtCore/QString>
 
-#include "../../INDI2/oldEIRlibs/eirBase/DataProperty.h"
+#include "DataProperty.h"
 
 #define EFSIMILARITYENTRY_DATAPROPS(TND) \
     TND(int, Rank, 0) \

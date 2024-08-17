@@ -7,7 +7,7 @@
 
 #include <QReadWriteLock>
 
-#include <InfoSeverity.h>
+#include <Info::Severity.h>
 //#include <NamedArray.h>
 
 class InfoItem;

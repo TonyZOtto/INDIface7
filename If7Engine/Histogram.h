@@ -85,6 +85,8 @@ public:
             it.previous();
             bin = it.value();
         }
+#else
+        Q_UNUSED(pos);
 #endif
         return bin;
     }

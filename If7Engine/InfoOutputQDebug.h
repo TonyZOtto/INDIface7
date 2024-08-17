@@ -20,7 +20,7 @@ protected:
     virtual void write(const InfoItem & item)
     {
         QWriteLocker wLock(lock());
-        InfoSeverity sev = item.severity();
+        Info::Severity sev = item.severity();
         QString str = item.toString();
         if (sev > Warning)				qCritical() << str;
         else if (sev < Warning)			qDebug() << str;

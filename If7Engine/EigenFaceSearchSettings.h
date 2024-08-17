@@ -1,15 +1,10 @@
+#pragma once
 /** @file EigenFaceMatcherSettings.h
 *
 *	Public declarations for INDI project EigenFaceMatcherSettings
 */
 
-#pragma once
 #include <qglobal.h>
-#ifdef INDIEF_LIB
-# define  Q_DECL_EXPORT
-#else
-# define  Q_DECL_IMPORT
-#endif
 
 #include <QObject>
 #include <DDTcore.h>

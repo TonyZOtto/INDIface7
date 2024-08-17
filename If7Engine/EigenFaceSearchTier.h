@@ -1,13 +1,8 @@
 #ifndef EIGENFACEMATCHTIER_H
 #define EIGENFACEMATCHTIER_H
 #include <qglobal.h>
-#ifdef INDIEF_LIB
-# define  Q_DECL_EXPORT
-#else
-# define  Q_DECL_IMPORT
-#endif
 
-#include "../../INDI2/oldEIRlibs/eirBase/Enumeration.h"
+#include "Enumeration.h"
 
 #include <QtCore/QList>
 #include <QtGui/QColor>

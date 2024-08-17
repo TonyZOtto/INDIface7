@@ -458,7 +458,7 @@ void Settings::setAdvancedMode(bool b)
 } // setAdvancedMode()
 
 
-void Settings::dump(InfoSeverity sev, const QString & prefix)
+void Settings::dump(Info::Severity sev, const QString & prefix)
 {
     QString flags, value, objName;
 

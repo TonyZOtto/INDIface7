@@ -54,27 +54,27 @@ void IfSearch::init(void)
         DDT::Info::add(new DDT::InfoOutputFile(stdout));
 
     QString sDetail = optLogDetail->toString();
-    DDT::InfoSeverity logDetail = DDT::InfoSeverity::Info;
+    DDT::Info::Severity logDetail = DDT::Info::Severity::Info;
     if (0 == sDetail.compare("Null", Qt::CaseInsensitive))
-        logDetail = DDT::InfoSeverity::Null;
+        logDetail = DDT::Info::Severity::Null;
     else if (0 == sDetail.compare("Leave", Qt::CaseInsensitive))
-        logDetail = DDT::InfoSeverity::Leave;
+        logDetail = DDT::Info::Severity::Leave;
     else if (0 == sDetail.compare("Enter", Qt::CaseInsensitive))
-        logDetail = DDT::InfoSeverity::Enter;
+        logDetail = DDT::Info::Severity::Enter;
     else if (0 == sDetail.compare("Detail", Qt::CaseInsensitive))
-        logDetail = DDT::InfoSeverity::Detail;
+        logDetail = DDT::Info::Severity::Detail;
     else if (0 == sDetail.compare("Debug", Qt::CaseInsensitive))
-        logDetail = DDT::InfoSeverity::Debug;
+        logDetail = DDT::Info::Severity::Debug;
     else if (0 == sDetail.compare("Info", Qt::CaseInsensitive))
-        logDetail = DDT::InfoSeverity::Info;
+        logDetail = DDT::Info::Severity::Info;
     else if (0 == sDetail.compare("Progress", Qt::CaseInsensitive))
-        logDetail = DDT::InfoSeverity::Progress;
+        logDetail = DDT::Info::Severity::Progress;
     else if (0 == sDetail.compare("Warning", Qt::CaseInsensitive))
-        logDetail = DDT::InfoSeverity::Warning;
+        logDetail = DDT::Info::Severity::Warning;
     else if (0 == sDetail.compare("Error", Qt::CaseInsensitive))
-        logDetail = DDT::InfoSeverity::Error;
+        logDetail = DDT::Info::Severity::Error;
     else if (0 == sDetail.compare("Fatal", Qt::CaseInsensitive))
-        logDetail = DDT::InfoSeverity::Fatal;
+        logDetail = DDT::Info::Severity::Fatal;
     QString logFileName = optLogFile->toString();
     if (0 != logFileName.compare("none", Qt::CaseInsensitive))
     {
@@ -86,11 +86,11 @@ void IfSearch::init(void)
             logFileName += "/IfSearch-@.log";
         logFileName = logDir.absoluteFilePath(logFileName);
         DDT::Info::add(new DDT::InfoOutputFile(logFileName),
-                       logDetail.isValid() ? logDetail : DDT::InfoSeverity::Info);
+                       logDetail.isValid() ? logDetail : DDT::Info::Severity::Info);
     }
 
-    DDT::Info::add(infoSetting, DDT::InfoSeverity::Warning,
-                                DDT::InfoSeverity::Fatal);
+    DDT::Info::add(infoSetting, DDT::Info::Severity::Warning,
+                                DDT::Info::Severity::Fatal);
     DDT::Info::start(QThread::NormalPriority);
     PROGRESS("IfSearch %1 built %2", version.toString(),
              version.dateTimeString());
@@ -285,7 +285,7 @@ void IfSearch::run(void)
 #endif
     appSettings->setValue(optShutdown->keyName(), false);
     appSettings->startTimers();
-    appSettings->dump(DDT::InfoSeverity::Info);
+    appSettings->dump(DDT::Info::Severity::Info);
 
     writer->start();
     writer->pumpAll();
