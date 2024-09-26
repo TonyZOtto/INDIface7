@@ -1,12 +1,9 @@
 #include <Detector.h>
-#include <InfoMacros.h>
 #include <QQRect.h>
 
 #include <QMapIterator>
 
 #include <math.h>
-
-
 
 bool HaarDetector::isStrange(QQRect rect)
 {

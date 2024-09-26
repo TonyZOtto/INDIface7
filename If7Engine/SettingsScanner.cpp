@@ -5,9 +5,9 @@
 *
 */
 
-#include "iSettings.h"
+#include "SettingsScanner.h"
 
-
+#include "Settings.h"
 
 SettingsScanner::SettingsScanner(Settings * parent)
 	: settings(parent), done(false), QThread((QObject *)parent)
@@ -75,7 +75,7 @@ void Settings::scan(void)
 			setValue(key, newMessage);
 	}
 
-	foreach(Setting * var, vars)
+	foreach(Setting * var, mSettingMap)
 	{
 		if ( ! var->flags.testFlag(Settings::ReadOnly)
 				&& var->flags.testFlag(Settings::Dirty))
@@ -100,7 +100,7 @@ void Settings::scan(void)
 		}
 	} // foreach(var)
 
-	foreach(SettingProperty * prop, properties)
+	foreach(SettingProperty * prop, mProperyMap)
 	{
 		if ( ! (prop->flags & Settings::ReadOnly) && (prop->flags & Settings::Dirty))
 		{

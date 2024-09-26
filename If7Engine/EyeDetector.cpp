@@ -1,8 +1,6 @@
 #include <Detector.h>
 #include <QQRect.h>
 
-#include <InfoMacros.h>
-
 #ifndef TODO0002
 
 
@@ -22,7 +20,6 @@ EyeDetector::~EyeDetector()
 
 bool EyeDetector::process(QList<DetectorResult> * resultList, bool returnAll)
 {
-    DETAIL(this->methodString());
     bool rtn = HaarDetector::process(returnAll);
     if (rtn)
     {

@@ -24,7 +24,7 @@ void FeatureInfo::merge2(const FeatureInfo &other)
     if (rightEye().isNull())    rightEye(other.rightEye());
     if (headCenter().isNull())  headCenter(other.headCenter());
     if (eyeLine().isNull())     eyeLine(other.eyeLine());
-    if (eyeDistance().isNull()) eyeDistance(other.eyeDistance());
+    if (eyeDistance() == 0)     eyeDistance(other.eyeDistance());
 }
 
 void FeatureInfo::calculate()

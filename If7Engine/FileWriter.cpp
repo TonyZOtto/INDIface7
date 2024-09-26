@@ -3,7 +3,6 @@
 
 #include <QTimer>
 
-#include <InfoMacros.h>
 #include <Return.h>
 #include <Settings.h>
 

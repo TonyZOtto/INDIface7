@@ -47,7 +47,6 @@ SOURCES += \
     FaceBase-File.cpp \
     FaceBase.cpp \
     FeatureInfo.cpp \
-    FeatureSet.cpp \
     FileWriteProfile.cpp \
     FileWriter.cpp \
     FrontalFaceDetector.cpp \
@@ -75,20 +74,12 @@ SOURCES += \
     ImageInfo.cpp \
     ImageMarker.cpp \
     ImageSource.cpp \
-    Info.cpp \
-    InfoFunction.cpp \
-    InfoItem.cpp \
-    InfoOutputFile.cpp \
-    InfoOutputSetting.cpp \
-    InfoOutputs.cpp \
-    InfoThread.cpp \
     InputHotdir.cpp \
     Key.cpp \
     QQRect.cpp \
     Resolver.cpp \
     Return.cpp \
     Setting.cpp \
-    SettingItem.cpp \
     SettingProperty.cpp \
     Settings.cpp \
     SettingsScanner.cpp \
@@ -152,7 +143,6 @@ HEADERS += \
     FaceBase.h \
     FeatureInfo.h \
     FeatureInfoData.h \
-    FeatureSet.h \
     FileWriteProfile.h \
     FileWriter.h \
     GreyImage.h \
@@ -166,16 +156,6 @@ HEADERS += \
     ImageInfo.h \
     ImageMarker.h \
     ImageSource.h \
-    Info.h \
-    InfoFunction.h \
-    InfoItem.h \
-    InfoMacros.h \
-    InfoOutputBase.h \
-    InfoOutputFile.h \
-    InfoOutputQDebug.h \
-    InfoOutputSetting.h \
-    InfoOutputs.h \
-    InfoThread.h \
     InputHotdir.h \
     Key.h \
     Key.hh \
@@ -191,7 +171,10 @@ HEADERS += \
     Rectangle.hh \
     Resolver.h \
     Return.h \
+    Setting.h \
+    SettingProperty.h \
     Settings.h \
+    SettingsScanner.h \
     SkinColorTables.inc \
     SkinDetector.h \
     SkinMatchProperties.h \
@@ -203,7 +186,6 @@ HEADERS += \
     fbPerson.h \
     fbValue.h \
     iImageCache.h \
-    iSettings.h \
     version.h
 
 # Default rules for deployment.

@@ -5,20 +5,21 @@
 *
 */
 
-#include "iSettings.h"
+#include "Settings.h"
 
-#include <QApplication>
+#include <QCoreApplication>
 #include <QMutableMapIterator>
 #include <QTimer>
 
+#include "Setting.h"
+#include "SettingProperty.h"
+#include "SettingsScanner.h"
 
-Settings::Settings(QObject * parent = 0)
+Settings::Settings(QObject * parent)
     : QSettings(parent)
-    , tree(0)
-    , scanner(0)
+    , mpScanner(0)
     , timerUpdate(0)
     , timerScan(0)
-    , infoOutputSetting(0)
 {
     PollCount = 0;
     UpdateMsec = 0;
@@ -30,11 +31,9 @@ Settings::Settings(const QString & organization,
                    const QString & application,
                    QObject * parent)
     : QSettings(organization, application, parent)
-    , tree(0)
-    , scanner(0)
+    , mpScanner(0)
     , timerUpdate(0)
     , timerScan(0)
-    , infoOutputSetting(0)
 {
     PollCount = 0;
     UpdateMsec = 0;
@@ -45,11 +44,9 @@ Settings::Settings(const QString & organization,
 Settings::Settings(const QString & iniFilename,
                     QObject * parent)
     : QSettings(iniFilename, QSettings::IniFormat, parent)
-    , tree(0)
-    , scanner(0)
+    , mpScanner(0)
     , timerUpdate(0)
     , timerScan(0)
-    , infoOutputSetting(0)
 {
     PollCount = 0;
     UpdateMsec = 0;
@@ -63,12 +60,12 @@ Settings::~Settings()
     delete timerScan;
     delete timerUpdate;
 
-    if (scanner)
+    if (mpScanner)
     {
-        scanner->done = true;
-        scanner->wait(11000);
-        if ( ! scanner->isFinished())
-            scanner->terminate();
+        mpScanner->done = true;
+        mpScanner->wait(11000);
+        if ( ! mpScanner->isFinished())
+            mpScanner->terminate();
     }
 }
 
@@ -196,7 +193,7 @@ void Settings::setPollCountKey(const QString & key, int count)
 
 void Settings::construct(Setting * child)
 {
-    vars[child->key.toLower()] = child;
+    mSettingMap[child->key.toLower()] = child;
     QVariant def = *child;
     QVariant var = value(child->key, def);
     *(QVariant *)child = var;
@@ -207,8 +204,6 @@ void Settings::construct(Setting * child)
         opts.remove(key);
         child->flags |= Settings::Dirty | Settings::Changed;
     }
-    if (tree)
-        addToTree(child);
 } // construct()
 
 void Settings::objectProperty(QObject * Object, const QString & BaseKey, const QString & PropertyName, Flags F)
@@ -220,7 +215,7 @@ void Settings::objectProperty(QObject * Object, const QString & BaseKey, const Q
 void Settings::objectProperty(const QString & Key, QObject * Object, const QString & PropertyName, Flags F)
 {
     SettingProperty * child = new SettingProperty(this, Object, Key, PropertyName, F);
-    properties.insert(Key.toLower(), child);
+    mProperyMap.insert(Key.toLower(), child);
     QVariant def = Object->property(qPrintable(PropertyName));
     QVariant var = value(Key, def);
     child->value = var;
@@ -233,8 +228,6 @@ void Settings::objectProperty(const QString & Key, QObject * Object, const QStri
         opts.remove(mapKey);
         child->flags |= Settings::Dirty | Settings::Changed;
     }
-    if (tree)
-        addToTree(child);
     if (this == Object && 0 == PropertyName.compare(tr("UpdateMsec", "config"), Qt::CaseInsensitive))
         keyForUpdateMsec = Key;
 } // objectProperty(key)
@@ -248,106 +241,42 @@ void Settings::destruct(Setting * child)
         QVariant var = *child;
         setValue(child->key, var.toString());
     }
-    vars.remove(child->key.toLower());
+    mSettingMap.remove(child->key.toLower());
 } // destruct()
 
 void Settings::objectDestroyed(QObject * Object)
 {
-    QMutableMapIterator<QString, SettingProperty *> it(properties);
-    while (it.hasNext())
+    foreach (SettingProperty * pProp, mProperyMap.values())
     {
-        it.next();
-        SettingProperty * child = it.value();
-        if (child->object == Object)
+        if (pProp->object == Object)
         {
             if (WriteBack
-                && ! (child->flags & ReadOnly)
-                && (child->flags & Dirty))
+                && ! (pProp->flags & ReadOnly)
+                && (pProp->flags & Dirty))
             {
-                QVariant var = child->object->property(qPrintable(child->propertyName));
-                setValue(child->key, var.toString());
+                QVariant var = pProp->object->property(qPrintable(pProp->propertyName));
+                setValue(pProp->key, var.toString());
             }
-            delete child;
-            it.remove();
+            pProp->deleteLater();
+            mProperyMap.remove(pProp->key, pProp);
         }
     }
 } // objectDestroyed()
 
-void Settings::setTreeWidget(QTreeWidget * wgt)
-{
-    if ( ! wgt)
-        return;
-
-    tree = wgt;
-    tree->clear();
-    tree->setColumnCount(2);
-    tree->setColumnWidth(0, 200);
-    QTreeWidgetItem * hdr = new QTreeWidgetItem;
-    hdr->setData(0, 0, tr("Name", "ConfigView Header"));
-    hdr->setData(1, 0, tr("Value", "ConfigView Header"));
-    tree->setHeaderItem(hdr);
-
-    foreach(Setting * var, vars)
-        addToTree(var);
-    foreach(SettingProperty * prop, properties)
-        addToTree(prop);
-
-    connect(tree, SIGNAL(itemChanged(QTreeWidgetItem*,int)),
-            this, SLOT(itemChanged(QTreeWidgetItem*,int)));
-} // setTreeWidget()
-
-void Settings::itemChanged(QTreeWidgetItem * item, int column)
-{
-    if (1 != column)
-        return;
-
-    QString key;
-    foreach(Setting * var, vars)
-    {
-        if (var->item && var->item->item == item)
-        {
-            key = var->key;
-            break;
-        }
-    }
-    if ( ! key.isEmpty())
-    {
-        foreach(Setting * var, vars)
-            if (var->key == key)
-                var->setValue(item->data(1, 0));
-        return;
-    }
-
-    foreach(SettingProperty * prop, properties)
-    {
-        if (prop->item && prop->item->item == item)
-        {
-            key = prop->key;
-            break;
-        }
-    }
-    if ( ! key.isEmpty())
-    {
-        foreach(SettingProperty * prop, properties)
-            if (prop->key == key)
-                prop->setValue(item->data(1, 0));
-    }
-} // itemChanged()
-
 
 QVariant Settings::valueOf(const QString & key) const
 {
-    QVariant rtn(QVariant::String);
+    QVariant rtn("");
     QString mapKey = key.toLower();
 
-    if (vars.contains(mapKey))
+    if (mSettingMap.contains(mapKey))
     {
-        Setting * var = vars[mapKey];
+        Setting * var = mSettingMap[mapKey];
         rtn = *(QVariant *)var;
     }
-    else if (properties.contains(mapKey))
+    else if (mProperyMap.contains(mapKey))
     {
-        SettingProperty * prop = properties.value(mapKey);
+        SettingProperty * prop = mProperyMap.value(mapKey);
         rtn = prop->value;
     }
     else if (opts.contains(mapKey))
@@ -371,50 +300,37 @@ QVariant Settings::value(const QString & key, const QVariant defaultValue) const
     return result;
 } // value() override
 
-void Settings::setValue(const QString & key, const QVariant newValue) const
+void Settings::setValue(const QString & key, const QVariant newValue)
 {
-    if (vars.contains(key))
+    if (mSettingMap.contains(key))
     {
-        Setting * var = vars[key];
+        Setting * var = mSettingMap[key];
         //var->setValue(newValue);
         *(QVariant *)var = newValue;
     }
-    else if (properties.contains(key))
+    else if (mProperyMap.contains(key))
     {
-        SettingProperty * prop = properties.value(key);
+        SettingProperty * prop = mProperyMap.value(key);
         //prop->setValue(newValue);
         *(QVariant *)prop = newValue;
     }
     QSettings::setValue(key, newValue);
 } // setValue() override
 
-void Settings::addToTree(Setting * var)
-{
-    if (tree && ! treeKeys.contains(var->key))
-        new SettingItem(this, tree, var);
-} // addToTree(var)
-
-
-void Settings::addToTree(SettingProperty * prop)
-{
-    if (tree && ! treeKeys.contains(prop->key))
-        new SettingItem(this, tree, prop);
-} // addToTree(prop)
-
 void Settings::startScanner(void)
 {
-    if (scanner)
+    if (mpScanner)
     {
-        if ( ! scanner->isRunning())
-            scanner->start(QThread::LowestPriority);
+        if ( ! mpScanner->isRunning())
+            mpScanner->start(QThread::LowestPriority);
     }
     else
     {
-        scanner = new SettingsScanner(this);
+        mpScanner = new SettingsScanner(this);
         qRegisterMetaType<QVariant>("QVariant");
-        connect(scanner, SIGNAL(changeProperty(QString,QVariant)),
+        connect(mpScanner, SIGNAL(changeProperty(QString,QVariant)),
                 this, SLOT(changeProperty(QString,QVariant)));
-        scanner->start(QThread::LowestPriority);
+        mpScanner->start(QThread::LowestPriority);
     }
 
 
@@ -423,7 +339,7 @@ void Settings::startScanner(void)
 
 void Settings::changeProperty(QString key, QVariant var)
 {
-    QList<SettingProperty *> props = properties.values(key.toLower());
+    QList<SettingProperty *> props = mProperyMap.values(key.toLower());
     foreach (SettingProperty * prop, props)
         prop->setValue(var);
 } // changeProperty() SLOT
@@ -441,40 +357,23 @@ void Settings::emitPropertyChanged(QString key)
     emit propertyChanged(key);
 }
 
-
-void Settings::setAdvancedMode(bool b)
-{
-    AdvancedMode = b;
-    foreach(Setting * var, vars)
-    {
-        if (var->item && var->item->item)
-            var->item->item->setHidden( ! AdvancedMode && (var->flags & Advanced));
-    }
-    foreach(SettingProperty * prop, properties)
-    {
-        if (prop->item && prop->item->item)
-            prop->item->item->setHidden( ! AdvancedMode && (prop->flags & Advanced));
-    }
-} // setAdvancedMode()
-
-
-void Settings::dump(Info::Severity sev, const QString & prefix)
+void Settings::dump(const QString & prefix)
 {
     QString flags, value, objName;
 
-    DUMPVAL(sev, "---Settings from ", source());
-    foreach(Setting * var, vars)
+    qInfo() << "---Settings from " << source();
+    foreach(Setting * var, mSettingMap)
     {
         if ( ! var->key.startsWith(prefix, Qt::CaseInsensitive))
             continue;
         flags = flagsString(var->flags);
         value = var->toString();
         if (value.isEmpty())
-            DUMPVAL(sev, QString("   [%1] {%2}").arg(flags).arg(var->key), "empty");
+            qInfo() << QString("   [%1] {%2} empty").arg(flags).arg(var->key);
         else
-            DUMPVAL(sev, QString("   [%1] {%2}").arg(flags).arg(var->key), value);
+            qInfo() << QString("   [%1] {%2} %3").arg(flags).arg(var->key).arg(value);
     }
-    foreach(SettingProperty * prop, properties)
+    foreach(SettingProperty * prop, mProperyMap)
     {
         if ( ! prop->key.startsWith(prefix, Qt::CaseInsensitive))
             continue;
@@ -484,9 +383,11 @@ void Settings::dump(Info::Severity sev, const QString & prefix)
         if (objName.isEmpty())
             objName = QString::number((unsigned int)prop->object, 16);
         if (prop->value.isNull())
-            DUMPVAL(sev, QString("   [%1] {%2} for %3").arg(flags).arg(prop->key).arg(objName), "empty");
+            qInfo() << QString("   [%1] {%2} for %3 empty")
+                    .arg(flags).arg(prop->key).arg(objName);
         else
-            DUMPVAL(sev, QString("   [%1] {%2} for %3").arg(flags).arg(prop->key).arg(objName), prop->value);
+            qInfo() << QString("   [%1] {%2} for %3 %4")
+                    .arg(flags).arg(prop->key).arg(objName).arg(prop->value);
     }
 } // dump(sev)
 

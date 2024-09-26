@@ -4,11 +4,8 @@
 #include <QBuffer>
 
 #include <ImageCache.h>
-#include <InfoMacros.h>
 #include <Return.h>
 #include <Settings.h>
-
-
 
 FileWriteProfile::FileWriteProfile(const QString & name,
                                    FileWriter::Flags f,

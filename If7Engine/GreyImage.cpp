@@ -11,9 +11,6 @@
 #include <QImage>
 #include <QSet>
 
-#include <InfoMacros.h>
-
-
 QVector<QRgb> GreyImage::staticGreyColorTable;
 qreal GreyImage::redComponent = 0.299;
 qreal GreyImage::greenComponent = 0.587;

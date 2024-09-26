@@ -5,25 +5,26 @@
 *
 */
 
-#include <Settings.h>
-#include "iSettings.h"
+#include "SettingProperty.h"
 
-#include <QObject>
 #include <QTimer>
 
+#include "Settings.h"
 
-
-
-SettingProperty::SettingProperty(Settings * Settings, 
+SettingProperty::SettingProperty(Settings * pSettings,
 								 QObject * Object, 
 								 const QString & Key, 
 								 const QString & PropertyName,
 								 int F)
-	: QObject(Settings), settings(Settings), object(Object), key(Key)
-	, propertyName(PropertyName), flags(F), item(0)
+    : QObject(pSettings)
+    , settings(pSettings)
+    , object(Object)
+    , key(Key)
+    , propertyName(PropertyName)
+    , flags(F)
 {
 	QObject::connect(Object, SIGNAL(destroyed(QObject *)), 
-					 Settings, SLOT(objectDestroyed(QObject *)));
+                     pSettings, SLOT(objectDestroyed(QObject *)));
 }
 
 void SettingProperty::setValue(const QVariant & newValue)
@@ -31,8 +32,6 @@ void SettingProperty::setValue(const QVariant & newValue)
 	if (object->property(qPrintable(propertyName)) != newValue)
 	{
 		object->setProperty(qPrintable(propertyName), newValue);
-		if (item)
-			item->showChanged();
 		flags |= Settings::Dirty | Settings::Changed;
 		value = newValue;
 		settings->emitPropertyChanged(key);
