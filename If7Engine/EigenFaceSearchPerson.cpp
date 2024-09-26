@@ -1,7 +1,5 @@
 #include "EigenFaceSearchPerson.h"
 
-#include "InfoMacros.h"
-
 EigenFaceSearchPerson::EigenFaceSearchPerson(void)
 {
     DEFINE_PROPERTIES_CTORS(SEARCHPERSON_PROPERTIES);

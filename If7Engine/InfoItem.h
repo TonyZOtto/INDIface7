@@ -13,6 +13,8 @@
 class QTextStream;
 class QThread;
 
+#include "Info.h"
+
 class  InfoItem
 {
 public:
@@ -21,7 +23,7 @@ public:
              QVariant V2=QVariant(), QVariant V3=QVariant(), QVariant V4=QVariant());
     InfoItem(Info::Severity Sev, const QString & Msg, QVariant V1=QVariant(),
              QVariant V2=QVariant(), QVariant V3=QVariant(), QVariant V4=QVariant());
-    ~InfoItem() {};
+    ~InfoItem() {;}
     Info::Severity severity(void) const { return sev; }
     void clear(void) { *this = InfoItem(); }
     void setReturnCode(int rtn) { rc = rtn; }

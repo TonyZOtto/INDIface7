@@ -47,18 +47,19 @@ public:
     bool isNull(void) const { return ! code; }
     bool isTrue(void) const { return TrueCode == code; }
     bool isFalse(void) const { return FalseCode == code; }
-    bool isWarn(void) const { return severity >= Warning; }
+    bool isWarn(void) const { return severity >= ddtSeverity::Warning; }
     bool isError(void) const { return severity >= Error; }
     bool isFatal(void) const { return severity >= Fatal; }
     int returnCode(void) const { return code; }
     QString toString(void) const;
     QVariant operator[](int x) const;
     bool is(const int c) const { return code == c; }
-    Severity ddtSeverity(void) const { return severity; }
+    ddtSeverity ddtSeverity(void) const { return severity; }
     QString msg(void) const { return message; }
+    void troll();
 
 public: // static functions
-    static void add(const int code, const QString & msg, const Severity sev);
+    static void add(const int code, const QString & msg, const enum ddtSeverity sev);
 #ifdef WINDOWS
     static Return windowsLastError(void);
 #endif
@@ -68,7 +69,7 @@ public: // static functions
     static Return todo(const QString & string);
 
 private:
-    Severity severity;
+    enum ddtSeverity severity;
     int code;
     QVariant var[4];
     QString message;
@@ -78,5 +79,5 @@ private: // static functions
 
 private: // static variables
     static QMap<int, QString>	messages;
-    static QMap<int, Severity>	severities;
+    static QMap<int, enum ddtSeverity>	severities;
 }; // class Return

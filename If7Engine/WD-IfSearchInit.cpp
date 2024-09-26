@@ -141,7 +141,7 @@ void IfSearch::start(void)
 
     /*--- Initialize Height Grid ---*/
     heightGrid = new HeightGrid(this);
-    NULLPTR(heightGrid);
+    Q_ASSERT(heightGrid);
     connect(heightGrid, SIGNAL(error(QString)), this, SLOT(error(QString)));
     appSettings->objectProperties(heightGrid, tr("Height", "config"), heightGrid->dynamicPropertyNames(), DDT::Settings::Volatile);
 
@@ -163,15 +163,15 @@ void IfSearch::start(void)
     // TODO: Global SkinMatcher properties: RegionScale, Regions
 
     /*--- Color Correction ---*/
-//    NULLPTR(ccProps);
-//    NULLPTR(colorCorrection);
+//    Q_ASSERT(ccProps);
+//    Q_ASSERT(colorCorrection);
 //    appSettings->objectProperties(&ccProps, tr("ColorCorrection", "config"), ccProps.dynamicPropertyNames());
 
     /*--- Setup Transform ---*/
     appSettings->objectProperties(&xformProps, tr("PreProcess", "config"), xformProps.dynamicPropertyNames(), DDT::Settings::Volatile);
 
     /*--- Setup Resolver ---*/
-    resolver = new Resolver(this);  NULLPTR(resolver);
+    resolver = new Resolver(this);  Q_ASSERT(resolver);
     qsl.clear(); qsl << "Quality" << "Consistency" << "FaceColor"
                      << "UpperClothes" << "LowerClothes" << "Height";
     foreach (IdString name, qsl)
@@ -187,13 +187,13 @@ void IfSearch::start(void)
     {
         fpFileName = writer->baseDir().absoluteFilePath(fpFileName);
         fpWriter = new CsvWriter(fpFileName);
-        NULLPTR(fpWriter);
+        Q_ASSERT(fpWriter);
         if (fpWriter->isOpen())
         {
             frameStatistics = new FrameStatistics;
-            NULLPTR(frameStatistics);
+            Q_ASSERT(frameStatistics);
             framePerformance = new FramePerformance;
-            NULLPTR(framePerformance);
+            Q_ASSERT(framePerformance);
             fpWriter->add(framePerformance);
             fpWriter->add(frameStatistics);
             fpWriter->header();
@@ -240,7 +240,7 @@ void IfSearch::start(void)
     }
 
     PROGRESS("Initializing INDI FaceBase");
-    faceBase = new INDI::FaceBase(this, eigenMatcher);	NULLPTR(faceBase);
+    faceBase = new INDI::FaceBase(this, eigenMatcher);	Q_ASSERT(faceBase);
     INFO("from %1", faceBaseBaseDir);
     rtn = faceBase->initialize(faceBaseBaseDir, faceBaseMaxLoad);
     RETURN(rtn);
@@ -319,7 +319,7 @@ DDT::Return IfSearch::initEigenFace(void)
 
     PROGRESS("Initializing INDIface Face Detector");
     unsigned faceInterface = appSettings->value("Detect/Interface", 0).toUInt();
-    ffd = new INDI::FrontalFaceDetector(faceInterface, this); NULLPTR(ffd);
+    ffd = new INDI::FrontalFaceDetector(faceInterface, this); Q_ASSERT(ffd);
     ffd->setObjectName("ffd");
     QString faceDetector = appSettings->value("Detect/FaceDetector",
                                               ffd->detectorsDefault())
@@ -383,7 +383,7 @@ DDT::Return IfSearch::initEigenFace(void)
     }
 
     PROGRESS("Initializing INDIface Template Generators");
-    eigenFace = new INDI::EigenFaceGenerator(this, eigenData, eigenParms);	NULLPTR(eigenFace);
+    eigenFace = new INDI::EigenFaceGenerator(this, eigenData, eigenParms);	Q_ASSERT(eigenFace);
     eigenFace->setObjectName("eigenFace");
     eigenFace->setFactor(optGenerateFactor->toFloat());
     qsl.clear(); qsl << "MinConsistency" << "RoiScale" << "EyeScale";
@@ -394,7 +394,7 @@ DDT::Return IfSearch::initEigenFace(void)
 
     PROGRESS("Initializing INDIface Matcher");
     eigenMatcher = new EigenFaceSearcher();
-    NULLPTR(eigenMatcher);
+    Q_ASSERT(eigenMatcher);
     appSettings->objectProperties(&matchSettings, tr("Match", "config"), matchSettings.dynamicPropertyNames(), DDT::Settings::Volatile);
     appSettings->objectProperties(&searchSettings, tr("Search", "config"), searchSettings.dynamicPropertyNames(), DDT::Settings::Volatile);
 

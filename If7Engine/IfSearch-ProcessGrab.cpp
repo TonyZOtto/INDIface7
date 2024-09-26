@@ -220,7 +220,7 @@ void IfSearch::processGrab(void)
         {
             if (imageRgb.isNull())
                 imageRgb = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-            NULLPTR(heightGrid);
+            Q_ASSERT(heightGrid);
             heightGrid->clear();
             QImage heightImage(heightGrid->gridImage(imageRgb));
             fwpHeight->write(heightImage, idGenerator.face("Height"));

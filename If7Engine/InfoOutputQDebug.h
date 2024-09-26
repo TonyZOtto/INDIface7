@@ -10,6 +10,8 @@
 #include <QFile>
 #include <QTextStream>
 
+#include "InfoItem.h"
+
 class  InfoOutputQDebug : public InfoOutputBase
 {
 public:

@@ -50,7 +50,7 @@ QString FileWriteProfile::keyName(void) const
 Return FileWriteProfile::write(const QString & imageId)
 {
     FUNCTION();
-    NULLPTR(writer());
+    Q_ASSERT(writer());
     if ( ! writer()->_imageCache)
     {
         FNRETURN("No Cache");
@@ -69,7 +69,7 @@ Return FileWriteProfile::write(QImage image,
                                const QDomDocument & doc)
 {
     FUNCTION();
-    NULLPTR(writer());
+    Q_ASSERT(writer());
     if (image.isNull())
         return Return(FileWriter::ReturnNullImage, baseName, name());
 
@@ -82,7 +82,7 @@ Return FileWriteProfile::write(QImage image,
 Return FileWriteProfile::write(const QImage & image, const QString & baseName)
 {
     FUNCTION();
-    NULLPTR(writer());
+    Q_ASSERT(writer());
     if (image.isNull())
         return Return(FileWriter::ReturnNullImage, baseName, name());
 
@@ -98,7 +98,7 @@ Return FileWriteProfile::write(const QImage & image, const QString & baseName)
 Return FileWriteProfile::write(const QByteArray & ba, const QString & baseName)
 {
     FUNCTION();
-    NULLPTR(writer());
+    Q_ASSERT(writer());
     writer()->enqueue(this, baseName, ba);
     return Return();
 } // write(QByteArray)
@@ -106,7 +106,7 @@ Return FileWriteProfile::write(const QByteArray & ba, const QString & baseName)
 Return FileWriteProfile::write(const QFile & file, QString baseName)
 {
     FUNCTION();
-    NULLPTR(writer());
+    Q_ASSERT(writer());
     QByteArray ba(qPrintable(file.fileName()));
     if (baseName.isEmpty())
         baseName = QFileInfo(file.fileName()).baseName();
@@ -117,7 +117,7 @@ Return FileWriteProfile::write(const QFile & file, QString baseName)
 Return FileWriteProfile::write(const QDomDocument & doc, const QString & baseName)
 {
     FUNCTION();
-    NULLPTR(writer());
+    Q_ASSERT(writer());
     QByteArray ba = doc.toByteArray(2);
     writer()->enqueue(this, baseName, ba);
     return Return();

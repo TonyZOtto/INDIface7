@@ -1,11 +1,6 @@
 #ifndef EIGENFACESIMILARITY_H
 #define EIGENFACESIMILARITY_H
 #include <qglobal.h>
-#ifdef INDIEF_LIB
-# define  Q_DECL_EXPORT
-#else
-# define  Q_DECL_IMPORT
-#endif
 
 #include <QtCore/QMap>
 #include <QtCore/QString>

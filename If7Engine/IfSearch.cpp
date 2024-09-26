@@ -62,7 +62,7 @@ IfSearch::IfSearch(int argc, char *argv[])
     _watchdog = 0;
 #endif
 
-    appSettings		= Settings::newSettings(this); NULLPTR(appSettings);
+    appSettings		= Settings::newSettings(this); Q_ASSERT(appSettings);
     appSettings->setValue("Enroll/Command", QString());
     appSettings->setValue("Retrieve/Command", QString());
     appSettings->setValue("Search/Command", QString());

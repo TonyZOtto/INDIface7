@@ -8,13 +8,11 @@
 #define INFO_NOTHREAD
 
 #include <InfoFunction.h>
-#include <InfoItem.h>
 #include <InfoOutputBase.h>
 #include <InfoOutputFile.h>
 #include <InfoOutputSetting.h>
 #include <InfoOutputQDebug.h>
 #include <InfoOutputs.h>
-#include <Info::Severity.h>
 #include <InfoThread.h>
 
 #include <QDateTime>
@@ -24,6 +22,7 @@
 #include <QThread>
 #include <QVariant>
 
+class InfoItem;
 class InfoOutputBase;
 
 class Info

@@ -1,10 +1,7 @@
 #include <Return.h>
 
-#include <InfoMacros.h>
-
-
 QMap<int, QString> Return::messages;
-QMap<int, Severity> Return::severities;
+QMap<int, ddtSeverity> Return::severities;
 
 const int Return::UnknownCode = 0xC0DEBAAD;
 const int Return::TrueCode = 0xC0DE0001;
@@ -62,8 +59,8 @@ Return Return::operator=(const Return & that)
 void Return::staticCtor(void)
 {
 	add(UnknownCode, QObject::tr("Unknown Return Code: %1"), Unknown);
-	add(TrueCode, QObject::tr("True"), Info);
-	add(FalseCode, QObject::tr("False"), Info);
+    add(TrueCode, QObject::tr("True"), ddtInfo);
+    add(FalseCode, QObject::tr("False"), ddtInfo);
 	add(ErrorStringCode, QObject::tr("Error: %1"), Error);
 	add(WindowsErrorCode, QObject::tr("Windows System Error [%2]: %3"), Error);
 	add(QSqlErrorCode, QObject::tr("SQL Engine Error: Number=%1 Driver=%2\n   Database=%3\n   SQL=%4"), Error);
@@ -87,7 +84,7 @@ void Return::clear(void)
 	message.clear();
 } // clear()
 
-void Return::add(const int Code, const QString & Msg, const Severity Sev)
+void Return::add(const int Code, const QString & Msg, const enum ddtSeverity Sev)
 {
 	if ( ! messages.contains(Code))
 	{
@@ -101,8 +98,22 @@ QVariant Return::operator[](int x) const
         return  var[x-1];
     else
     {
-        WARNING("Return::operator[%1] invalid", x);
+        qWarning() << "Return::operator[] invalid" << x;
         return QVariant();
+    }
+}
+
+void Return::troll()
+{
+    switch (severity)
+    {
+    case Debug:     qDebug()        << toString();      break;
+    case Progress:
+    case ddtInfo:   qInfo()         << toString();      break;
+    case Warning:   qWarning()      << toString();      break;
+    case Error:     qCritical()     << toString();      break;
+    case Fatal:     qFatal()        << toString();      break;
+    default:                                            break;
     }
 }
 

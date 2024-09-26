@@ -1,5 +1,6 @@
 #include <FaceBase.h>
 
+#include <QDir>
 #include <QDomDocument>
 #include <QString>
 #include <QTime>
@@ -12,8 +13,6 @@
 #include <EigenFaceFace.h>
 #include <EigenFaceTemplate.h>
 #include <fbPerson.h>
-#include <InfoMacros.h>	
-#include "../../INDI2/oldEIRlibs/eirFile/QQDir.h"
 
 Return FaceBase::status(void) const
 {
@@ -72,9 +71,12 @@ int FaceBase::primaryFaceKey(const int personKey) const
     // TODO: Get person's primary face key else the following
 
     if (matcher)
+    {
         foreach (int fk, mapPersonToFaces[personKey])
             if (matcher->contains(fk))
                 return fk;
+    }
+
 
     return mapPersonToFaces[personKey][0];
 }
@@ -84,8 +86,8 @@ int FaceBase::newPersonKey(const QString & id)
 {
     int rtn;
     int mod = (int)pow((qreal)10.0, personKeyDigits);
-    do rtn = ((qrand() << 13) ^ qrand()) % mod;
-    while (people.contains(rtn) || 0 == rtn);
+    do rtn = mRandom.generate() % mod;
+        while (people.contains(rtn) || 0 == rtn);
 
     people.insertUnique(rtn, id);
 
@@ -96,8 +98,8 @@ int FaceBase::newFaceKey(const QString & id, const int personKey)
 {
     int rtn;
     int mod = (int)pow((qreal)10.0, faceKeyDigits);
-    do rtn = ((qrand() << 13) ^ qrand()) % mod;
-    while (faceKeys.contains(rtn) || 0 == rtn);
+    do rtn = mRandom.generate() % mod;
+        while (faceKeys.contains(rtn) || 0 == rtn);
 
     peopleFaces[personKey].insertUnique(rtn, id);
     mapPersonToFaces[personKey].append(rtn);
@@ -141,15 +143,12 @@ Return FaceBase::add(EigenFaceFace * face, const QImage & image)
             matcher->enroll(face->templat(), faceKey, face->personKey());
 
     rtn = face->writeXmlFile(templateFilePath(faceKey));
-    RETURN(rtn);
-    TRACE("FaceBase::add() normImage=%1,%2", image.width(), image.height());
+    //RETURN(rtn);
     if ( ! rtn.isError() && ! image.isNull())
     {
         QString fileName = imageFilePath(faceKey);
-        if (image.save(fileName, qPrintable(imageFileSuffix), 90))
-            TRACE("Face Image written to %1", fileName);
-        else
-            ERRMSG("Error writing %1", fileName);
+        if ( ! image.save(fileName, qPrintable(imageFileSuffix), 90))
+            qWarning() << "Error writing" << fileName;
     }
 
     return rtn;
@@ -190,7 +189,7 @@ Return FaceBase::deleteFace(const int faceKey)
     rtn = face.writeXmlFile(templateFilePath(faceKey));
     if (rtn.isError())
         return rtn;
-
+    return Return::True;
 } // deleteFace()
 
 Return FaceBase::removePerson(const int personKey)
@@ -253,9 +252,8 @@ Return FaceBase::destroy(void)
         rtn = Return::errorString("FaceBase/BaseDir invalid");
     else
     {
-        QQDir::removeAll(baseDir);
-        QQDir::removeAll(baseDir);
-        rtn = Return::True;
+        QDir tDir(".");
+        rtn = tDir.rmpath(baseDir.path()) ? Return::True : Return::False;
     }
     clear();
     return rtn;

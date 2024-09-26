@@ -59,7 +59,7 @@ IfSearch::IfSearch(int argc, char *argv[])
     _watchdog = 0;
 #endif
 
-    appSettings		= DDT::Settings::newSettings("EclipseIR", "SDKconsole. ", this); NULLPTR(appSettings);
+    appSettings		= DDT::Settings::newSettings("EclipseIR", "SDKconsole. ", this); Q_ASSERT(appSettings);
     appSettings->setValue("Enroll/Command", QString());
     appSettings->setValue("Retrieve/Command", QString());
     appSettings->setValue("Search/Command", QString());

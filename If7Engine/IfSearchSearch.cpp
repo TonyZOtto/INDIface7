@@ -80,7 +80,7 @@ void IfSearch::doVerify(void)
 
 void IfSearch::searchScanDir(void)
 {
-    NULLPTR(appSettings); NULLPTR(writer);
+    Q_ASSERT(appSettings); Q_ASSERT(writer);
 
     appSettings->setValue("Search/Status", "Scanning Directory");
     QString dirName = appSettings->value("Search/InputDir", "../Search").toString();

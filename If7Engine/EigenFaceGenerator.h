@@ -15,6 +15,7 @@ class QDomElement;
 #include <EigenFaceMaskedArray.h>
 
 #include <Eyes.h>
+#include <FeatureInfo.h>
 #include <ImageInfo.h>
 #include <QQRect.h>
 #include <Return.h>
@@ -121,7 +122,7 @@ public:
     int consistency(void) const
     { return Consistency; }
     ImageInfo getInfo(void)
-    { ImageInfo ii; fSet.calculate(); ii.addFace(fSet); return ii; }
+    { ImageInfo ii; fInfo.calculate(); ii.addFace(fInfo); return ii; }
     QString methodString(void) const
     { return "INDIface"; } // TODO
     QSize expectedEyeSize(void) const
@@ -172,7 +173,7 @@ private:
     QImage originalImage;
     qreal HeadScale;
     int	Consistency;
-    FeatureSet fSet;
+    FeatureInfo fInfo;
     QRect head;
     Eyes origEyes;
     Eyes adjEyes;

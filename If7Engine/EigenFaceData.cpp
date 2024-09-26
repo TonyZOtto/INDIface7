@@ -1,7 +1,7 @@
 #include <EigenFace.h>
 #include <EigenFaceData.h>
 
-#include <InfoMacros.h>
+//#include <InfoMacros.h>
 
 #include <QGuiApplication>
 #include <QByteArray>
@@ -137,9 +137,8 @@ Return EigenFaceData::loadFrom(QFile & xmlFile)
             if ( ! rtn.isError())
             {
                 layers.replace(id, layer);
-                if (0 == id)
-                    DETAIL("%1 from %2", eigenFaceLayerTagName,
-                       xmlFile.fileName());
+//                if (0 == id)
+  //                  DETAIL("%1 from %2", eigenFaceLayerTagName,xmlFile.fileName());
             }
         }
         else if (meanFaceTagName == de.tagName())
@@ -150,8 +149,7 @@ Return EigenFaceData::loadFrom(QFile & xmlFile)
             if ( ! rtn.isError())
             {
                 meanFaces.insert(id, mean);
-                DETAIL("%1 from %2 Id=%3", meanFaceTagName,
-                       xmlFile.fileName(), id);
+//                DETAIL("%1 from %2 Id=%3", meanFaceTagName,xmlFile.fileName(), id);
             }
         }
         else if (bitMaskTagName == de.tagName())
@@ -166,8 +164,8 @@ Return EigenFaceData::loadFrom(QFile & xmlFile)
                     rtn = Return(EigenFace::ReturnConflict,
                                       "BitMask bits", ActivePixels, Mask.count());
             }
-            if ( ! rtn.isError())
-                DETAIL("%1 from %2", bitMaskTagName, xmlFile.fileName());
+//            if ( ! rtn.isError())
+  //              DETAIL("%1 from %2", bitMaskTagName, xmlFile.fileName());
         }
         else if (outputMaskTagName == de.tagName())
         {
@@ -176,14 +174,14 @@ Return EigenFaceData::loadFrom(QFile & xmlFile)
                 if (EigenSize != Mask.size())
                     rtn = Return(EigenFace::ReturnConflict,
                                       "OutputMask size", EigenSize, Mask.size());
-            if ( ! rtn.isError())
-                DETAIL("%1 from %2", outputMaskTagName, xmlFile.fileName());
+//            if ( ! rtn.isError())
+  //              DETAIL("%1 from %2", outputMaskTagName, xmlFile.fileName());
         }
         else if (weightMaskTagName == de.tagName())
         {
             rtn = Weights.read(de);
-            if ( ! rtn.isError())
-                DETAIL("%1 from %2", weightMaskTagName, xmlFile.fileName());
+//            if ( ! rtn.isError())
+  //              DETAIL("%1 from %2", weightMaskTagName, xmlFile.fileName());
         }
         de = de.nextSiblingElement();
 

@@ -58,7 +58,7 @@ void IfSearch::doAuthenticate(void)
             return searchError(tr("PersonId %1 does not exist").arg(searchPersonId));
     }
 
-    NULLPTR(appSettings); NULLPTR(writer);
+    Q_ASSERT(appSettings); Q_ASSERT(writer);
     QStringList qsl;
 
     appSettings->setValue("Search/Status", "Scanning Directory");

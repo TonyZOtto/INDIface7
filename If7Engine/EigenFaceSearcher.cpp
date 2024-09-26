@@ -2,7 +2,6 @@
 
 #include <QtCore/QList>
 
-#include "InfoMacros.h"
 #include "EigenFaceSearchResultList.h"
 #include "EigenFaceSearchPerson.h"
 #include "EigenFaceSearchSettings.h"
@@ -34,11 +33,7 @@ int EigenFaceSearcher::size(void) const
 QString EigenFaceSearcher::deleteFace(const int faceKey)
 {
     if ( ! faceKey_vector_mhash.contains(faceKey))
-    {
-        TRACE("%1 faceKey not enrolled", faceKey);
         return QString("%1 faceKey not enrolled").arg(faceKey);
-    }
-    TRACE("%1 faceKey removed from memory", faceKey);
     faceKey_vector_mhash.remove(faceKey);
     return QString();
 }
@@ -168,11 +163,7 @@ EigenFaceSearchResultList EigenFaceSearcher::
                                                  distance,
                                                  EigenFaceSearchSettings::
                                                      confidence(distance));
-            DETAIL("PK=%1 FK=%2 distance=%3",enrollVector.personKey(),
-                   enrollVector.faceKey(), distance);
         }
-
-    DETAIL("distanceList %1 entries", distanceList.size());
     return distanceList;
 }
 
@@ -190,13 +181,10 @@ EigenFaceSearchResultList EigenFaceSearcher::
     {
         efsp.setFirstRank(++rank);
         rankedList << efsp;
-        DETAIL("PK=%1 rank=%2 distance=%3", efsp.getPersonKey(),
-               efsp.getRank(), efsp.getDistance());
         if (efsp.size() >= maxFaces)
             break;
     }
 
-    DETAIL("rankedList %1 entries", rankedList.size());
     return rankedList;
 }
 
@@ -219,14 +207,7 @@ EigenFaceSearchResultList EigenFaceSearcher::
 
     EigenFaceSearchResultList personList;
     foreach(EigenFaceSearchPerson efsp, personHash.values())
-    {
-        DETAIL("adding PK=%1 distance=%2",
-               efsp.getPersonKey(), efsp.getDistance());
         personList << efsp;
-    }
-
-
-    DETAIL("personList %1 entries", personList.size());
     return personList;
 }
 
@@ -243,13 +224,10 @@ EigenFaceSearchResultList EigenFaceSearcher::
         int personKey = efsp.getPersonKey();
         if ( ! personKeysUsed.contains(personKey))
         {
-            DETAIL("Adding PK=%1 rank=%2 dist=%3",
-                   personKey, efsp.getRank(), efsp.getDistance());
             combinedList.append(efsp);
             personKeysUsed.insert(personKey);
         }
     }
-    DETAIL("combinedList %1 entries", combinedList.size());
     return combinedList;
 }
 
@@ -277,9 +255,6 @@ EigenFaceSearchResultList EigenFaceSearcher::
                 distance *= qMin(1.0, efsr.getDistance()
                                           * (1.0 + (0.2 * personRank++)));
                 efsp.append(efsr);
-                DETAIL("Append FK=%1 SK=%4 distance=%2 net=%3",
-                       efsr.getFaceKey(), efsr.getDistance(),
-                       distance, efsr.getSearchKey());
             }
             if (efsp.size() >= maxPersonFaces)
                 break;
@@ -287,7 +262,6 @@ EigenFaceSearchResultList EigenFaceSearcher::
         int confidence = EigenFaceSearchSettings::confidence(distance);
         if (confidence >= minConfidence)
         {
-            DETAIL("Insert PK=%1", efsp.getPersonKey());
             efsp.setDistance(distance);
             efsp.setConfidence(confidence);
             combinedList << efsp;
@@ -363,8 +337,6 @@ EigenFaceSearchResultList EigenFaceSearcher::
 {
     EigenFaceSearchResultList combinedList;
     qreal fTopRank = topRank;
-    DETAIL("minConfidence=%1, maxPersonFaces=%2, topRank=%3",
-           minConfidence, maxPersonFaces, topRank);
 
     foreach (EigenFaceSearchPerson efsp, personList)
     {
@@ -375,8 +347,6 @@ EigenFaceSearchResultList EigenFaceSearcher::
         QList<EigenFaceSearchResult> efsrs = efsp.results();
         EigenFaceSearchResult bestResult = efsrs.takeFirst();
         qreal distance = bestResult.getDistance();
-        DETAIL("PersonKey=%2, nResults=%1, first distance=%3",
-               nResults, efsp.getPersonKey(), distance);
 
         QSet<int> usedFaceKeys;
         usedFaceKeys.insert(bestResult.getFaceKey());
@@ -388,11 +358,7 @@ EigenFaceSearchResultList EigenFaceSearcher::
         foreach(EigenFaceSearchResult efsr, efsrs)
         {
             if (efsp.size() >= nResults)
-            {
-                DETAIL("PersonFaces=%1, nResults=%2",
-                       efsp.size(), nResults);
                 continue;
-            }
             int resultFaceKey = efsr.getFaceKey();
 
             qreal resultRank = efsr.getRank();
@@ -406,15 +372,12 @@ EigenFaceSearchResultList EigenFaceSearcher::
                 // c = 2.0 - (1.0 / (1.0 + resultRank));
                 c = 1.0 + (0.05 * ++personRank);
             distance *= qMin(1.0, c * resultDistance);
-            DETAIL("distance=%3, rank=%4, c=%2, updated=%1",
-                   distance, c, resultDistance, resultRank);
 
             efsp.append(efsr);
             usedFaceKeys.insert(resultFaceKey);
         }
 
         int confidence = EigenFaceSearchSettings::confidence(distance);
-        DETAIL("confidence=%1 minConfidence=%2", confidence, minConfidence);
         if (confidence > minConfidence)
         {
             efsp.setBestDistance(bestResult.getDistance());
@@ -425,7 +388,6 @@ EigenFaceSearchResultList EigenFaceSearcher::
         }
     }
 
-    DETAIL("combinedList %1 entries", combinedList.size());
     return combinedList;
 }
 
@@ -445,14 +407,9 @@ EigenFaceSearchResultList EigenFaceSearcher::
     {
         efsp.setRank(++rank);
         sortedResults << efsp;
-        DETAIL("Sort rank=%1 conf=%2 dist=%3 PK=%4",
-               rank, efsp.getConfidence(),
-               efsp.getDistance(), efsp.getPersonKey());
         if (maxResults && rank >= maxResults)
             break;
     }
-
-    DETAIL("sortedResults %1 entries", sortedResults.size());
     return sortedResults;
 }
 
@@ -484,16 +441,10 @@ EigenFaceSearchResultList EigenFaceSearcher::
                  && EigenFaceSearchTier::Strong == tier)
         {
             tieredList.setEachTier(EigenFaceSearchTier::Possible);
-            DETAIL("Override each previous tier to Possible");
             tier = EigenFaceSearchTier::Possible;
         }
         efsp.setTier(tier);
-        DETAIL("Sort tier=%1 conf=%2 dist=%3 PK=%4",
-               efsp.getTier().name(), efsp.getConfidence(),
-               efsp.getDistance(), efsp.getPersonKey());
         tieredList << efsp;
     }
-
-    DETAIL("tieredList %1 entries", tieredList.size());
     return tieredList;
 }

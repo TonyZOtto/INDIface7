@@ -104,7 +104,7 @@ QImage EigenFace::normalize(const QImage & input,
     tFeatureInfo.leftEye(outEyes.p1());
     tFeatureInfo.rightEye(outEyes.p2());
     tFeatureInfo.calculate();
-    ii.addFace(fSet);
+    ii.addFace(tFeatureInfo);
     ii.setImageText(&outImage);
 
     return outImage;
@@ -171,12 +171,12 @@ QImage EigenFace::normalize(const GreyImage & gi,
         } // for(c)
     } // for(r)
 
-    FeatureSet fSet;
+    FeatureInfo fInfo;
     ImageInfo ii;
-    fSet.set(Feature::LeftEye, outEyes.p1());
-    fSet.set(Feature::RightEye, outEyes.p2());
-    fSet.calculate();
-    ii.addFace(fSet);
+    fInfo.leftEye(outEyes.p1());
+    fInfo.rightEye(outEyes.p2());
+    fInfo.calculate();
+    ii.addFace(fInfo);
     ii.setImageText(&outImage);
 
     return outImage;

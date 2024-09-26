@@ -40,7 +40,7 @@ WindowsProcess::~WindowsProcess()
 #ifdef WINDOWS
 Return WindowsProcess::loadLibrary(const QString & name)
 {
-	QLibrary * dll = new QLibrary(name, qApp); NULLPTR(dll);
+	QLibrary * dll = new QLibrary(name, qApp); Q_ASSERT(dll);
 	dll->setLoadHints(QLibrary::ResolveAllSymbolsHint);
 	if (dll->load())
 		return Return();
@@ -60,7 +60,7 @@ Return WindowsProcess::loadLibraries(const QStringList & names)
 
 Return WindowsProcess::loadPlugin(const QString & name)
 {
-	QPluginLoader * dll = new QPluginLoader(name, qApp); NULLPTR(dll);
+	QPluginLoader * dll = new QPluginLoader(name, qApp); Q_ASSERT(dll);
 	dll->setLoadHints(QLibrary::ResolveAllSymbolsHint);
 	if (dll->load())
 		return Return();

@@ -13,7 +13,7 @@ public:
     qint64      dTimeStampEMS;
     QSize       dImageSize;
     QString     dUsage; //??
-    int         dHeadMethod;
+    QString     dHeadMethod;
     int         dQuality;
     QQRect      dHeadBox;
     QPoint      dHeadCenter;
@@ -22,6 +22,6 @@ public:
     QPoint      dRightEye;
     QLine       dEyeLine;
     int         dEyeDistance;
-    int         dTemplateMethod;
+    QString     dTemplateMethod;
     int         dConsistency;
 };

@@ -5,12 +5,11 @@
 #include "EigenFace.h"
 #include "EigenFaceSimilarityEntry.h"
 #include "EigenFaceSearchSettings.h"
-#include "InfoMacros.h"
 
 EigenFaceSimilarity::EigenFaceSimilarity(EigenFaceSearchSettings * settings)
     : _settings(settings)
 {
-    NULLPTR(settings);
+    Q_ASSERT(settings);
     Return::add(EigenFace::ReturnNoParameters, "INDI EigenFace No Parameters", Error);
     Return::add(EigenFace::ReturnNoData, "INDI EigenFace No Data", Error);
 }
@@ -67,7 +66,7 @@ Return EigenFaceSimilarity::process(
         return Return(EigenFace::ReturnNoParameters);
     if ( ! results)
         return Return(EigenFace::ReturnNoData);
-    NULLPTR(results);
+    Q_ASSERT(results);
 
     results->clear();
     if (size() < 2)
@@ -95,14 +94,7 @@ Return EigenFaceSimilarity::process(
             {
                 EigenFaceSimilarityEntry entry(distance, tpl1, tpl2);
                 EigenFaceSimilarityResult result(entry);
-                mileageMMap.insertMulti(distance, result);
-                DETAIL("FK%1~FK%2 dist=%3 inserted",
-                       faceKey1, faceKey2, distance);
-            }
-            else
-            {
-                DETAIL("FK%1~FK%2 dist=%3 ignored",
-                       faceKey1, faceKey2, distance);
+                mileageMMap.insert(distance, result);
             }
         }
 
@@ -112,11 +104,7 @@ Return EigenFaceSimilarity::process(
     foreach (EigenFaceSimilarityResult result, mileageMMap)
     {
         if (maxResults && results->size() >= maxResults)
-        {
-            DETAIL("maxResults=%1 for getMaxResults=%2",
-                   maxResults, _settings->getMaxResults());
             break;
-        }
         result.calculate();
         int conf = result.getConfidence();
         if (conf >= minConfidence)

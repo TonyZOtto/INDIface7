@@ -9,10 +9,9 @@
 #include <QtCore/QVector>
 
 #include "EigenFaceSearchTier.h"
-#include "InfoMacros.h"
 
 EigenFaceSearchSettings::EigenFaceSearchSettings(const Mode mode,
-                         QObject * parent=0)
+                         QObject * parent)
     : QObject(parent)
 {
     DEFINE_QPROPERTIES_CTORS(EFSEARCHSETTINGS_QPROPERTIES);
@@ -78,7 +77,6 @@ int EigenFaceSearchSettings::maxFaces(const int totalFaces) const
         n = (int)f;
     else if ( ! qIsNull(f))
         n = qRound(f * (qreal)totalFaces);
-    DETAIL("maxFaces = %1", n);
     return n;
 }
 
@@ -92,7 +90,6 @@ int EigenFaceSearchSettings::maxResults(int totalResults) const
         n = qRound(f * (qreal)totalResults);
     else
         n = 0;
-    DETAIL("maxResults = %1", n);
     return n;
 }
 
@@ -117,7 +114,6 @@ int EigenFaceSearchSettings::personMethod(const Mode mode,
             break;
         }
     }
-    DETAIL("personMethod = %1", pm);
     return pm;
 }
 
@@ -148,7 +144,7 @@ EigenFaceSearchSettings::tiersForConfidence(
     /* Sort Descending */
     QList<int> sortedList(confidenceList);
     if (needSort)
-        qSort(sortedList.begin(), sortedList.end(), qGreater<int>());
+        std::sort(sortedList.begin(), sortedList.end(), std::greater<int>());
 
     /* Iterate checking confidences */
     EigenFaceSearchTier currentTier = EigenFaceSearchTier::Strong;
@@ -165,13 +161,11 @@ EigenFaceSearchSettings::tiersForConfidence(
                 if (1 == x)
                 {
                     result[0] = EigenFaceSearchTier::Best;
-                    DETAIL("Upgrade to Best");
                 }
                 else if (x >= getStrongPersonCount())
                 {
                     // too many to be strong, re-declare them to be just Possible
                     int x2 = x;
-                    DETAIL("Demote %1 to Possible", x2);
                     while (--x2 > 0)
                         result[x2] = EigenFaceSearchTier::Possible;
                 }
@@ -192,19 +186,16 @@ EigenFaceSearchSettings::tiersForConfidence(
 
             case EigenFaceSearchTier::NoMatch:
             default:
-                ERRMSG("Unhandled EigenFaceMatchTier: %1",
-                      currentTier.name());
+                qWarning() << "Unhandled EigenFaceMatchTier:"
+                      << currentTier.name();
             }
         }
         result[x++] = currentTier;
-        TRACE("Rank %1 is %2 %3", x, currentTier.name(), conf);
     }
 
-    DETAIL("Done: x=%1 n=%2 tier=%3", x, n, currentTier.name());
     if (EigenFaceSearchTier::Strong == currentTier
             && x >= getStrongPersonCount())
     {
-        DETAIL("Demote all to Weak");
         result.fill(EigenFaceSearchTier::Weak);
     }
 

@@ -16,12 +16,12 @@
 
 bool IfSearch::avgFaceInit(void)
 {
-    NULLPTR(eigenParms);
-    NULLPTR(fwpAvgFace);
+    Q_ASSERT(eigenParms);
+    Q_ASSERT(fwpAvgFace);
 
     avgFace = new AverageFace(eigenParms->normalizedSize(),
                               eigenParms->normalEyes());
-    NULLPTR(avgFace);
+    Q_ASSERT(avgFace);
 
     int min = appSettings->value(tr("AvgFace/MinKey", "config"), 100001).toInt();
     int max = appSettings->value(tr("AvgFace/MaxKey", "config"), 199999).toInt();
@@ -48,8 +48,8 @@ bool IfSearch::avgFaceInit(void)
 
 bool IfSearch::avgFaceProcess(QImage normImage, Eyes normEyes)
 {
-    NULLPTR(avgFace);
-    NULLPTR(fwpAvgFace);
+    Q_ASSERT(avgFace);
+    Q_ASSERT(fwpAvgFace);
 
     AverageFaceKey key = AverageFaceKey::newKey();
     avgFace->add(normImage, normEyes);
@@ -59,8 +59,8 @@ bool IfSearch::avgFaceProcess(QImage normImage, Eyes normEyes)
 
 bool IfSearch::avgFaceFinish(void)
 {
-    NULLPTR(avgFace);
-    NULLPTR(fwpAvgFace);
+    Q_ASSERT(avgFace);
+    Q_ASSERT(fwpAvgFace);
 
     QImage avgImage = avgFace->average();
     fwpAvgFace->write(avgImage, "AvgFace");

@@ -37,7 +37,7 @@
 
 void IfSearch::processFace(void)
 {
-    NULLPTR(resolver);
+    Q_ASSERT(resolver);
 
     if (pendingFaces.isEmpty() || ! eigenFace)
         return;
@@ -65,7 +65,7 @@ void IfSearch::processFace(void)
         DUMPVAR(fwpHeight->isActive());
         if ( (! isHeight) && optForceHeight->toBool() && fwpHeight->isActive())
         {
-            NULLPTR(heightGrid);
+            Q_ASSERT(heightGrid);
             heightGrid->clear();
             QImage heightImage(heightGrid->gridImage(grabImage));
             fwpHeight->write(heightImage, idGenerator.face("Height"));
@@ -443,7 +443,7 @@ void IfSearch::processFace(void)
 
         if (optHeightEnable->toBool())
         {
-            NULLPTR(heightGrid);
+            Q_ASSERT(heightGrid);
             heightGrid->clear();
             heightGrid->set(eyeLine.translated(crop.topLeft()),
                             grabImage.size(), consistency);

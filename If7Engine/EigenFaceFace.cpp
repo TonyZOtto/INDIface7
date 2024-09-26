@@ -6,7 +6,7 @@
 
 #include <DDTcore.h>
 #include <EigenFace.h>
-#include <InfoMacros.h>
+//#include <InfoMacros.h>
 #include <Return.h>
 
 
@@ -108,8 +108,8 @@ Return EigenFaceFace::writeXmlFile(const QString & fileName) const
 
     if (rtn.isError())
         return rtn;
-    else
-        TRACE("Face written: %1 Status=%2", fileName, Status.name());
+//    else
+  //      TRACE("Face written: %1 Status=%2", fileName, Status.name());
 
     return DDTcore::writeXmlFile(fileName, doc);
 }

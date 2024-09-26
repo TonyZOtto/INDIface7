@@ -7,14 +7,14 @@ class QDomElement;
 class QFile;
 class QVariant;
 
-enum Severity
+enum ddtSeverity
 {
     Null = 0,
     Leave,
     Enter,
     Detail,
     Debug,
-    Info,
+    ddtInfo,
     Progress,
     Warning,
     Error,

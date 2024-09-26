@@ -95,7 +95,7 @@ QString InputHotdir::start(const QUrl & url)
     watcher->addPath(dirRead->path());
     started = true;
 
-    timer = new QTimer(this); NULLPTR(timer);
+    timer = new QTimer(this); Q_ASSERT(timer);
     timer->start(SampleMsec ? SampleMsec : 1000);
     connect(timer, SIGNAL(timeout()), this, SLOT(sample()));
 

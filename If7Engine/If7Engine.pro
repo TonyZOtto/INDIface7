@@ -16,6 +16,7 @@ SOURCES += \
     ClothesMatchProperties.cpp \
     ClothesMatcher.cpp \
     ColorModel.cpp \
+    DetectorResult.cpp \
     DomValuesElement.cpp \
     EigenFace.cpp \
     EigenFaceBitMask.cpp \
@@ -122,6 +123,7 @@ HEADERS += \
     ColorRangeWeightVector.inc \
     DDTcore.h \
     Detector.h \
+    DetectorResult.h \
     DomValuesElement.h \
     DualMap.h \
     EigenFace.h \

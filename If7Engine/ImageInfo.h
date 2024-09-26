@@ -27,7 +27,7 @@ public:
     ImageInfo(const QImage & image);
     ~ImageInfo();
     ImageInfo & operator=(const ImageInfo & that);
-    void addFace(const tFeatureInfo & fInfo);
+    void addFace(const FeatureInfo & fInfo);
     FeatureInfo face(int x) const;
     bool writeDomElement(QDomElement * pDE) const;
     bool read(const QDomElement & de);
@@ -42,5 +42,5 @@ public:
 
 private:
     AttributeSet        mAttributeSet;
-    QList<tFeatureInfo> mFInfoList;
+    QList<FeatureInfo> mFInfoList;
 }; // class ImageCache

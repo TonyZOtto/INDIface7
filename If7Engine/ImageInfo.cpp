@@ -58,15 +58,15 @@ bool ImageInfo::read(const QDomElement & de)
 		QDomElement elementFeatureSet = nodeFace.firstChildElement("FeatureSet");
 		while ( ! elementFeatureSet.isNull())
 		{
-			FeatureSet fSet(elementFeatureSet);
-            mFInfoList << fSet;
+            FeatureInfo fInfo(elementFeatureSet);
+            mFInfoList << fInfo;
 			elementFeatureSet = elementFeatureSet.nextSiblingElement("FeatureSet");
 		}
 	}
 	return true;
 } // read(QDomElement)
 
-void ImageInfo::addFace(const tFeatureInfo &fInfo)
+void ImageInfo::addFace(const FeatureInfo &fInfo)
 {
     mFInfoList.append(fInfo);
 }

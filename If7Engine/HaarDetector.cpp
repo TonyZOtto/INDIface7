@@ -221,7 +221,7 @@ void HaarDetector::setImage(QImage img)
                 cvReleaseImage(&ipl_Grey);
             ipl_Grey = cvCreateImage(cvSize((w / origScale) & 0xFFFC,
                                             (h / origScale) & 0xFFFC), IPL_DEPTH_8U, 1);
-            NULLPTR(ipl_Grey);
+            Q_ASSERT(ipl_Grey);
             DETAIL("Created IPL Image");
             if (QImage::Format_Indexed8 == imgOrig.format())
             {
@@ -576,7 +576,7 @@ bool HaarDetector::processC(bool returnAll)
 #ifndef USE_OCV2
 bool HaarDetector::processCascadeClassifier(bool returnAll)
 {
-        QElapsedTimer * timer = new QElapsedTimer; NULLPTR(timer);
+        QElapsedTimer * timer = new QElapsedTimer; Q_ASSERT(timer);
 
         allObjects.clear();
         allResults.clear();

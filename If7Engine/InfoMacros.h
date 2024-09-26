@@ -11,7 +11,6 @@
 #include <Info.h>
 
 #define	ASSERT(test) ((void)((test) ? Info::add(InfoItem(Info::Severity::Fatal,__FILE__, __LINE__, "FATAL ERRMSG: %1", #test)) : 0))
-#define NULLPTR(ptr) if(!ptr) Info::add(InfoItem(Info::Severity::Fatal,__FILE__, __LINE__, "FATAL ERRMSG: %1 is NULL", #ptr));
 #define EXPECT(value, test) (Info::expect(#value, value, #test, test, __FILE__, __LINE__))
 #define EXPECTNOT(value, test) (Info::expectNot(#value, value, #test, test, __FILE__, __LINE__))
 #define FATAL(msg, ...) Info::add(InfoItem(Info::Severity::Fatal,__FILE__, __LINE__, msg, ##__VA_ARGS__))

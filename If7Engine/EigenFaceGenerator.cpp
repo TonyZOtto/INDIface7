@@ -26,7 +26,7 @@ EigenFaceGenerator::EigenFaceGenerator(QObject * parent,
     Return::add(EigenFace::ReturnNoTemplate, "INDI EigenFace No Template", Error);
     Return::add(EigenFace::ReturnNoParameters, "INDI EigenFace No Parameters", Error);
     Return::add(EigenFace::ReturnNoDetector, "INDI EigenFace No %1 Detector", Error);
-    Return::add(EigenFace::ReturnDetectorError, "INDI EigenFace Detector Error: %1", Fatal);
+    Return::add(EigenFace::ReturnDetectorError, "INDI EigenFace Detector Error: %1", Error);
     Return::add(EigenFace::ReturnException, "INDI EigenFace Detector Exception: %1", Error);
     Return::add(EigenFace::ReturnBadFltFile, "Invalid FLT File Data in %1: %2", Error);
     Return::add(EigenFace::ReturnConflict, "Conflicting Data for %1: %2 and %2", Error);
@@ -87,7 +87,7 @@ void EigenFaceGenerator::clear(enum Clear what)
     case ClearAll:
     case ClearImage:
         originalImage = QImage();
-        fSet.clear();
+        fInfo.clear();
         eyeRoiMethod = NotSpecified;
     case ClearHead:
         head = QRect();
@@ -162,15 +162,15 @@ Return EigenFaceGenerator::setImage(const QImage & image,
     // validate image
     originalImage = image;
     ImageInfo ii(image);
-    fSet = ii.face(0);
-    fSet.merge2(info.face(0));
-    if (fSet.get(Feature::ImageSource).isNull()
+    fInfo = ii.face(0);
+    fInfo.merge2(info.face(0));
+    if (fInfo.imageSource().isNull()
             && ! imageSource.isEmpty())
-        fSet.set(Feature::ImageSource, imageSource);
+        fInfo.imageSource(imageSource);
 
-    head = fSet.get(Feature::HeadBox).toRect();
-    origEyes = fSet.get(Feature::EyeLine).toLine();
-    QString method = fSet.get(Feature::HeadMethod).toString();
+    head = fInfo.headBox();
+    origEyes = fInfo.eyeLine();
+    QString method = fInfo.headMethod();
     if (method.contains("Adjust=1") && method.contains("GroupMethod=3"))
         eyeRoiMethod = AdjustedNeighbors;
     else if (method.contains("GroupMethod=3"))
@@ -215,6 +215,7 @@ QImage EigenFaceGenerator::getReconImage(EigenFaceTemplate * tpl, int vector, in
             reconImage = recon.toImage(QImage::Format_Indexed8, false);
             return reconImage;
         }
+    return QImage();
 } // getReconImage()
 
 QImage EigenFaceGenerator::graphVector(EigenFaceTemplate * tpl, int vector, QSize size, qreal scale)

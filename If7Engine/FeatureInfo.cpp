@@ -6,8 +6,25 @@ DomValuesElement FeatureInfo::domElement(QString &aElementTag) const
 {
     DomValuesElement result(aElementTag);
     result.append(data->dImageSource, "ImageSource");
-
     return result;
+}
+
+void FeatureInfo::clear()
+{
+    leftEye(QPoint());
+    rightEye(QPoint());
+    headCenter(QPoint());
+    eyeLine(QLine());
+    eyeDistance(0);
+}
+
+void FeatureInfo::merge2(const FeatureInfo &other)
+{
+    if (leftEye().isNull())     leftEye(other.leftEye());
+    if (rightEye().isNull())    rightEye(other.rightEye());
+    if (headCenter().isNull())  headCenter(other.headCenter());
+    if (eyeLine().isNull())     eyeLine(other.eyeLine());
+    if (eyeDistance().isNull()) eyeDistance(other.eyeDistance());
 }
 
 void FeatureInfo::calculate()

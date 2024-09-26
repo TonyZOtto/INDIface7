@@ -61,7 +61,7 @@ void IfSearch::pulse(void)
 void IfSearch::hotdirReady(void)
 {
     FUNCTION();
-    NULLPTR(hotdir);
+    Q_ASSERT(hotdir);
     if ( ! paused)
     {
         hotdir->cacheFirst();
@@ -147,7 +147,7 @@ void IfSearch::dogBite(QVariant lastValue,
 
 void IfSearch::changed(const QString & key)
 {
-    NULLPTR(appSettings);
+    Q_ASSERT(appSettings);
     INFO(tr("PC=%3 %1 changed to %2", "status"), key,
          appSettings->valueOf(key), appSettings->pollCount());
 
@@ -207,7 +207,7 @@ void IfSearch::changed(const QString & key)
         {
             streamBase_mst.set(MillisecondTime::null());
             hotdir = new DDT::InputHotdir(this);
-            NULLPTR(hotdir);
+            Q_ASSERT(hotdir);
             hotdir->setObjectName("hotdir");
             hotdir->setCache(&imageCache);
             appSettings->objectProperties(hotdir, tr("Input", "config"),
@@ -247,7 +247,7 @@ void IfSearch::changed(const QString & key)
         {
             streamBase_mst.set(MillisecondTime::null());
             camera = new DDT::ImageSource(this);
-            NULLPTR(camera);
+            Q_ASSERT(camera);
             camera->setObjectName("source");
             camera->setCache(&imageCache);
             QStringList qsl;
@@ -411,14 +411,14 @@ void IfSearch::changed(const QString & key)
         ;
     else if (0 == key.startsWith("Resolve/", Qt::CaseInsensitive))
     {
-        NULLPTR(resolver);
+        Q_ASSERT(resolver);
         QString item = key.split("/").last();
         resolver->setWeight(item, appSettings->value(key).toInt());
     }
     else if (0 == key.compare(optHeightEnable->keyName(), Qt::CaseInsensitive)
             || 0 == key.compare("Height/GridFile", Qt::CaseInsensitive))
     {
-        NULLPTR(heightGrid);
+        Q_ASSERT(heightGrid);
         if (optHeightEnable->toBool())
         {
             QImage heightImage = heightGrid->initializeGrid();

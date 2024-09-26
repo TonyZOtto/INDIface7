@@ -87,7 +87,7 @@ void IfSearch::doEnroll(void)
 
 void IfSearch::enrollScanDir(void)
 {
-    NULLPTR(appSettings); NULLPTR(writer);
+    Q_ASSERT(appSettings); Q_ASSERT(writer);
     QStringList qsl;
 
     appSettings->setValue("Enroll/Status", "Scanning Directory");

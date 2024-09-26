@@ -2,19 +2,12 @@
 *
 *	Public declarations for INDI project EigenFaceMatcher
 */
-
-#ifndef EIGENFACESEARCHPERSON_H
-#define EIGENFACESEARCHPERSON_H
+#pragma once
 #include <qglobal.h>
-#ifdef INDIEF_LIB
-# define  Q_DECL_EXPORT
-#else
-# define  Q_DECL_IMPORT
-#endif
 
 #include <QtCore/QList>
 
-#include <eirBase/Property.h>
+#include <Property.h>
 
 #include "EigenFaceSearchResult.h"
 #include "EigenFaceSearchTier.h"
@@ -56,4 +49,3 @@ private:
     QList<EigenFaceSearchResult> result_list;
 };
 
-#endif // EIGENFACESEARCHPERSON_H

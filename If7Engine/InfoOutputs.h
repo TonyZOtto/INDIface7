@@ -5,7 +5,7 @@
 */
 #pragma once
 
-#include <Info::Severity.h>
+#include <Info.h>
 #include <NamedArray.h>
 
 class  InfoOutputs : public NamedArray<Info::Severity, QList<InfoOutputBase *> >

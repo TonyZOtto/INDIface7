@@ -1,17 +1,11 @@
 #ifndef EIGENFACESEARCHRESULT_H
 #define EIGENFACESEARCHRESULT_H
 #include <qglobal.h>
-#ifdef INDIEF_LIB
-# define  Q_DECL_EXPORT
-#else
-# define  Q_DECL_IMPORT
-#endif
-
 
 #include <QSharedData>
 #include <QSharedDataPointer>
 
-#include <eirBase/DataProperty.h>
+#include <DataProperty.h>
 
 #define SEARCHRESULT_DATAPROPS(TND) \
     TND(int, Rank, 0) \

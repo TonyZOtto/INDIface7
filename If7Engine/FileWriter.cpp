@@ -365,7 +365,7 @@ QDir FileWriter::baseDir(void) const
 void FileWriter::setupDirs(FileWriteProfile * profile)
 {
 //    FUNCTION();
-    NULLPTR(profile);
+    Q_ASSERT(profile);
     profile->_dirs.clear();
     QString delimitedNames = profile->_opt->toString();
     if (delimitedNames.isEmpty())
@@ -413,7 +413,7 @@ void FileWriter::setupDirs(FileWriteProfile * profile)
 void FileWriter::queuedWrite(FileWriteProfile * profile, const QString & baseName, const QByteArray & ba)
 {
 //    FUNCTION();
-    NULLPTR(profile);
+    Q_ASSERT(profile);
     bool tmp = false; // TODO-Test: TempAndRename & profile->_flags;
     foreach (QDir dir, profile->_dirs)
     {

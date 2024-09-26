@@ -5,7 +5,7 @@
 #include <QtGui/QImage>
 
 #include "AnyColor.h"
-#include "InfoMacros.h"
+//#include "InfoMacros.h"
 #include "SkinDetector.h"
 
 
@@ -210,8 +210,8 @@ qreal CharacteristicColor::hslDistance(const QColor & qc,
         return -1.0;
     QColor(toRgb()).toHsl().getHslF(&h1, &s1, &l1);
     qc.toHsl().getHslF(&h2, &s2, &l2);
-    TRACE("Source: H%2 S%3 L%4 %1", toString(), h1, s1, l1);
-    TRACE("Target: H%2 S%3 L%4 %1", AnyColor(qc).string(), h2, s2, l2);
+//    TRACE("Source: H%2 S%3 L%4 %1", toString(), h1, s1, l1);
+  //  TRACE("Target: H%2 S%3 L%4 %1", AnyColor(qc).string(), h2, s2, l2);
     if (s2 < sThreshold)
         result = qAbs(l1-l2);
     else if (s1 < sThreshold)
@@ -229,7 +229,7 @@ qreal CharacteristicColor::hslDistance(const QColor & qc,
         result += lWeight * (l1-l2) * (l1-l2);
         result = sqrt(result / (hWeight + sWeight + lWeight));
     }
-    TRACE("Distance=%1", result);
+//    TRACE("Distance=%1", result);
     return result;
 }
 
