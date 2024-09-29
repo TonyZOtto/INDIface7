@@ -6,7 +6,6 @@
 #include <EigenFaceParameters.h>
 #include <EigenFaceMaskedArray.h>
 #include <FileWriteProfile.h>
-#include <InfoMacros.h>
 #include <Settings.h>
 
 #include <Key.h>
@@ -31,8 +30,6 @@ bool IfSearch::avgFaceInit(void)
     QStringList nameFilters;
     nameFilters << "*." + fwpAvgFace->format();
     QStringList files = dir.entryList(nameFilters);
-    PROGRESS("Reading %1 previous average faces", files.size());
-    Info::flush();
 
     foreach (QString fileName, files)
     {

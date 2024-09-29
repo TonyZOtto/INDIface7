@@ -5,17 +5,22 @@ QT += xml
 CONFIG += c++17
 CONFIG += cmdline
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
+DEFINES += ENABLE_AVGFACE
 DEFINES += TODO0002
 
 SOURCES += \
+    AbstractIdString.cpp \
     AnyColor.cpp \
     AnyColorMatrix.cpp \
     AttributeSet.cpp \
     AverageFace.cpp \
+    BaseIdBehavior.cpp \
+    BasicId.cpp \
     CharacteristicColor.cpp \
     ClothesMatchProperties.cpp \
     ClothesMatcher.cpp \
     ColorModel.cpp \
+    CsvWriter.cpp \
     DetectorResult.cpp \
     DomValuesElement.cpp \
     EigenFace.cpp \
@@ -49,11 +54,14 @@ SOURCES += \
     FeatureInfo.cpp \
     FileWriteProfile.cpp \
     FileWriter.cpp \
+    FramePerformance.cpp \
+    FrameStatistics.cpp \
     FrontalFaceDetector.cpp \
     GreyImage.cpp \
     GroupObjects.cpp \
     HaarDetector.cpp \
     HeightGrid.cpp \
+    IdGenerator.cpp \
     IdString.cpp \
     IfSearch-AvgFace.cpp \
     IfSearch-ProcessFace.cpp \
@@ -76,6 +84,8 @@ SOURCES += \
     ImageSource.cpp \
     InputHotdir.cpp \
     Key.cpp \
+    MillisecondDelta.cpp \
+    MillisecondTime.cpp \
     QQRect.cpp \
     Resolver.cpp \
     Return.cpp \
@@ -87,6 +97,13 @@ SOURCES += \
     SkinMatchProperties.cpp \
     SkinMatcher.cpp \
     TransformProperties.cpp \
+    Variable.cpp \
+    VariableGroup.cpp \
+    VariableId.cpp \
+    VariableIdBehavior.cpp \
+    VariableIdList.cpp \
+    VariableSet.cpp \
+    VariableType.cpp \
     VersionInfo.cpp \
     WD-IfSearch.cpp \
     WD-IfSearchInit.cpp \
@@ -98,20 +115,25 @@ SOURCES += \
     main.cpp \
 
 DISTFILES += \
+    FrameSequencer.graphml \
     GradIcon.ico \
     INDIface24.ico \
     eIRonly24.ico
 
 HEADERS += \
+    AbstractIdString.h \
     AnyColor.h \
     AnyColorMatrix.h \
     AttributeSet.h \
     AverageFace.h \
+    BaseIdBehavior.h \
+    BasicId.h \
     CharacteristicColor.h \
     ClothesMatchProperties.h \
     ClothesMatcher.h \
     ColorModel.h \
     ColorRangeWeightVector.inc \
+    CsvWriter.h \
     DDTcore.h \
     Detector.h \
     DetectorResult.h \
@@ -145,11 +167,14 @@ HEADERS += \
     FeatureInfoData.h \
     FileWriteProfile.h \
     FileWriter.h \
+    FramePerformance.h \
+    FrameStatistics.h \
     GreyImage.h \
     HeightGrid.h \
     Histogram.h \
     INDIef.h \
     INDIffd.h \
+    IdGenerator.h \
     IdString.h \
     IfSearch.h \
     ImageCache.h \
@@ -160,6 +185,8 @@ HEADERS += \
     Key.h \
     Key.hh \
     Matrix.h \
+    MillisecondDelta.h \
+    MillisecondTime.h \
     Named.h \
     NamedArray.h \
     NamedEnum.h \
@@ -180,6 +207,13 @@ HEADERS += \
     SkinMatchProperties.h \
     SkinMatcher.h \
     TransformProperties.h \
+    Variable.h \
+    VariableGroup.h \
+    VariableId.h \
+    VariableIdBehavior.h \
+    VariableIdList.h \
+    VariableSet.h \
+    VariableType.h \
     VersionInfo.h \
     WD-IfSearch.h \
     WindowsProcess.h \

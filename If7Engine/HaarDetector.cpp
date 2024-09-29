@@ -10,7 +10,6 @@
 #include <QElapsedTimer>
 
 #include <GreyImage.h>
-#include <InfoMacros.h>
 #include <ImageMarker.h>
 //#include <AnyColor.h>
 

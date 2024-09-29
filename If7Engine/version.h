@@ -9,7 +9,11 @@
 
 #define VER_FILETYPE    VFT_APP
 #define VER_APPNAME     "INDIface"
+#define VER_ORGNAME     "EclipseIR"
+#define VER_COPYRIGHT   "Copyright (c) 1993-2024 Eclipse Identity Recognition Corporation. " \
+                        "All rights reserved worldwide."
 #define VER_ICON        "INDIface24.ico"
 #define VER_FILEDESC    "EclipseIR INDIface SDK1 Console"
 
 #endif // VERSION_H
+

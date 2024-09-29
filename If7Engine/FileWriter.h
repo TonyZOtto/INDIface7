@@ -6,16 +6,12 @@
 
 #pragma once
 #include <qglobal.h>
-#ifdef DDTIMG_LIB
-# define DDTIMG_EXPORT Q_DECL_EXPORT
-#else
-# define DDTIMG_EXPORT Q_DECL_IMPORT
-#endif
 
 class QDir;
 class QFile;
 #include <QByteArray>
 #include <QDateTime>
+#include <QFlags>
 #include <QMap>
 #include <QQueue>
 #include <QString>
@@ -30,7 +26,7 @@ class StatusHandler;
 class ImageCache;
 class FileWriteProfile;
 
-class DDTIMG_EXPORT FileWriter : public QObject
+class FileWriter : public QObject
 {
     Q_OBJECT
 
@@ -61,7 +57,7 @@ public:
     void setCacheDirs(const QString & cacheDirs);
     FileWriteProfile * newProfile(const QString & name, Flags f=$null, QString key=QString());
     FileWriteProfile * newProfile(const QString & name, QString key);
-    FileWriteProfile * profile(const QString & name);
+    FileWriteProfile * profile(const QString & name) const;
     void setImageCache(ImageCache * cache);
     bool addLogFile(StatusHandler * sts);
     void start(int longMsec=500, int shortMsec=50, int cacheMsec=60000);
@@ -70,8 +66,8 @@ public:
     int pumpFirst(void);
     void pumpAll(void);
     QString timeStampString(void);
-    QDir baseDir(void) const;
-    int size(void) const { return _queueProfile.size(); }
+    QDir baseDir(void);
+    int size(void) const { return mProfileQueue.size(); }
     void dump(void) const;
 
 public slots:
@@ -103,30 +99,28 @@ private slots:
     void cacheClean(void);
 
 private:
-    QDateTime _dateTime;
-    QString _timeStampString;
-    Settings * _settings;
-    QString _keyFormat;
-    ImageCache * _imageCache;
-    Setting * _optQuality;
-    Setting * _optFormat;
-    Setting * _optFaceQuality;
-    Setting * _optFaceFormat;
-    Setting * _optBaseDir;
-    Setting * _optMaxCache;
-    int	_longMsec;
-    int	_shortMsec;
-    int	_cacheMsec;
-
-    QStringList cacheDirNames_qsl;
-    QMap<QString, FileWriteProfile *> _mapKeyToProfile;
-
+    QDateTime mDateTime;
+    QString mTimeStampString;
+    Settings * mpSettings=nullptr;
+    QString mKeyFormat;
+    ImageCache * mpImageCache=nullptr;
+    Setting * _optQuality=nullptr;
+    Setting * _optFormat=nullptr;
+    Setting * _optFaceQuality=nullptr;
+    Setting * _optFaceFormat=nullptr;
+    Setting * _optBaseDir=nullptr;
+    Setting * _optMaxCache=nullptr;
+    int	mLongMsec;
+    int	mShortMsec;
+    int	mCacheMsec;
+    QStringList mCacheDirNameList;
+    QMap<QString, FileWriteProfile *> mKeyProfileMap;
     // pending queue
-    QReadWriteLock _queueLock;
-    QQueue<FileWriteProfile *> _queueProfile;
-    QQueue<QString> _queueName;
-    QQueue<QByteArray> _queueData;
-    QQueue<QDir> cache_dir_q;
+    QReadWriteLock mQueueLock;
+    QQueue<FileWriteProfile *> mProfileQueue;
+    QQueue<QString> mNameQueue;
+    QQueue<QByteArray> mBytesQueue;
+    QQueue<QDir> mCacheDirQueue;
 
 }; // class FileWriter
 

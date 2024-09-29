@@ -4,6 +4,7 @@
 #include <QTimer>
 
 #include <Return.h>
+#include <Setting.h>
 #include <Settings.h>
 
 /* USAGE: (.h)
@@ -37,15 +38,14 @@
 
 
 FileWriter::FileWriter(Settings * settings, const QString & keyFormat, QObject * parent)
-    : QObject(parent), _settings(settings)
+    : QObject(parent), mpSettings(settings)
 {
-    FUNCTION();
     setObjectName("FileWriter");
-    _dateTime = QDateTime::currentDateTime();
-    _settings->setValue("Output/BaseEms", _dateTime.toMSecsSinceEpoch());
-    _imageCache = 0;
-    _keyFormat = keyFormat.isEmpty() ? "Output/$Dir" : keyFormat;
-    QString prefix = _keyFormat.left(1 + _keyFormat.lastIndexOf(QChar('/')));
+    mDateTime = QDateTime::currentDateTime();
+    mpSettings->setValue("Output/BaseEms", mDateTime.toMSecsSinceEpoch());
+    mpImageCache = 0;
+    mKeyFormat = keyFormat.isEmpty() ? "Output/$Dir" : keyFormat;
+    QString prefix = mKeyFormat.left(1 + mKeyFormat.lastIndexOf(QChar('/')));
     _optQuality = new Setting(settings, prefix + "Quality", -1, Settings::Volatile);
     _optFormat = new Setting(settings, prefix + "Format", "JPG", Settings::Volatile);
     _optFaceQuality = new Setting(settings, prefix + "FaceQuality", -1, Settings::Volatile);
@@ -58,58 +58,50 @@ FileWriter::FileWriter(Settings * settings, const QString & keyFormat, QObject *
 
 FileWriter::~FileWriter()
 {
-    FUNCTION();
     pumpAll();
 }
 
 FileWriteProfile * FileWriter::newProfile(const QString & name, QString key)
 {
-    return newProfile(name, 0, key);
+    return newProfile(name, $null, key);
 }
 
 FileWriteProfile * FileWriter::newProfile(const QString & name, Flags f, QString key)
 {
-    FUNCTION();
 
-    bool isCache = cacheDirNames_qsl.contains(name, Qt::CaseInsensitive);
+    bool isCache = mCacheDirNameList.contains(name, Qt::CaseInsensitive);
     if (isCache) f |= Cache;
     FileWriteProfile * profile = new FileWriteProfile(name, f, this);
-    if ( ! profile)
-    {
-        FNRETURN("Null new FileWriteProfile");
-        return 0;
-    }
+    if ( ! profile)                                                 return 0;
 
     if (key.isEmpty())
     {
-        key = _keyFormat;
+        key = mKeyFormat;
         key.replace("$", name);
     }
 
-    _mapKeyToProfile.insert(key, profile);
-    profile->_opt = new Setting(_settings, key, QString(), Settings::Volatile);
+    mKeyProfileMap.insert(key, profile);
+    profile->_opt = new Setting(mpSettings, key, QString(), Settings::Volatile);
     if (XmlText & profile->_flags) profile->_format = "xml";
 
-    FNRETURN("success");
     return profile;
 } // newProfile()
 
-FileWriteProfile * FileWriter::profile(const QString & name)
+FileWriteProfile * FileWriter::profile(const QString & name) const
 {
-    return _mapKeyToProfile.contains(name)
-            ? _mapKeyToProfile.value(name) : 0;
+    return mKeyProfileMap.contains(name)
+    ? mKeyProfileMap.value(name) : 0;
 }
 
 void FileWriter::setCacheDirs(const QString & cacheDirs)
 {
-    cacheDirNames_qsl = cacheDirs.simplified().split(' ');
+    mCacheDirNameList = cacheDirs.simplified().split(' ');
 }
 
 
 void FileWriter::start(int longMsec, int shortMsec, int cacheMsec)
 {
-    FUNCTION();
-    _longMsec = longMsec, _shortMsec = shortMsec, _cacheMsec = cacheMsec;
+    mLongMsec = longMsec, mShortMsec = shortMsec, mCacheMsec = cacheMsec;
 
     enqueue(0, _optQuality->keyName());
     enqueue(0, _optFormat->keyName());
@@ -117,31 +109,30 @@ void FileWriter::start(int longMsec, int shortMsec, int cacheMsec)
     enqueue(0, _optFaceFormat->keyName());
     enqueue(0, _optMaxCache->keyName());
     enqueue(0, _optQuality->keyName());
-    foreach (FileWriteProfile * prof, _mapKeyToProfile)
+    foreach (FileWriteProfile * prof, mKeyProfileMap)
         enqueue(prof, QString());
 
-    QTimer::singleShot(_shortMsec, this, SLOT(pulse()));
-    QTimer::singleShot(_cacheMsec, this, SLOT(cacheClean()));
+    QTimer::singleShot(mShortMsec, this, SLOT(pulse()));
+    QTimer::singleShot(mCacheMsec, this, SLOT(cacheClean()));
 } // start()
 
 QString FileWriter::timeStampString(void)
 {
-    if (_timeStampString.isEmpty())
-        _timeStampString = _dateTime.toString("DyyyyMMdd-Thhmm");
-    return _timeStampString;
+    if (mTimeStampString.isEmpty())
+        mTimeStampString = mDateTime.toString("DyyyyMMdd-Thhmm");
+    return mTimeStampString;
 } // timeStampString()
 
 void FileWriter::pulse(void)
 {
     // TODO: investigate worker QThread to service queue
-//    FUNCTION();
-    QTimer::singleShot(pumpFirst() ? _shortMsec : _longMsec, this, SLOT(pulse()));
+    //    FUNCTION();
+    QTimer::singleShot(pumpFirst() ? mShortMsec : mLongMsec, this, SLOT(pulse()));
 } // pulse()
 
 
 void FileWriter::settingChanged(QString key)
 {
-    FUNCTION();
     if (_optQuality->keyName() == key)
         enqueue(0, key);
     else if (_optFormat->keyName() == key)
@@ -154,24 +145,23 @@ void FileWriter::settingChanged(QString key)
         enqueue(0, key);
     else if (_optBaseDir->keyName() == key)
         enqueue(0, key);
-    else if (_mapKeyToProfile.contains(key))
-        enqueue(_mapKeyToProfile.value(key), QString());
+    else if (mKeyProfileMap.contains(key))
+        enqueue(mKeyProfileMap.value(key), QString());
     pumpAll();
 } // settingChanged()
 
 void FileWriter::setImageCache(ImageCache * cache)
 {
-    FUNCTION();
-    _imageCache = cache;
+    mpImageCache = cache;
 } // setImageCache()
 
 bool FileWriter::isQueueValid(void)
 {
-//    FUNCTION();
-    QReadLocker lock(&_queueLock);
-    int nProfile	= _queueProfile.size();
-    int nName		= _queueName.size();
-    int nData		= _queueData.size();
+    //    FUNCTION();
+    QReadLocker lock(&mQueueLock);
+    int nProfile	= mProfileQueue.size();
+    int nName		= mNameQueue.size();
+    int nData		= mBytesQueue.size();
     bool valid		= (nProfile == nName && nProfile == nData);
     if ( ! valid)
         emit error(tr("FileWriter Queue is not valid %1 %2 %3").arg(nProfile).arg(nName).arg(nData));
@@ -181,11 +171,11 @@ bool FileWriter::isQueueValid(void)
 
 bool FileWriter::isQueueEmpty(void)
 {
-//    FUNCTION();
-    QReadLocker lock(&_queueLock);
-    int nProfile	= _queueProfile.size();
-    int nName		= _queueName.size();
-    int nData		= _queueData.size();
+    //    FUNCTION();
+    QReadLocker lock(&mQueueLock);
+    int nProfile	= mProfileQueue.size();
+    int nName		= mNameQueue.size();
+    int nData		= mBytesQueue.size();
     bool empty		= (0 == nProfile && 0 == nName && 0 == nData);
     //FNRETURN(empty);
     return empty;
@@ -193,24 +183,24 @@ bool FileWriter::isQueueEmpty(void)
 
 void FileWriter::clearQueue(void)
 {
-//    FUNCTION();
-    QWriteLocker lock(&_queueLock);
-    _queueProfile.clear();
-    _queueName.clear();
-    _queueData.clear();
+    //    FUNCTION();
+    QWriteLocker lock(&mQueueLock);
+    mProfileQueue.clear();
+    mNameQueue.clear();
+    mBytesQueue.clear();
 } // clearQueue()
 
 void FileWriter::enqueue(FileWriteProfile * profile,
                          const QString & name,
                          const QByteArray & ba)
 {
-//    FUNCTION();
+    //    FUNCTION();
     if ( ! isQueueValid())
         clearQueue();
-    QWriteLocker lock(&_queueLock);
-    _queueProfile.enqueue(profile);
-    _queueName.enqueue(name);
-    _queueData.enqueue(ba);
+    QWriteLocker lock(&mQueueLock);
+    mProfileQueue.enqueue(profile);
+    mNameQueue.enqueue(name);
+    mBytesQueue.enqueue(ba);
     if (profile && ! name.isEmpty() && ! ba.isEmpty())
         profile->_filesPending.append(name);
 } // enqueue()
@@ -219,7 +209,7 @@ bool FileWriter::dequeue(FileWriteProfile ** profile,
                          QString * name,
                          QByteArray * ba)
 {
-//    FUNCTION();
+    //    FUNCTION();
     if (isQueueEmpty())
     {
         //FNRETURN("empty");
@@ -231,27 +221,27 @@ bool FileWriter::dequeue(FileWriteProfile ** profile,
         //FNRETURN("invalid");
         return false;
     }
-    QWriteLocker lock(&_queueLock);
+    QWriteLocker lock(&mQueueLock);
     if (profile)
-        *profile = _queueProfile.dequeue();
+        *profile = mProfileQueue.dequeue();
     if (name)
-        *name = _queueName.dequeue();
+        *name = mNameQueue.dequeue();
     if (ba)
-        *ba = _queueData.dequeue();
+        *ba = mBytesQueue.dequeue();
     //FNRETURN("success");
     return true;
 } // dequeue()
 
 void FileWriter::pumpAll(void)
 {
-//    FUNCTION();
+    //    FUNCTION();
     while (pumpFirst())
         ;
 } // pumpAll()
 
 int FileWriter::pumpFirst(void)
 {
-//    FUNCTION();
+    //    FUNCTION();
     FileWriteProfile * profile;
     QString name;
     QByteArray ba;
@@ -286,18 +276,18 @@ int FileWriter::pumpFirst(void)
     if ( ! isQueueValid())
         clearQueue();
 
-    return _queueProfile.size();
+    return mProfileQueue.size();
 } // pumpFirst()
 
 
 void FileWriter::queuedChange(const QString & key)
 {
-//    FUNCTION();
+    //    FUNCTION();
     if (0 == key.compare(_optQuality->keyName(), Qt::CaseInsensitive))
     {
         // new quality
         int q = _optQuality->toInt();
-        foreach(FileWriteProfile * prof, _mapKeyToProfile)
+        foreach(FileWriteProfile * prof, mKeyProfileMap)
             if ( ! prof->_flags.testFlag(FaceImage))
                 prof->_quality = q;
     }
@@ -305,7 +295,7 @@ void FileWriter::queuedChange(const QString & key)
     {
         // new format
         QString fmt = _optFormat->toString();
-        foreach(FileWriteProfile * prof, _mapKeyToProfile)
+        foreach(FileWriteProfile * prof, mKeyProfileMap)
             if ( ! prof->_flags.testFlag(FaceImage) && ! prof->_flags.testFlag(XmlText))
                 prof->_format = fmt;
     }
@@ -313,7 +303,7 @@ void FileWriter::queuedChange(const QString & key)
     {
         // new face quality
         int q = _optFaceQuality->toInt();
-        foreach(FileWriteProfile * prof, _mapKeyToProfile)
+        foreach(FileWriteProfile * prof, mKeyProfileMap)
             if (FaceImage & prof->_flags)
                 prof->_quality = q;
     }
@@ -321,21 +311,21 @@ void FileWriter::queuedChange(const QString & key)
     {
         // new face format
         QString fmt = _optFaceFormat->toString();
-        foreach(FileWriteProfile * prof, _mapKeyToProfile)
+        foreach(FileWriteProfile * prof, mKeyProfileMap)
             if (FaceImage & prof->_flags)
                 prof->_format = fmt;
     }
     else if (0 == key.compare(_optBaseDir->keyName(), Qt::CaseInsensitive))
     {
         // new base dir
-        foreach(FileWriteProfile * prof, _mapKeyToProfile)
+        foreach(FileWriteProfile * prof, mKeyProfileMap)
             setupDirs(prof);
     }
     else if (0 == key.compare(_optMaxCache->keyName(), Qt::CaseInsensitive))
     {
         // new max cache
         int m = _optMaxCache->toInt();
-        foreach(FileWriteProfile * prof, _mapKeyToProfile)
+        foreach(FileWriteProfile * prof, mKeyProfileMap)
             if (Cache & prof->_flags)
                 prof->_maxCache = m;
     }
@@ -344,7 +334,7 @@ void FileWriter::queuedChange(const QString & key)
 
 } // queuedChange()
 
-QDir FileWriter::baseDir(void) const
+QDir FileWriter::baseDir(void)
 {
     QDir dir(QDir::current());
 
@@ -363,13 +353,12 @@ QDir FileWriter::baseDir(void) const
 
 void FileWriter::setupDirs(FileWriteProfile * profile)
 {
-//    FUNCTION();
+    //    FUNCTION();
     Q_ASSERT(profile);
     profile->_dirs.clear();
     QString delimitedNames = profile->_opt->toString();
     if (delimitedNames.isEmpty())
     {
-        TRACE("%1: No Output Directories", profile->name());
         emit directorySet(profile->name(), QString());
         return;
     }
@@ -398,20 +387,19 @@ void FileWriter::setupDirs(FileWriteProfile * profile)
                 if ( ! dir.remove(fileName))
                     emit error("Error removing " + dir.absoluteFilePath(fileName));
 
-        TRACE("%1: Output to %2", profile->name(), dir.absolutePath());
         emit directorySet(profile->name(), dir.absolutePath());
     }
 
-    cache_dir_q.clear();
-    foreach (FileWriteProfile * fwp, _mapKeyToProfile.values())
+    mCacheDirQueue.clear();
+    foreach (FileWriteProfile * fwp, mKeyProfileMap.values())
         foreach(QDir dir, fwp->dirs())
             if (fwp->_flags & FileWriter::Cache)
-                cache_dir_q.enqueue(dir);
+                mCacheDirQueue.enqueue(dir);
 } // setupDirs()
 
 void FileWriter::queuedWrite(FileWriteProfile * profile, const QString & baseName, const QByteArray & ba)
 {
-//    FUNCTION();
+    //    FUNCTION();
     Q_ASSERT(profile);
     bool tmp = false; // TODO-Test: TempAndRename & profile->_flags;
     foreach (QDir dir, profile->_dirs)
@@ -462,21 +450,17 @@ void FileWriter::queuedWrite(FileWriteProfile * profile, const QString & baseNam
         }
 
         profile->_filesPending.removeAll(baseName);
-        TRACE("%2 file: %1 written", fileName, profile->name());
         emit fileWritten(fileName);
     }
 } // queuedWrite()
 
 void FileWriter::cacheClean(void)
 {
-    //    FUNCTION();
     int maxCache = _optMaxCache->toInt();
-    if (maxCache && ! cache_dir_q.isEmpty())
+    if (maxCache && ! mCacheDirQueue.isEmpty())
     {
-        QDir dir(cache_dir_q.dequeue());
+        QDir dir(mCacheDirQueue.dequeue());
         QStringList fileNames = dir.entryList(QDir::Files, QDir::Time);
-        TRACE("cacheClean() %1 has %2 files > %3",
-              dir.absolutePath(), fileNames.size(), ((5 * maxCache) / 4));
         if (fileNames.size() > ((5 * maxCache) / 4))
         {
             while (fileNames.size() > maxCache)
@@ -484,35 +468,27 @@ void FileWriter::cacheClean(void)
                 QString fileName = fileNames.takeLast();
                 if ( ! dir.remove(fileName))
                     emit error("Error removing " + dir.absoluteFilePath(fileName));
-                else
-                    DETAIL("cacheClean() removed %1", dir.absoluteFilePath(fileName));
             }
-            TRACE("cacheClean() %1 now has %2 files, max=%3",
-                  dir.absolutePath(), fileNames.size(), maxCache);
         }
-        cache_dir_q.enqueue(dir);
+        mCacheDirQueue.enqueue(dir);
     }
 
-    QTimer::singleShot(_cacheMsec, this, SLOT(cacheClean()));
+    QTimer::singleShot(mCacheMsec, this, SLOT(cacheClean()));
 } // cacheClean()
 
 void FileWriter::dump(void) const
 {
-    PROGRESS("***FileWriter %1 profiles Base=%2",
-             _mapKeyToProfile.size(), baseDir().absolutePath());
-    foreach (QString name, _mapKeyToProfile.keys())
+    foreach (QString name, mKeyProfileMap.keys())
     {
         FileWriteProfile * fwp = profile(name);
         if (fwp)
         {
             if (fwp->isActive())
                 fwp->dump();
-            else
-                DETAIL("---%1 inactive", fwp->name());
         }
         else
         {
-            TRACE("null FileWriteProfile %1", name);
+            qWarning() << Q_FUNC_INFO << __LINE__ << "null FileWriteProfile" << name;
         }
     }
 } // dump()

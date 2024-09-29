@@ -12,16 +12,17 @@
 #include <EigenFaceParameters.h>
 #include <EigenFaceTemplate.h>
 #include <FaceBase.h>
+#include <FrontalFaceDetector.h>
 
 #include <Eyes.h>
 #include <FileWriteProfile.h>
 #include <ImageCache.h>
 #include <ImageMarker.h>
 #include <ImageSource.h>
-#include <InfoMacros.h>
 #include <InputHotdir.h>
 #include <QQRect.h>
 #include <Return.h>
+#include <Setting.h>
 #include <Settings.h>
 
 #include <Rectangle.h>
@@ -33,7 +34,8 @@
 #include <ClothesMatchProperties.h>
 #include <ClothesMatcher.h>
 
-#include "../../INDI2/oldEIRlibs/eirTypes/MillisecondDelta.h"
+#include "MillisecondDelta.h"
+#define RETURN(expr) expr
 
 void IfSearch::processFace(void)
 {
@@ -60,9 +62,6 @@ void IfSearch::processFace(void)
         else
             RETURN(fwpNoMark->write(grabImage, idGenerator.frame("NoMark")));
 
-        DUMPVAR(isHeight);
-        DUMPVAR(optForceHeight->toBool());
-        DUMPVAR(fwpHeight->isActive());
         if ( (! isHeight) && optForceHeight->toBool() && fwpHeight->isActive())
         {
             Q_ASSERT(heightGrid);
@@ -80,10 +79,8 @@ void IfSearch::processFace(void)
         imageCache.doDeferred(imageId);
         imageCache.release(imageId, eigenFace); // TODO: should have a process frame holder
         int fwPending = writer->size();
-        if (fwPending)
-            DETAIL("%1 files to be written", fwPending);
         writer->pumpAll();
-        INFO("^^^Processing complete: %1", imageId);
+        //INFO("^^^Processing complete: %1", imageId);
         if (fpWriter && framePerformance && frameStatistics)
         {
             frameStatistics->finish(fwPending, imageCache.status());
@@ -95,14 +92,13 @@ void IfSearch::processFace(void)
         {
             pausePending = false;
             paused = true;
-            PROGRESS("---PAUSED---");
+            //PROGRESS("---PAUSED---");
             imageCache.flushGrab();
             pendingFaces.clear();
         }
 
         appSettings->setValue("Output/FramesProcessed",
                               QString::number(++FramesProcessed));
-        Info::flush();
         return;
     }
 
@@ -121,27 +117,14 @@ void IfSearch::processFace(void)
     QQRect crop(head.size() * cropScale, head.center());
     QImage cropImage = grabImage.copy(crop);
     QRect cropHead(QRect(head.topLeft() - crop.topLeft(), head.size()));
-    PROGRESS("---%1-pixel face at %3, %4 Q%2", head.width(), result.score(),
-             head.center().x(), head.center().y());
+    //PROGRESS("---%1-pixel face at %3, %4 Q%2", head.width(), result.score(),       head.center().x(), head.center().y());
     QImage grabRgb = grabImage.convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
     if (optGenerateEnable->toBool())
     {
         rtn = eigenFace->setImage(cropImage);
-        RETURN(rtn);
         eigenFace->setHeadBox(cropHead);
         rtn = eigenFace->generateTemplate();
-        if (eigenFace->headScale() > 1.0)
-            DETAIL("   Scale:     %1 (x%2)", eigenFace->msecScale(),
-                   eigenFace->headScale());
-        if ( ! eigenFace->leftEyePerformance().isEmpty())
-            DETAIL("   Left Eye:  %1", eigenFace->leftEyePerformance());
-        if ( ! eigenFace->rightEyePerformance().isEmpty())
-            DETAIL("   Right Eye: %1", eigenFace->rightEyePerformance());
-        if (eigenFace->msecTemplate())
-            DETAIL("   Template:  %1", eigenFace->msecTemplate());
-        if (eigenFace->msecGenerate())
-            DETAIL("   Overall:   %1", eigenFace->msecGenerate());
         resolver->setScore("Consistency", eigenFace->consistency());
         eyeLine = eigenFace->adjustedEyes();
         idGenerator.setConsistency(eigenFace->consistency());
@@ -222,7 +205,7 @@ void IfSearch::processFace(void)
     }
     else if (rtn.is(EigenFace::ReturnNoEyes))
     {
-        INFO("   No eyes found");
+        //INFO("   No eyes found");
         RETURN(fwpNoEyes->write(cropImage, idGenerator.face("NoEyes")));
         if ( ! markedImage.isNull())
         {
@@ -238,8 +221,6 @@ void IfSearch::processFace(void)
                 overMark = overMark.scaled(optMarkOverMark->toDouble() / 100.0);
                 overRect &= markedImage.rect();
                 QImage headImage = grabRgb.copy(overRect);
-                EXPECT(true,  ! headImage.isNull());
-                EXPECT(true, markedImage.rect().contains(overRect));
                 marker.drawImage(overRect, headImage);
                 marker.rect(overMark, noEyesColor, 3);
                 isMarked = true;
@@ -248,8 +229,7 @@ void IfSearch::processFace(void)
     }
     else if (rtn.is(EigenFace::ReturnLowConsistency))
     {
-        INFO("   Face not suitable for searching (Consistency=%1)",
-             consistency);
+        // INFO("   Face not suitable for searching (Consistency=%1)",  consistency);
         RETURN(fwpBadFace->write(eigenFace->getNormalImage(), idGenerator.face("BadFace"), docTemplate));
         if ( ! markedImage.isNull())
         {
@@ -265,8 +245,6 @@ void IfSearch::processFace(void)
                 overMark = overMark.scaled(optMarkOverMark->toDouble() / 100.0);
                 overRect &= markedImage.rect();
                 QImage headImage = grabRgb.copy(overRect).convertToFormat(QImage::Format_ARGB32_Premultiplied);
-                EXPECT(true,  ! headImage.isNull());
-                EXPECT(true, markedImage.rect().contains(overRect));
                 marker.drawImage(overRect, headImage);
                 marker.rect(overMark, badColor, 3);
                 if (optMarkEyeColor->value<QColor>().isValid())
@@ -300,7 +278,7 @@ void IfSearch::processFace(void)
             normalEyes = Eyes::expected(cropImage.size());
         }
 
-        INFO("   Good Consistency %1", consistency);
+//        INFO("   Good Consistency %1", consistency);
 
         AnyColor faceSkinColor;
         QString faceColorMatch;
@@ -338,9 +316,6 @@ void IfSearch::processFace(void)
                     marker.rects(skinMatcher->normalFaceRectagles(normalEyes), Qt::blue);
                     RETURN(fwpsFaceColor.value(faceColorMatch+"-Output")->write(faceColorImage, idGenerator.face("FaceColor")));
                 }
-                DETAIL("FaceSkinColor=%1, Confidence to %2=%3",
-                       faceSkinColor.string(), faceColorMatch,
-                       faceColorConfidence);
             }
             else
             {

@@ -9,6 +9,7 @@
 #include <QStringList>
 
 #include <Detector.h>
+#include <DetectorResult.h>
 #include <EigenFaceTemplate.h>
 #include <EigenFaceSimilarity.h>
 #include <EigenFaceStatus.h>
@@ -19,11 +20,11 @@ class QFileSystemWatcher;
 #include <Eyes.h>
 #include <TransformProperties.h>
 
-#include "../../INDI2/oldEIRlibs/eirTypes/MillisecondTime.h"
-#include "../../INDI2/oldEIRlibs/eirCore/IdGenerator.h"
-#include "../../INDI2/oldEIRlibs/eirFile/CsvWriter.h"
-#include "../../INDI2/oldEIRlibs/eirIb2/FramePerformance.h"
-#include "../../INDI2/oldEIRlibs/eirIb2/FrameStatistics.h"
+#include "MillisecondTime.h"
+#include "IdGenerator.h"
+#include "CsvWriter.h"
+#include "FramePerformance.h"
+#include "FrameStatistics.h"
 
 class FileWriteProfile;
 class FileWriter;

@@ -24,7 +24,7 @@ class QImage;
 #include <DDTcore.h>
 class Setting;
 
-class DDTIMG_EXPORT FileWriteProfile : public QObject
+class FileWriteProfile : public QObject
 {
     Q_OBJECT
 

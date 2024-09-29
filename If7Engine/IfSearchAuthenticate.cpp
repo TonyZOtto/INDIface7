@@ -13,7 +13,6 @@
 #include <FaceBase.h>
 #include <FileWriteProfile.h>
 #include <ImageCache.h>
-#include <InfoMacros.h>
 #include <InputHotdir.h>
 #include <Return.h>
 #include <Settings.h>
@@ -22,7 +21,6 @@ void IfSearch::doAuthenticate(void)
 {
     if (ffdBusy)
     {
-        INFO("[SEARCH] ffdBusy");
         if (--searchTimeout)
             return searchError("Timeout");
         QTimer::singleShot(100, this, SLOT(doAuthenticate()));
@@ -36,7 +34,6 @@ void IfSearch::doAuthenticate(void)
     appSettings->setValue("Search/Confidence", authConfidence = 0);
     searchPersonKey = appSettings->value("Search/PersonKey", 0).toInt();
     searchPersonId = appSettings->value("Search/PersonId", QString()).toString();
-    PROGRESS("[SEARCH] Started for Authenticate: %1 #%2", searchPersonId, searchPersonKey);
 
     searchTemplate.clear();
     appSettings->setValue("Search/Status", "Checking FaceBase");

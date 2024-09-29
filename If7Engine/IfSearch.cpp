@@ -1,6 +1,5 @@
 #include "IfSearch.h"
 #include "version.h"
-#include "../../common/version.h"
 
 #include <QStringList>
 #include <QTimer>
@@ -13,10 +12,10 @@
 #include <FileWriteProfile.h>
 #include <FileWriter.h>
 #include <ImageMarker.h>
-#include <InfoMacros.h>
+#include <ImageMarker.h>
 #include <Return.h>
+#include <Setting.h>
 #include <Settings.h>
-//#include <Trace.h>
 
 #include <ClothesMatchProperties.h>
 #include <ClothesMatcher.h>
@@ -24,10 +23,8 @@
 #include <SkinMatchProperties.h>
 #include <SkinMatcher.h>
 
-#include "../FSBridge/FSDirectBridge.h"
-
 IfSearch::IfSearch(int argc, char *argv[])
-    : QApplication(argc, argv, false)
+    : QGuiApplication(argc, argv, false)
     , matchSettings(EigenFaceSearchSettings::CasualMatch, this)
     , searchSettings(EigenFaceSearchSettings::FormalSearch, this)
     , version(VER_MAJOR, VER_MINOR, VER_BRANCH,
@@ -48,8 +45,8 @@ IfSearch::IfSearch(int argc, char *argv[])
     eigenData = 0;
     eigenParms = 0;
     hotdir = 0;
-    enrollDir = 0;
-    searchDir = 0;
+    enrollDir = QDir();
+    searchDir = QDir();
     authWatcher = 0;
     resolver = 0;
     heightGrid = 0;
@@ -73,8 +70,6 @@ IfSearch::IfSearch(int argc, char *argv[])
     appSettings->setValue("Output/FacesProcessed",
                           QString::number(FacesProcessed=0));
     appSettings->setValue("Input/Processing", QString());
-    infoSetting		= new InfoOutputSetting("Options/Message");
-    appSettings->setInfoOutputSetting(infoSetting);
     optNoPrompt		= new Setting(appSettings, tr("Options/NoPrompt", "config"), true);
     optShutdown		= new Setting(appSettings, tr("Options/Shutdown", "config"), false, Settings::Volatile);
     appSettings->setValue(optShutdown->keyName(), true);
@@ -91,11 +86,11 @@ IfSearch::IfSearch(int argc, char *argv[])
     optMarkEyes = new Setting(appSettings, tr("Output/MarkAllEyes", "config"), true, Settings::Volatile);
     optMarkAllEyeColor = new Setting(appSettings, tr("Output/MarkAllEyeColor", "config"), QColor(), Settings::Volatile);
     optMarkAllColor = new Setting(appSettings, tr("Output/MarkAllColor", "config"), QColor(), Settings::Volatile);
-    optMarkFaceColor= new Setting(appSettings, tr("Output/MarkFaceColor", "config"), Qt::yellow, Settings::Volatile);
+    optMarkFaceColor= new Setting(appSettings, tr("Output/MarkFaceColor", "config"), QColor(Qt::yellow), Settings::Volatile);
     optMarkEyeRoiColor= new Setting(appSettings, tr("Output/MarkEyeRoiColor", "config"), QColor(), Settings::Volatile);
-    optMarkBadFaceColor	= new Setting(appSettings, tr("Output/MarkBadFaceColor", "config"), Qt::green, Settings::Volatile);
-    optMarkNoEyesColor	= new Setting(appSettings, tr("Output/MarkNoEyesColor", "config"), Qt::blue, Settings::Volatile);
-    optMarkEyeColor	= new Setting(appSettings, tr("Output/MarkEyeColor", "config"), Qt::yellow, Settings::Volatile);
+    optMarkBadFaceColor	= new Setting(appSettings, tr("Output/MarkBadFaceColor", "config"), QColor(Qt::green), Settings::Volatile);
+    optMarkNoEyesColor	= new Setting(appSettings, tr("Output/MarkNoEyesColor", "config"), QColor(Qt::blue), Settings::Volatile);
+    optMarkEyeColor	= new Setting(appSettings, tr("Output/MarkEyeColor", "config"), QColor(Qt::yellow), Settings::Volatile);
     optMarkBackgroundColor	= new Setting(appSettings, tr("Output/MarkBackgroundColor", "config"), QColor(), Settings::Volatile);
     optMarkBackgroundTransparency = new Setting(appSettings, tr("Output/MarkBackgroundTransparency", "config"), 100, Settings::Volatile);
     optMarkOverCrop	= new Setting(appSettings, tr("Output/MarkOverCrop", "config"), 175, Settings::Volatile);
@@ -156,16 +151,16 @@ IfSearch::IfSearch(int argc, char *argv[])
     fwpXml          = writer->newProfile("Xml", FileWriter::XmlText);
     fwpImage        = writer->newProfile("Image");
     fwpRetrieve     = writer->newProfile("Retrieve", FileWriter::Copy, "Retrieve/OutputDir");
-    fwpRetrRecon    = writer->newProfile("Retrieve", 0, "Retrieve/ReconDir");
+    fwpRetrRecon    = writer->newProfile("Retrieve", FileWriter::$null, "Retrieve/ReconDir");
     fwpSearch       = writer->newProfile("Search", FileWriter::Copy, "Search/OutputDir");
-    fwpSimilarity   = writer->newProfile("Similarity", 0, "Search/SimilarityDir");
-    fwpDetect       = writer->newProfile("Detect", 0, "Detect/OutputDir");
-    fwpGenerate     = writer->newProfile("Generate", 0, "Generate/OutputDir");
-    fwpSkin         = writer->newProfile("Skin", 0, "Detect/SkinDir");
-    fwpCharcol      = writer->newProfile("Charcol", 0, "Detect/CharcolDir");
+    fwpSimilarity   = writer->newProfile("Similarity", FileWriter::$null, "Search/SimilarityDir");
+    fwpDetect       = writer->newProfile("Detect", FileWriter::$null, "Detect/OutputDir");
+    fwpGenerate     = writer->newProfile("Generate", FileWriter::$null, "Generate/OutputDir");
+    fwpSkin         = writer->newProfile("Skin", FileWriter::$null, "Detect/SkinDir");
+    fwpCharcol      = writer->newProfile("Charcol", FileWriter::$null, "Detect/CharcolDir");
     fwpResolveMarked= writer->newProfile("ResolveMarked", FileWriter::TempAndRename, "Resolve/MarkedDir");
-    fwpResolveFace  = writer->newProfile("ResolveFace", 0, "Resolve/FaceDir");
-    fwpNoFaceColor  = writer->newProfile("NoFaceColor", 0, "FaceColor/NoOutputDir");
+    fwpResolveFace  = writer->newProfile("ResolveFace", FileWriter::$null, "Resolve/FaceDir");
+    fwpNoFaceColor  = writer->newProfile("NoFaceColor", FileWriter::$null, "FaceColor/NoOutputDir");
 #ifdef ENABLE_AVGFACE
     fwpAvgFace      = writer->newProfile("AvgFace", FileWriter::FaceImage, "AvgFace/OutputDir");
     optAvgFaceEnable = new Setting(appSettings, tr("AvgFace/Enable", "config"), false);
@@ -183,7 +178,6 @@ IfSearch::IfSearch(int argc, char *argv[])
 
 IfSearch::~IfSearch()
 {
-    Info::flush();
 }
 
 
@@ -250,7 +244,7 @@ Return IfSearch::writeMatches(const EigenFaceSearchResultList & resList)
         idGenerator.setConfidence(res.getConfidence());
         idGenerator.setTier(res.getTier().indicator());
         QString baseName = idGenerator.face("Match");
-        RETURN(fwpMatch->write(QFile(enrolledImageFileName), baseName));
+        fwpMatch->write(QFile(enrolledImageFileName), baseName);
     } // foreach
 
     return rtn;
@@ -304,7 +298,7 @@ Return IfSearch::writeOutputImage(QPair<QString,DetectorResult> face,
         ++i;
     }
     outputMarker.end();
-    RETURN(fwpImage->write(outputImage, idGenerator.face("Image")));
+    fwpImage->write(outputImage, idGenerator.face("Image"));
     return Return();
 } // writeOutputImage()
 
@@ -327,15 +321,15 @@ bool IfSearch::check(const quint64 daysToLive) const
         qint64 remainingDays = daysToLive - installedDays;
         if (remainingDays < 0)
         {
-            ERRMSG("Your EclipseIR SDK license has expired");
-            INFO("Please mailto:sales@EclipseIR.com for an update");
+            qCritical("Your EclipseIR SDK license has expired");
+            qFatal("Please mailto:sales@EclipseIR.com for an update");
             QTimer::singleShot(0, qApp, SLOT(done()));
             return false;
         }
         else if (remainingDays < 30)
         {
-            WARNING("Your EclipseIR SDK license will expire in less than a month");
-            INFO("Please mailto:sales@EclipseIR.com for an update");
+            qWarning("Your EclipseIR SDK license will expire in less than a month");
+            qWarning("Please mailto:sales@EclipseIR.com for an update");
         }
     }
     return true;

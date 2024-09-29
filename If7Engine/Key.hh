@@ -1,5 +1,6 @@
 #include <QtGlobal>
-#include <QtCore/QSet>
+#include <QRandomGenerator>
+#include <QSet>
 
 template <class TRAITS> class Key
 {
@@ -24,11 +25,12 @@ public:
         if (range < 16) return Key(0);
         do
         {
+            QRandomGenerator tRand;
             result = 0;
             range = TRAITS::MaxValue - TRAITS::MinValue;
             while (range)
             {
-                result = (result << 4) | (0xF & qrand());
+                result = (result << 4) | (0xF & tRand.generate());
                 range >>= 4;
             }
             result += TRAITS::MinValue;

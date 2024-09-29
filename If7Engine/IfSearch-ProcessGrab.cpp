@@ -17,10 +17,10 @@
 #include <ImageCache.h>
 #include <ImageMarker.h>
 #include <ImageSource.h>
-#include <InfoMacros.h>
 #include <InputHotdir.h>
 #include <QQRect.h>
 #include <Return.h>
+#include <Setting.h>
 #include <Settings.h>
 
 #include <HeightGrid.h>
@@ -34,7 +34,6 @@
 
 void IfSearch::processGrab(void)
 {
-    FUNCTION();
     QList<DetectorResult> resultList;
 
     if (paused
@@ -46,25 +45,25 @@ void IfSearch::processGrab(void)
         if (writer)
             writer->pumpAll();
         if (ffdBusy)
-            DETAIL("processGrab() FFD is busy");
+            qInfo("processGrab() FFD is busy");
         if (paused)
-            DETAIL("processGrab() paused");
+            qInfo("processGrab() paused");
         if (imageCache.isGrabEmpty())
         {
             appSettings->setValue("Input/Processing", "done");
-            DETAIL("processGrab() empty grab cache");
+            qInfo("processGrab() empty grab cache");
         }
         if (pendingFaces.isEmpty())
-            DETAIL("processGrab() has no pending faces");
+            qInfo("processGrab() has no pending faces");
         if ( ! commandMode.isEmpty())
-            DETAIL("Busy with %1", commandMode);
+            qInfo() << "Busy with" << commandMode;
         return;
     }
 
     bool detectEnabled = optDetectEnable->toBool();
     if (detectEnabled && ! ffd->hasDetector())
     {
-        WARNING("No Facial Detector Selected");
+        qWarning("No Facial Detector Selected");
         detectEnabled = false;
     }
 
@@ -81,8 +80,6 @@ void IfSearch::processGrab(void)
                                         "%i").toString());
     idGenerator.setFaceFormat(appSettings->value("Output/FaceIdFormat",
                                         "%i-%x%y%q%w%c%e%m").toString());
-    DETAIL("FrameIdFormat=%1", idGenerator.frameFormat());
-    DETAIL("FaceIdFormat=%1", idGenerator.faceFormat());
     idGenerator.setFrameId(imageId);
     idGenerator.setFrameMsd(streamBase_mst.delta(grabTime));
     idGenerator.setModifiedMst(grabTime.toMSecsSinceEpoch());
@@ -101,7 +98,7 @@ void IfSearch::processGrab(void)
 
     if (image.isNull())
     {
-        WARNING("***Null Image: %1", imageId);
+        qWarning() << "***Null Image: " << imageId;
         if ( ! imageCache.isGrabEmpty())
             QTimer::singleShot(10, this, SLOT(processGrab()));
         imageCache.release(imageId);
@@ -109,33 +106,25 @@ void IfSearch::processGrab(void)
         return;
     }
 
-    PROGRESS("===Processing %2\t%1 modified %3 [%4]",
-             imageId, 1+FramesProcessed,
-             grabTime.toString("yyyyMMdd hhmmsszzz"),
-             grabTime.toMSecsSinceEpoch());
+    qInfo() << QString("===Processing %2\t%1 modified %3 [%4]")
+              .arg(imageId).arg(1+FramesProcessed)
+             .arg(grabTime.toString("yyyyMMdd hhmmsszzz"))
+             .arg(grabTime.toMSecsSinceEpoch());
     appSettings->setValue("Input/Processing", imageId);
-    Info::flush();
 
     int maxDim = appSettings->value("Input/MaxDimension", 1536).toInt();
     if (xformProps.dimension(image.size()) > maxDim)
     {
-        INFO("***Image too big: %1 %2,%3",
-             imageId, image.width(), image.height());
         qreal xfScale = qIsNull(xformProps.getScale())
                 ? 1.0 : xformProps.getScale();
         int dim = qMax(image.width(), image.height());
         int dimDiv = 1 + dim / maxDim;
-        TRACE("dimDiv=%1", dimDiv);
         if (xfScale > (1.0 / (qreal)dimDiv))
-        {
-            TRACE("setScale(%1)", 1.0 / (qreal)dimDiv);
             xformProps.setScale(1.0 / (qreal)dimDiv);
-        }
     }
 
     if ( ! xformProps.isNull())
     {
-        INFO("Transforming Image");
         image = image.transformed(xformProps.transform());
     }
 
@@ -145,7 +134,7 @@ void IfSearch::processGrab(void)
         ffd->setImage(image);
         if ( ! ffd->process(&resultList))
         {
-            ERRMSG("Error in Face Detector for %1", imageId);
+            qCritical() << "Error in Face Detector for " << imageId;
             resultList.clear();
         }
         else
@@ -155,7 +144,6 @@ void IfSearch::processGrab(void)
                                           ffd->raw(),
                                           ffd->strange(),
                                           ffd->msec());
-            DETAIL("   %1", ffd->performanceString());
         }
     }
     else
@@ -178,20 +166,20 @@ void IfSearch::processGrab(void)
         if (imageRgb.isNull())
             imageRgb = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         QImage charcolImage = CharacteristicColor::process(imageRgb);
-        RETURN(fwpCharcol->write(charcolImage, idGenerator.frame("Charcol")));
+        fwpCharcol->write(charcolImage, idGenerator.frame("Charcol"));
     }
     if (fwpSkin->isActive())
     {
         if (imageRgb.isNull())
             imageRgb = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
         QImage skinImage = skinDetector->masked(imageRgb);
-        RETURN(fwpSkin->write(skinImage, idGenerator.frame("Skin")));
+        fwpSkin->write(skinImage, idGenerator.frame("Skin"));
     }
 
     if ( ! resultList.isEmpty())
         idGenerator.setBestQuality(resultList.first().score());
     if (fwpDetect->isActive() && detectEnabled)
-        RETURN(fwpDetect->write(ffd->detectImage(), idGenerator.frame("Detect")))
+        fwpDetect->write(ffd->detectImage(), idGenerator.frame("Detect"));
 
     if (resultList.isEmpty())
     {
@@ -203,12 +191,12 @@ void IfSearch::processGrab(void)
             paused = true;
             imageCache.flushGrab();
             pendingFaces.clear();
-            PROGRESS("---PAUSED---");
+            qInfo("---PAUSED---");
         }
-        INFO("^^^No faces in %1", imageId);
-        RETURN(fwpNoFace->write(image, idGenerator.frame("NoFace")));
-        RETURN(fwpCapture->write(imageId));
-        RETURN(fwpCapture2->write(image, idGenerator.frame("Input")));
+        qInfo() << "^^^No faces in " << imageId;
+        fwpNoFace->write(image, idGenerator.frame("NoFace"));
+        fwpCapture->write(imageId);
+        fwpCapture2->write(image, idGenerator.frame("Input"));
         if (fpWriter && framePerformance && frameStatistics)
         {
             frameStatistics->finish(0, imageCache.status());
@@ -251,7 +239,7 @@ void IfSearch::processGrab(void)
             }
 
             marker.end();
-            RETURN(fwpMarked->write(markedImage, idGenerator.frame("Marked")));
+            fwpMarked->write(markedImage, idGenerator.frame("Marked"));
         }
         appSettings->setValue("Output/FramesProcessed",
                               QString::number(++FramesProcessed));
@@ -295,7 +283,6 @@ void IfSearch::processGrab(void)
         {
             DetectorResult result = resultList.takeLast();
             pendingFaces.append(QPair<QString,DetectorResult>(imageId, result));
-            DETAIL("Queueing Face %1 Quality=%2", imageId, result.score());
             if (pendingFaces.isEmpty())
                 QTimer::singleShot(10, this, SLOT(processFace()));
         }

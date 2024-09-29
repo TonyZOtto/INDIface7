@@ -1,0 +1,14 @@
+
+#include "AbstractIdString.h"
+
+class BasicId : public AbstractIdString
+{
+public:
+    BasicId(const QString & inString=QString());
+    BasicId(const char * chars);
+    BasicId(const char * chars,
+               const char * chars1,
+               const char * chars2=0,
+               const char * chars3=0);
+};
+
