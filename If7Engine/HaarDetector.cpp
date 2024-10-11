@@ -13,14 +13,10 @@
 #include <ImageMarker.h>
 //#include <AnyColor.h>
 
+
+#include <opencv2/opencv.hpp>
+
 #ifndef TODO0002
-
-#ifndef USE_OCV2
-#include <opencv2/core/core_c.h>
-#endif
-
-
-
 /**** Statics ****/
 QDomDocument HaarDetector::docDetectors;
 QDir HaarDetector::dirDetectors;

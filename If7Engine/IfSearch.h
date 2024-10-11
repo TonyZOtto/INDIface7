@@ -34,6 +34,7 @@ class InputHotdir;
 class Settings;
 class Setting;
 
+class ObjdetCatalog;
 class EigenFaceData;
 class EigenFaceGenerator;
 class EigenFaceParameters;
@@ -54,7 +55,6 @@ class Resolver;
 class SkinDetector;
 class SkinMatchProperties;
 class SkinMatcher;
-class FSDirectBridge;
 #ifdef ENABLE_WATCHDOG
 class WatchDog;
 #endif
@@ -80,7 +80,6 @@ private:
 #endif
 
 private:
-    bool initLicense(void) const;
     Return initEigenFace(void);
     Return writeOutputImage(QPair<QString,DetectorResult> face,
                                  int consistency,
@@ -205,8 +204,8 @@ private:
     FileWriteProfile * fwpAvgFace;
 #endif
 
+    ObjdetCatalog * mpObjdetCatalog=nullptr;
     QString eigenFaceDataDir;
-    //    QString eigenFaceParmDir;
     QString faceBaseBaseDir;
     QString detectorsXml;
     int faceBaseMaxLoad;

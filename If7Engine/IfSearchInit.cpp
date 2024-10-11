@@ -4,6 +4,8 @@
 #include <QProcessEnvironment>
 #include <QTimer>
 
+#include <ObjdetCatalog.h>
+
 #include <DDTcore.h>
 #include <Detector.h>
 #include <EigenFace.h>
@@ -17,8 +19,6 @@
 #include <FileWriter.h>
 #include <ImageCache.h>
 #include <ImageSource.h>
-#include <InfoMacros.h>
-#include <INDIef.h>
 #include <INDIffd.h>
 #include <InputHotdir.h>
 #include <Return.h>
@@ -29,19 +29,9 @@
 #include <HeightGrid.h>
 #include <SkinMatcher.h>
 #include <SkinMatchProperties.h>
-#include "../FSBridge/FSDirectBridge.h"
 #ifdef ENABLE_WATCHDOG
 #include <eirExe/WatchDog.h>
 #endif
-
-/*
-typedef struct _PROCESS_INFORMATION {
-  void * hProcess;
-  void * hThread;
-  quint32  dwProcessId;
-  quint32  dwThreadId;
-} PROCESS_INFORMATION, *LPPROCESS_INFORMATION;
-*/
 
 void IfSearch::init(void)
 {
@@ -49,6 +39,7 @@ void IfSearch::init(void)
     QStringList qsl;
 
     appSettings->setPollCountKey("Options/PollCount");
+#ifndef TODO0002
     if (appSettings->value("Output/LogStdout", true).toBool())
         Info::add(new InfoOutputFile(stdout));
 
@@ -96,13 +87,14 @@ void IfSearch::init(void)
     INFO(version.getCopyright());
     INFO(appSettings->programName());
     DETAIL("Running ProcessId=%1", applicationPid());
+#else
+    qInfo() << version.toString() << version.dateTimeString() << version.getAppName();
+    qInfo() << appSettings->programName() << version.getCopyright();
+    qInfo() << "Running ProcessId:" << applicationPid();
+#endif
     version.check(0xE3ECE9F0);
-    if ( ! initLicense())
-    {
-         QTimer::singleShot(10000, this, SLOT(done()));
-         return;
-    }
 
+#ifndef TODO0002
     qreal rolloverHours = appSettings->value("Output/RolloverHours").toReal();
     int rolloverKeep = appSettings->value("Output/RolloverKeep").toInt();
     if ( ! qIsNull(rolloverHours))
@@ -123,9 +115,15 @@ void IfSearch::init(void)
             ERRMSG("Error CONNECTing logRollover() slot");
         }
     }
-
-    PROGRESS("Running Qt Version %1 built %2", qVersion(), QLibraryInfo::buildDate());
+#endif
+    mpObjdetCatalog = new ObjdetCatalog(this); Q_ASSERT(mpObjdetCatalog);
+    qInfo() << "Running Qt Version" << qVersion()
+            << "built" << QLibraryInfo::buildDate();
+    qInfo() << "Running OpenCV Version" << mpObjdetCatalog->cvVersion();
     detectorsXml     = appSettings->value("Detect/DetectorsXml", "../detectors/Detectors.xml").toString();
+
+
+
     eigenFaceDataDir = appSettings->value("Generate/DataDir", "../data/Face1").toString();
     faceBaseBaseDir  = appSettings->value("FaceBase/BaseDir", "../FaceBase").toString();
     faceBaseMaxLoad  = appSettings->value("FaceBase/MaxLoad", 50).toInt();
@@ -345,7 +343,7 @@ void IfSearch::run(void)
 #define USER_KEY "D050 815C D1A2 A79D B1"
 
 #define CHECKPERIOD 15
-#endif
+
 
 bool IfSearch::initLicense(void) const
 {
@@ -498,3 +496,4 @@ Return IfSearch::initEigenFace(void)
 
     return Return();
 } // initEigenFace()
+#endif

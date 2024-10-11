@@ -8,6 +8,8 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 DEFINES += ENABLE_AVGFACE
 DEFINES += TODO0002
 
+include(useOCV4.pri)
+
 SOURCES += \
     AbstractIdString.cpp \
     AnyColor.cpp \
@@ -86,6 +88,12 @@ SOURCES += \
     Key.cpp \
     MillisecondDelta.cpp \
     MillisecondTime.cpp \
+    Objdet.cpp \
+    ObjdetCatalog.cpp \
+    ObjdetCatalogItem.cpp \
+    ObjdetData.cpp \
+    ObjdetResource.cpp \
+    ObjdetResult.cpp \
     QQRect.cpp \
     Resolver.cpp \
     Return.cpp \
@@ -191,6 +199,12 @@ HEADERS += \
     NamedArray.h \
     NamedEnum.h \
     NamedEnum2.h \
+    Objdet.h \
+    ObjdetCatalog.h \
+    ObjdetCatalogItem.h \
+    ObjdetData.h \
+    ObjdetResource.h \
+    ObjdetResult.h \
     Property.h \
     QProperty.h \
     QQRect.h \
