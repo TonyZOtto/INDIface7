@@ -31,6 +31,7 @@ public: // non-const
     void item(const QString &name, const ObjdetCatalogItem &item);
 
 private:
+    QString m_DetectorsXml;
     QFileInfo mCatFileInfo;
     QMap<QString, ObjdetCatalogItem> mNameItemMap;
 };

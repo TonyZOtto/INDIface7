@@ -17,6 +17,8 @@ SOURCES += \
     AttributeSet.cpp \
     AverageFace.cpp \
     BaseIdBehavior.cpp \
+    BaseObjdetEngine.cpp \
+    BaseObjdetMarker.cpp \
     BasicId.cpp \
     CharacteristicColor.cpp \
     ClothesMatchProperties.cpp \
@@ -50,15 +52,19 @@ SOURCES += \
     EigenFaceVector.cpp \
     Enumeration.cpp \
     EyeDetector.cpp \
+    EyesMarker.cpp \
     FaceBase-Access.cpp \
     FaceBase-File.cpp \
     FaceBase.cpp \
+    FaceObjdet.cpp \
     FeatureInfo.cpp \
     FileWriteProfile.cpp \
     FileWriter.cpp \
+    FrameObjdet.cpp \
     FramePerformance.cpp \
     FrameStatistics.cpp \
     FrontalFaceDetector.cpp \
+    FrontalMarker.cpp \
     GreyImage.cpp \
     GroupObjects.cpp \
     HaarDetector.cpp \
@@ -91,7 +97,7 @@ SOURCES += \
     Objdet.cpp \
     ObjdetCatalog.cpp \
     ObjdetCatalogItem.cpp \
-    ObjdetData.cpp \
+    ObjdetFrontal.cpp \
     ObjdetResource.cpp \
     ObjdetResult.cpp \
     QQRect.cpp \
@@ -135,6 +141,8 @@ HEADERS += \
     AttributeSet.h \
     AverageFace.h \
     BaseIdBehavior.h \
+    BaseObjdetEngine.h \
+    BaseObjdetMarker.h \
     BasicId.h \
     CharacteristicColor.h \
     ClothesMatchProperties.h \
@@ -170,13 +178,17 @@ HEADERS += \
     Enumeration.h \
     Eyes.h \
     Eyes.hh \
+    EyesMarker.h \
     FaceBase.h \
+    FaceObjdet.h \
     FeatureInfo.h \
     FeatureInfoData.h \
     FileWriteProfile.h \
     FileWriter.h \
+    FrameObjdet.h \
     FramePerformance.h \
     FrameStatistics.h \
+    FrontalMarker.h \
     GreyImage.h \
     HeightGrid.h \
     Histogram.h \
@@ -202,7 +214,7 @@ HEADERS += \
     Objdet.h \
     ObjdetCatalog.h \
     ObjdetCatalogItem.h \
-    ObjdetData.h \
+    ObjdetFrontal.h \
     ObjdetResource.h \
     ObjdetResult.h \
     Property.h \

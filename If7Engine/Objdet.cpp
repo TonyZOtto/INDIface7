@@ -1,7 +1,9 @@
 #include "Objdet.h"
 
-#include <opencv2/opencv.hpp>
+#include <QMetaEnum>
+#include <QMetaObject>
 
+#include <opencv2/opencv.hpp>
 
 Objdet::Objdet(QObject *parent)
     : QObject{parent}
@@ -22,4 +24,20 @@ VersionInfo Objdet::cvVersion() const
                     "Intel",
                     "Computer Vision Library");
     return ver;
+}
+
+QString Objdet::className(const Class objcls)
+{
+    QString result;
+    const QMetaObject * pQMO = metaObject();
+    const int cCount = pQMO->enumeratorCount();
+    int tIndex = 0;
+    while (tIndex < cCount && result.isEmpty())
+    {
+        const QMetaEnum cQME = pQMO->enumerator(tIndex);
+        const QString cEnumName(cQME.enumName());
+        if ("Class" == cEnumName)
+            result =  cQME.valueToKey(objcls);
+    }
+    return result;
 }
