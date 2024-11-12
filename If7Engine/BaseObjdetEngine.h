@@ -14,6 +14,10 @@ protected:
 
 signals:
 
+
+public: // static
+    QString className(const Objdet::Class odc) const;
+
 private:
     const Objdet::Class cmClass=Objdet::$nullClass;
 };

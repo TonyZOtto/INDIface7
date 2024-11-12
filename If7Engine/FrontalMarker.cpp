@@ -2,4 +2,6 @@
 
 FrontalMarker::FrontalMarker(QObject *parent)
     : BaseObjdetMarker{parent}
-{}
+{
+    setObjectName("FrontalMarker");
+}

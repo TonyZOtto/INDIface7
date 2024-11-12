@@ -56,7 +56,6 @@ SOURCES += \
     FaceBase-Access.cpp \
     FaceBase-File.cpp \
     FaceBase.cpp \
-    FaceObjdet.cpp \
     FeatureInfo.cpp \
     FileWriteProfile.cpp \
     FileWriter.cpp \
@@ -65,6 +64,7 @@ SOURCES += \
     FrameStatistics.cpp \
     FrontalFaceDetector.cpp \
     FrontalMarker.cpp \
+    FrontalObjdet.cpp \
     GreyImage.cpp \
     GroupObjects.cpp \
     HaarDetector.cpp \
@@ -100,6 +100,8 @@ SOURCES += \
     ObjdetFrontal.cpp \
     ObjdetResource.cpp \
     ObjdetResult.cpp \
+    ObjdetResultMap.cpp \
+    ObjectHelper.cpp \
     QQRect.cpp \
     Resolver.cpp \
     Return.cpp \
@@ -180,7 +182,6 @@ HEADERS += \
     Eyes.hh \
     EyesMarker.h \
     FaceBase.h \
-    FaceObjdet.h \
     FeatureInfo.h \
     FeatureInfoData.h \
     FileWriteProfile.h \
@@ -189,6 +190,7 @@ HEADERS += \
     FramePerformance.h \
     FrameStatistics.h \
     FrontalMarker.h \
+    FrontalObjdet.h \
     GreyImage.h \
     HeightGrid.h \
     Histogram.h \
@@ -217,6 +219,8 @@ HEADERS += \
     ObjdetFrontal.h \
     ObjdetResource.h \
     ObjdetResult.h \
+    ObjdetResultMap.h \
+    ObjectHelper.h \
     Property.h \
     QProperty.h \
     QQRect.h \
