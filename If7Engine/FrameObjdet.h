@@ -14,6 +14,6 @@ public:
 signals:
 
 private:
-    FrontalObjdet * mpObjdet=nullptr;
-    FrontalMarker * mpMarker=nullptr;
+    const FrontalObjdet * cmpObjdet=nullptr;
+    const FrontalMarker * cmpMarker=nullptr;
 };

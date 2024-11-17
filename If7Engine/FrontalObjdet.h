@@ -1,8 +1,9 @@
 #pragma once
 
 #include <QObject>
+#include "BaseObjdetEngine.h"
 
-class FrontalObjdet : public QObject
+class FrontalObjdet : public BaseObjdetEngine
 {
     Q_OBJECT
 public:

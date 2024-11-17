@@ -98,6 +98,7 @@ SOURCES += \
     ObjdetCatalog.cpp \
     ObjdetCatalogItem.cpp \
     ObjdetFrontal.cpp \
+    ObjdetParameters.cpp \
     ObjdetResource.cpp \
     ObjdetResult.cpp \
     ObjdetResultMap.cpp \
@@ -217,6 +218,7 @@ HEADERS += \
     ObjdetCatalog.h \
     ObjdetCatalogItem.h \
     ObjdetFrontal.h \
+    ObjdetParameters.h \
     ObjdetResource.h \
     ObjdetResult.h \
     ObjdetResultMap.h \

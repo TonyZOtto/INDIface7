@@ -5,6 +5,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "ObjectHelper.h"
+
 Objdet::Objdet(QObject *parent)
     : QObject{parent}
 {
@@ -28,6 +30,13 @@ VersionInfo Objdet::cvVersion() const
 
 QString Objdet::className(const Class objcls)
 {
+    const ObjectHelper cOH(this);
+    return cOH.enumKey("Class", objcls);
+}
+
+/*
+QString Objdet::className(const Class objcls)
+{
     QString result;
     const QMetaObject * pQMO = metaObject();
     const int cCount = pQMO->enumeratorCount();
@@ -41,3 +50,4 @@ QString Objdet::className(const Class objcls)
     }
     return result;
 }
+*/

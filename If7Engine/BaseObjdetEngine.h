@@ -1,10 +1,9 @@
 #pragma once
 
 #include <QObject>
-
 #include "Objdet.h"
 
-class BaseObjdetEngine : public QObject
+class BaseObjdetEngine : public Objdet
 {
     Q_OBJECT
 public: // ctors
