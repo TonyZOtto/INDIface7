@@ -135,6 +135,8 @@ SOURCES += \
     main.cpp \
 
 DISTFILES += \
+    ../../ottoZcode/doc/desktop/INDIface/Settings2.txt \
+    ../../ottoZcode/doc/desktop/INDIface/detect2.txt \
     FrameSequencer.graphml \
     GradIcon.ico \
     INDIface24.ico \
