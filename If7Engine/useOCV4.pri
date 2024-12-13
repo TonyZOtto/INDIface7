@@ -3,6 +3,7 @@
 # For __DEBUG__ -----------------------------#
 ##############################################
 OCV4BASE = ../../../bin/DbgOpenCV-v4.10.0
+#OCV4BASE = /code/bin/DbgOpenCV-v4.10.0/
 #                 ^--INDIface7
 #              ^--repo
 #           ^code

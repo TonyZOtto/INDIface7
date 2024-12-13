@@ -4,7 +4,7 @@
 #include <EigenFaceParameters.h>
 #include <EigenFaceTemplate.h>
 
-#include <Detector.h>
+#include <Detector.hhh>
 #include <ImageCache.h>
 
 

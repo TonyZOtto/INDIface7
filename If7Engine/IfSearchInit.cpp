@@ -7,7 +7,7 @@
 #include <ObjdetCatalog.h>
 
 #include <DDTcore.h>
-#include <Detector.h>
+#include <Detector.hhh>
 #include <EigenFace.h>
 #include <EigenFaceData.h>
 #include <EigenFaceGenerator.h>

@@ -1,6 +1,6 @@
 #include <EigenFaceGenerator.h>
 
-#include <Detector.h>
+#include <Detector.hhh>
 #include <DetectorResult.h>
 #include <EigenFace.h>
 #include <EigenFaceData.h>

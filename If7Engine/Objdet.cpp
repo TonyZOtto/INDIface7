@@ -9,12 +9,26 @@
 
 Objdet::Objdet(QObject *parent)
     : QObject{parent}
+    , cmClass($nullClass)
 {
-    setObjectName("Objdet");
+    setObjectName("Objdet:Null");
 }
 
+Objdet::~Objdet()
+{
+    ;
+}
 
-VersionInfo Objdet::cvVersion() const
+Objdet::Objdet(const Class objcls, QObject *parent)
+    : QObject{parent}
+    , cmClass(objcls)
+{
+    setObjectName("Objdet:" + className(objcls));
+}
+
+// -------------------------- static ------------------------
+
+VersionInfo Objdet::cvVersion()
 {
     VersionInfo ver(CV_MAJOR_VERSION,
                     CV_MINOR_VERSION,
@@ -22,32 +36,41 @@ VersionInfo Objdet::cvVersion() const
                     0,
                     CV_VERSION,
                     "Copyright (c) 2000-2008, Intel Corporation. "
-                    "(c) 2008-2010, Willow Garage Inc.",
-                    "Intel",
+                    "Copyright (C) 2015-2024, OpenCV Foundation, all rights reserved.",
+                    "OpenCV",
                     "Computer Vision Library");
     return ver;
 }
 
-QString Objdet::className(const Class objcls)
+bool Objdet::isValid(const Class objcls)
 {
-    const ObjectHelper cOH(this);
-    return cOH.enumKey("Class", objcls);
+    return objcls > $nullClass && objcls < $maxClass;
 }
 
-/*
 QString Objdet::className(const Class objcls)
 {
-    QString result;
-    const QMetaObject * pQMO = metaObject();
-    const int cCount = pQMO->enumeratorCount();
-    int tIndex = 0;
-    while (tIndex < cCount && result.isEmpty())
+    Objdet tOD(objcls);
+    QString result("Null");
+    if (isValid(objcls))
     {
-        const QMetaEnum cQME = pQMO->enumerator(tIndex);
-        const QString cEnumName(cQME.enumName());
-        if ("Class" == cEnumName)
-            result =  cQME.valueToKey(objcls);
+        const QMetaObject * pQMO = tOD.metaObject();
+        const int cCount = pQMO->enumeratorCount();
+        int tIndex = 0;
+        while (tIndex < cCount && result.isEmpty())
+        {
+            const QMetaEnum cQME = pQMO->enumerator(tIndex);
+            const QString cEnumName(cQME.enumName());
+            if ("Class" == cEnumName)
+                result =  cQME.valueToKey(objcls);
+        }
     }
     return result;
+}
+/*
+QString ObjdetCatalog::className(const Objdet::Class objcls) // static
+{
+    Objdet od(objcls);
+    const ObjectHelper cOH(od);
+    return cOH.enumKey("Class", objcls);
 }
 */

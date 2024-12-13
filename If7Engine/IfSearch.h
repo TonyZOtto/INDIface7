@@ -8,7 +8,7 @@
 #include <QGuiApplication>
 #include <QStringList>
 
-#include <Detector.h>
+#include <Detector.hhh>
 #include <DetectorResult.h>
 #include <EigenFaceTemplate.h>
 #include <EigenFaceSimilarity.h>
@@ -59,7 +59,7 @@ class SkinMatcher;
 class WatchDog;
 #endif
 
-#include "Detector.h"
+#include "Detector.hhh"
 
 class IfSearch : public QGuiApplication
 {

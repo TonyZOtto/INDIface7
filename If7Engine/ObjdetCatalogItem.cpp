@@ -3,17 +3,18 @@
 #include <QFileInfo>
 #include <QSize>
 
-#include "ObjdetCatalog.h"
+//#include "ObjdetCatalog.h"
 
 class ObjdetCatalogItemData : public QSharedData
 {
 public:
-    QString                 dName;
+    QString                 dClassName;
     Objdet::Class           dClass;
+    QString                 dDetectorName;
     QString                 dXmlFileName;
     QFileInfo               dXmlFileInfo;
     QSize                   dSize;
-    qreal                   dClassFactor;
+    cv::CascadeClassifier * dpCascade;
 };
 
 

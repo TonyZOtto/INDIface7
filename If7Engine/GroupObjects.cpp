@@ -1,4 +1,4 @@
-#include <Detector.h>
+#include <Detector.hhh>
 #include <QQRect.h>
 
 #include <QMapIterator>

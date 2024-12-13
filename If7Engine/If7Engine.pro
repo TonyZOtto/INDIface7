@@ -7,6 +7,7 @@ CONFIG += cmdline
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 DEFINES += ENABLE_AVGFACE
 DEFINES += TODO0002
+message(TODO: Specify DESTDIR)
 
 include(useOCV4.pri)
 
@@ -135,6 +136,8 @@ SOURCES += \
     main.cpp \
 
 DISTFILES += \
+    ../../../bin/detectors/detectors/Detectors.xml \
+    ../../../bin/detectors/detectors/haarcascade_lefteye_2splits.xml \
     FrameSequencer.graphml \
     GradIcon.ico \
     INDIface24.ico \
@@ -157,7 +160,7 @@ HEADERS += \
     ColorRangeWeightVector.inc \
     CsvWriter.h \
     DDTcore.h \
-    Detector.h \
+    Detector.hhh \
     DetectorResult.h \
     DomValuesElement.h \
     DualMap.h \

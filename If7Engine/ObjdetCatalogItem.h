@@ -7,6 +7,9 @@
 #include <QSize>
 #include <QString>
 
+#include <opencv2/opencv.hpp>
+#include <opencv2/objdetect.hpp>
+
 #include "Objdet.h"
 
 class ObjdetCatalogItemData;

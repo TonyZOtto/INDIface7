@@ -8,7 +8,7 @@
 #include <QApplication>
 #include <QStringList>
 
-#include <Detector.h>
+#include <Detector.hhh>
 #include <EigenFaceTemplate.h>
 #include <EigenFaceSearchSettings.h>
 #include <ImageCache.h>
