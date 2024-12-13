@@ -136,8 +136,8 @@ SOURCES += \
     main.cpp \
 
 DISTFILES += \
-    ../../../bin/detectors/detectors/Detectors.xml \
-    ../../../bin/detectors/detectors/haarcascade_lefteye_2splits.xml \
+    ../../ottoZcode/doc/desktop/INDIface/Settings2.txt \
+    ../../ottoZcode/doc/desktop/INDIface/detect2.txt \
     FrameSequencer.graphml \
     GradIcon.ico \
     INDIface24.ico \
