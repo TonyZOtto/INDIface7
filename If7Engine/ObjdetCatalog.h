@@ -2,18 +2,20 @@
 
 #include <QObject>
 
+#include <QDomElement>
 #include <QFileInfo>
 #include <QMap>
 #include <QString>
 
-
 #include "Objdet.h"
-#include "ObjdetCatalogItem.h"
+
+class ObjdetCatalogItem;
 
 class ObjdetCatalog : public QObject
 {
     Q_OBJECT
-public: // typedef
+public: // types
+    typedef QPair<QString, QString> Key;
 
 public: // ctors
     ObjdetCatalog(const QString &catXmlFileName, QObject *parent = nullptr);
@@ -23,35 +25,27 @@ public slots:
 signals:
 
 public: // const
-
     QFileInfo fileInfo() const;
-    bool exists() const;
-    ObjdetCatalogItem item(const QString &name);
+    bool fileExists() const;
+    ObjdetCatalogItem item(const Key &key) const;
+    friend bool operator < (const Key &lhs, const Key &rhs);
 
 
 public: // non-const
     QString readXmlFile();
-    void item(const QString &name, const ObjdetCatalogItem &item);
 
 public: // static
     static QString names(const Objdet::Class objcls);
 
 private:
-    QString extractClassDEs();
-    QString extractDetectorDEs();
-    QString extractItems();
+    QString extractClassDEs(const QDomElement &rootDE);
+    QString extractDetectorItems();
 
 private:
-    QString mDetectorsXmlFileName;
     QFileInfo mCatFileInfo;
-    QDomDocument mDocument;
-    QDomElement mRootElement;
-    QMap<QString, QDomElement> mClassNameElementMap;
-    QMap<QString, ClassDetectorNames> mClassDefaultDetectorMap;
-    QMap<ClassDetectorNames, QDomElement> mDetectorElementMap;
-    QMap<QString, ClassDetectorNames> mClassDetectorNameMap;
-    QMap<ClassDetectorNames, QSize> mClassDetectorSizeMap;
-    QMap<QString, ObjdetCatalogItem> mNameItemMap;
+    QMap<Objdet::Class, QDomElement> mClassElementMap;
+    QMap<Objdet::Class, QString> mClassDefaultDetectorMap;
+    QMap<Key, ObjdetCatalogItem> mKeyItemMap;
 };
 
 inline QFileInfo ObjdetCatalog::fileInfo() const { return mCatFileInfo; }

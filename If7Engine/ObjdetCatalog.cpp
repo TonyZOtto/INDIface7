@@ -1,5 +1,6 @@
 #include "ObjdetCatalog.h"
 
+#include "ObjdetCatalogItem.h"
 #include "ObjectHelper.h"
 
 ObjdetCatalog::ObjdetCatalog(const QString &catXmlFileName, QObject *parent)
@@ -8,14 +9,19 @@ ObjdetCatalog::ObjdetCatalog(const QString &catXmlFileName, QObject *parent)
 {
 }
 
-bool ObjdetCatalog::exists() const
+bool ObjdetCatalog::fileExists() const
 {
     return mCatFileInfo.exists();
 }
 
+ObjdetCatalogItem ObjdetCatalog::item(const Key &key) const
+{
+    return mKeyItemMap.value(key);
+}
+
 QString ObjdetCatalog::readXmlFile()
 {
-    if ( ! exists() )
+    if ( ! fileExists() )
         return "Catalog XmlFile doesn't exist";                     /*=====*/
     QFile * pFile = new QFile(fileInfo().absoluteFilePath(), this);
     if ( ! pFile->open(QIODevice::ReadOnly | QIODevice::Text))
@@ -29,19 +35,13 @@ QString ObjdetCatalog::readXmlFile()
     const QDomElement cRoot = tDoc.documentElement();
     if (cRoot.isNull())
         return "Catalog Xml is Null";                               /*=====*/
-    mDocument = tDoc, mRootElement = cRoot;
-
-    QString result;
-    if (result.isEmpty())   result = extractDetectorDEs();
-    if (result.isEmpty())   result = extractItems();
-    return result;
+    return extractClassDEs(cRoot);
 }
 
-QString ObjdetCatalog::extractClassDEs()
+QString ObjdetCatalog::extractClassDEs(const QDomElement &rootDE)
 {
     QString result;
-    QDomElement tRootDE = mRootElement;
-    QDomNode tRootNode = tRootDE.firstChild();
+    QDomNode tRootNode = rootDE.firstChild();
     while ( ! tRootNode.isNull())
     {
         QDomNode tClassNode = tRootNode.namedItem("DetectorClass");
@@ -52,30 +52,30 @@ QString ObjdetCatalog::extractClassDEs()
             {
                 const QDomAttr cClassNameAttr = tClassDE.attributeNode("Name");
                 const QString cClassName = cClassNameAttr.value();
-                mClassNameElementMap.insert(cClassName, tClassDE);
+                const Objdet::Class cClass = Objdet::objectClass(cClassName);
                 const QDomAttr cClassDefaultAttr = tClassDE.attributeNode("Default");
                 const QString cDefaultName = cClassDefaultAttr.value();
-                const ClassDetectorNames cCDN(cClassName, cDefaultName);
-                mClassDefaultDetectorMap.insert(cClassName, cCDN);
+                mClassElementMap.insert(cClass, tClassDE);
+                mClassDefaultDetectorMap.insert(cClass, cDefaultName);
             }
         }
-        tRootNode = tRootDE.nextSibling();
+        tRootNode = rootDE.nextSibling();
     }
-    if (mClassNameElementMap.isEmpty())
+    if (mClassElementMap.isEmpty())
         result = "No Classes in Catalog XmlFile";
     return result;
 }
 
-QString ObjdetCatalog::extractDetectorDEs()
+QString ObjdetCatalog::extractDetectorItems()
 {
     QString result;
-    const QStringList cClassNames = mClassNameElementMap.keys();
-    if (cClassNames.isEmpty())
-        result = "No ClassNames in Detector XmlFile";
-    else foreach (const QString cClassName, cClassNames)
+    const Objdet::ClassList cClasses = mClassElementMap.keys();
+    if (cClasses.isEmpty())
+        result = "No Classes in Detector XmlFile";
+    else foreach (const Objdet::Class cClass, cClasses)
     {
-        QDomElement tClassDE = mClassNameElementMap.value(cClassName);
-        if ( ! tClassDE.isNull())
+        QDomElement tClassDE = mClassElementMap.value(cClass);
+        if (Objdet::$nullClass != cClass && ! tClassDE.isNull())
         {
             QDomNode tChildNode = tClassDE.firstChild();
             if ( ! tChildNode.isNull())
@@ -87,12 +87,11 @@ QString ObjdetCatalog::extractDetectorDEs()
                     const QString cDetectorName = tDetectorDE.attribute("Name");
                     const QString cDetectorWidth = tDetectorDE.attribute("Width");
                     const QString cDetectorHeight = tDetectorDE.attribute("Height");
-                    const ClassDetectorNames cNames(cClassName, cDetectorName);
+                    ObjdetCatalogItem tItem(cDetectorName, cClass);
                     const QSize cDetectorSize(cDetectorWidth.toInt(),
                                               cDetectorHeight.toInt());
-                    mClassDetectorNameMap.insert(cClassName, cNames);
-                    mDetectorElementMap.insert(cNames, tDetectorDE);
-                    mClassDetectorSizeMap.insert(cNames, cDetectorSize);
+                    tItem.catalogSize(cDetectorSize);
+                    mKeyItemMap.insert(tItem.key(), tItem);
                 }
             }
         }
@@ -100,3 +99,10 @@ QString ObjdetCatalog::extractDetectorDEs()
     return result;
 }
 
+bool operator < (const ObjdetCatalog::Key &lhs,
+                 const ObjdetCatalog::Key &rhs)
+{
+    if (lhs.first  < rhs.first)  return true;
+    if (lhs.second < rhs.second) return true;
+    return false;
+}

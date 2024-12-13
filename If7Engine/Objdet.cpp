@@ -47,10 +47,34 @@ bool Objdet::isValid(const Class objcls)
     return objcls > $nullClass && objcls < $maxClass;
 }
 
+Objdet::Class Objdet::objectClass(const QString name)
+{
+    Class result = $nullClass;
+    Objdet tOD;
+    const QMetaObject * pQMO = tOD.metaObject();
+    const int cCount = pQMO->enumeratorCount();
+    int tIndex = 0;
+    while (tIndex < cCount && $nullClass == result)
+    {
+        const QMetaEnum cQME = pQMO->enumerator(tIndex);
+        const QString cEnumName(cQME.enumName());
+        if ("Class" == cEnumName)
+        {
+            bool tOK = false;
+            int tInt = $nullClass;
+            tInt = cQME.keyToValue(qPrintable(name), &tOK);
+            if (tOK) result = Class(tInt);
+            break;                                      /*v-1-v*/
+        }
+        ++tIndex;
+    }                                                   /*--1--*/
+    return result;
+}
+
 QString Objdet::className(const Class objcls)
 {
-    Objdet tOD(objcls);
     QString result("Null");
+    Objdet tOD(objcls);
     if (isValid(objcls))
     {
         const QMetaObject * pQMO = tOD.metaObject();
@@ -62,6 +86,7 @@ QString Objdet::className(const Class objcls)
             const QString cEnumName(cQME.enumName());
             if ("Class" == cEnumName)
                 result =  cQME.valueToKey(objcls);
+            ++tIndex;
         }
     }
     return result;

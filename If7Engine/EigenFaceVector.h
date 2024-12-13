@@ -32,7 +32,7 @@ public:
     operator int(void) const { return theMeanKey << 8 | (int)theType; }
     int toInt(void) const { return theMeanKey << 8 | (int)theType; }
     void operator =(int i) { theType = (EigenFaceVectorType)(i & 0xFF), theMeanKey = i >> 8; }
-    friend bool operator < (const EigenFaceVectorKey & lhs, const EigenFaceVectorKey & rhs)
+    friend bool operator < (const EigenFaceVectorKey & lhs, const EigenFaceVectorKey & rhs) const
     { return (lhs.theMeanKey << 8 | (int)lhs.theType) < (rhs.theMeanKey << 8 | (int)rhs.theType); }
 
 private:

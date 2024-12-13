@@ -8,13 +8,14 @@
 class ObjdetCatalogItemData : public QSharedData
 {
 public:
-    QString                 dClassName;
     Objdet::Class           dClass;
     QString                 dDetectorName;
+    QString                 dDescription;
     QString                 dXmlFileName;
     QFileInfo               dXmlFileInfo;
-    QSize                   dSize;
+    QSize                   dCatalogSize;
     cv::CascadeClassifier * dpCascade;
+    QSize                   dCascadeSize;
 };
 
 
@@ -24,56 +25,82 @@ ObjdetCatalogItem::ObjdetCatalogItem(const Objdet::Class cls)
     oclass(cls);
 }
 
-ObjdetCatalogItem::ObjdetCatalogItem(const QString &nm, const Objdet::Class cls)
+ObjdetCatalogItem::ObjdetCatalogItem(const QString &dname, const Objdet::Class cls)
     : data(new ObjdetCatalogItemData)
 {
-    name(nm), oclass(cls);
+    detectorName(dname), oclass(cls);
 }
 
-QSize ObjdetCatalogItem::size() const
+QString ObjdetCatalogItem::className() const
 {
     Q_ASSERT(data);
-    return data->dSize;
+    return Objdet::className(data->dClass);
 }
 
-bool ObjdetCatalogItem::read(const QDomElement &itemDE, const QString &nm)
+QString ObjdetCatalogItem::detectorName() const
+{
+    Q_ASSERT(data);
+    return data->dDetectorName;
+}
+
+QFileInfo ObjdetCatalogItem::xmlFileInfo() const
+{
+    Q_ASSERT(data);
+    return data->dXmlFileInfo;
+}
+
+bool ObjdetCatalogItem::xmlFileExists() const
+{
+    return xmlFileInfo().exists();
+}
+
+QSize ObjdetCatalogItem::catalogSize() const
+{
+    Q_ASSERT(data);
+    return data->dCatalogSize;
+}
+
+ObjdetCatalog::Key ObjdetCatalogItem::key() const
+{
+    return ObjdetCatalog::Key(className(), detectorName());
+}
+
+bool ObjdetCatalogItem::read(const QDomElement &itemDE)
 {
     bool result=true;
-    if (result) result = itemDE.hasAttribute("Name");
+    result &= itemDE.hasAttribute("Name");
+    result &= itemDE.hasAttribute("Description");
+    result &= itemDE.hasAttribute("Width");
+    result &= itemDE.hasAttribute("Height");
+    result &= itemDE.hasAttribute("XmlFile");
     if ( ! result) return result;
 
     const QString cName = itemDE.attribute("Name");
-    if ( ! nm.isEmpty() && cName != nm) result = false;
-    if ( ! result) return result;
-
-    if (result)
-    {
-        result &= itemDE.hasAttribute("Description");
-        result &= itemDE.hasAttribute("Width");
-        result &= itemDE.hasAttribute("Height");
-        result &= itemDE.hasAttribute("XmlFile");
-    }
-    if ( ! result) return result;
-
     const QString cDesc = itemDE.attribute("Description");
     const QString cWidth = itemDE.attribute("Width");
     const QString cHeight = itemDE.attribute("Height");
     const QString cXmlFileName = itemDE.attribute("XmlFile");
 
-    name(cName);
+    detectorName(cName);
+    description(cDesc);
     xmlFile(cXmlFileName);
-    size(QSize(cWidth.toInt(), cHeight.toInt()));
-    // TODO classfactor
-    result &= isXmlFileValid();
-    result &= ! size().isEmpty();
+    catalogSize(QSize(cWidth.toInt(), cHeight.toInt()));
+    result &= ! xmlFileExists();
+    result &= ! catalogSize().isEmpty();
 
     return result;
 }
 
-void ObjdetCatalogItem::name(const QString &nm)
+void ObjdetCatalogItem::detectorName(const QString &dnm)
 {
     Q_ASSERT(data);
-    data->dName = nm;
+    data->dDetectorName = dnm;
+}
+
+void ObjdetCatalogItem::description(const QString &desc)
+{
+    Q_ASSERT(data);
+    data->dDescription = desc;
 }
 
 void ObjdetCatalogItem::oclass(const Objdet::Class cls)
@@ -82,11 +109,11 @@ void ObjdetCatalogItem::oclass(const Objdet::Class cls)
     data->dClass = cls;
 }
 
-void ObjdetCatalogItem::xmlFile(const QString &nm)
+void ObjdetCatalogItem::xmlFile(const QString &fileName)
 {
     Q_ASSERT(data);
-    data->dXmlFileName = nm;
-    data->dXmlFileInfo = QFileInfo(nm);
+    data->dXmlFileName = fileName;
+    data->dXmlFileInfo = QFileInfo(fileName);
 }
 
 void ObjdetCatalogItem::xmlFile(const QFileInfo &fi)
@@ -96,16 +123,10 @@ void ObjdetCatalogItem::xmlFile(const QFileInfo &fi)
     data->dXmlFileName = data->dXmlFileInfo.filePath();
 }
 
-void ObjdetCatalogItem::size(const QSize &sz)
+void ObjdetCatalogItem::catalogSize(const QSize &sz)
 {
     Q_ASSERT(data);
-    data->dSize = sz;
-}
-
-void ObjdetCatalogItem::classfactor(const qreal f)
-{
-    Q_ASSERT(data);
-    data->dClassFactor = f;
+    data->dCatalogSize = sz;
 }
 
 // --------------------- QSharedData ----------------------

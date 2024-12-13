@@ -3,6 +3,7 @@
 #include <QObject>
 
 #include <QImage>
+#include <QList>
 #include <QSize>
 
 #include <VersionInfo.h>
@@ -30,6 +31,7 @@ public: // types
         $maxClass
     };
     Q_ENUM(Class)
+    typedef QList<Class> ClassList;
 
 public: // ctors
     explicit Objdet(QObject *parent = nullptr);
@@ -75,6 +77,7 @@ public: // pointers
 public: // static
     static VersionInfo cvVersion();
     static bool isValid(const Objdet::Class objcls);
+    static Objdet::Class objectClass(const QString name);
     static QString className(const Objdet::Class objcls);
 
 protected:

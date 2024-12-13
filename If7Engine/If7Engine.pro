@@ -136,6 +136,8 @@ SOURCES += \
     main.cpp \
 
 DISTFILES += \
+    ../../../bin/detectors/detectors/Aim8A001-32-NoSplit.xml \
+    ../../../bin/detectors/detectors/Detectors.xml \
     ../../ottoZcode/doc/desktop/INDIface/Settings2.txt \
     ../../ottoZcode/doc/desktop/INDIface/detect2.txt \
     FrameSequencer.graphml \
