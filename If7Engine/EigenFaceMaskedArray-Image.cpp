@@ -22,7 +22,7 @@ QImage EigenFaceMaskedArray::toImage(QImage::Format Format, bool fullMask) const
     QSize sz(efData->mask().size());
     QImage image(sz, QImage::Format_Indexed8);
     image.setColorCount(256);
-    image.setColorTable(GreyImage::greyColorTable());
+//    image.setColorTable(GreyImage::greyColorTable());
     image.fill(128);
 
     int x = 0;
@@ -115,7 +115,7 @@ Return EigenFaceMaskedArray::generateEigenImage(const QImage & image, Eyes eyes)
         return Return(EigenFace::ReturnInvalidStructure, "eigenSize");
     if (eyes.isNull())
         return Return(EigenFace::ReturnNoEyes);
-    eigenImage = EigenFace::normalize(image, eyes, eigenSize, eigenEyes);
+//    eigenImage = EigenFace::normalize(image, eyes, eigenSize, eigenEyes);
     if (eigenImage.isNull())
         return Return(EigenFace::ReturnNullImage, "EigenFace");
     return Return();
@@ -135,7 +135,7 @@ Return EigenFaceMaskedArray::generateEigenImage(const GreyImage & gi, Eyes eyes)
         return Return(EigenFace::ReturnInvalidStructure, "eigenSize");
     if (eyes.isNull())
         return Return(EigenFace::ReturnNoEyes);
-    eigenImage = EigenFace::normalize(gi, eyes, eigenSize, eigenEyes);
+//    eigenImage = EigenFace::normalize(gi, eyes, eigenSize, eigenEyes);
     if (eigenImage.isNull())
         return Return(EigenFace::ReturnNullImage, "EigenFace");
     return Return();

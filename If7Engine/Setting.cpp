@@ -9,10 +9,12 @@
 
 #include <QTimer>
 
-#include "SettingItem.h"
-
-Setting::Setting(Settings * Parent, const QString & Key, QVariant Default, Settings::Flags F)
-	: QVariant(Default), settings(Parent), key(Key), flags(F), item(0)
+Setting::Setting(Settings * Parent, const QString & Key,
+                 QVariant Default, Settings::Flags F)
+    : QVariant(Default)
+    , settings(Parent)
+    , key(Key)
+    , flags(F)
 {
 	settings->construct(this);
 }

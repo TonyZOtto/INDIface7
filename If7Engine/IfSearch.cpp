@@ -25,15 +25,15 @@
 
 IfSearch::IfSearch(int argc, char *argv[])
     : QGuiApplication(argc, argv, false)
-    , matchSettings(EigenFaceSearchSettings::CasualMatch, this)
-    , searchSettings(EigenFaceSearchSettings::FormalSearch, this)
+//    , matchSettings(EigenFaceSearchSettings::CasualMatch, this)
+  //  , searchSettings(EigenFaceSearchSettings::FormalSearch, this)
     , version(VER_MAJOR, VER_MINOR, VER_BRANCH,
               VER_RELEASE, VER_STRING, VER_COPYRIGHT,
               VER_ORGNAME, VER_APPNAME)
     , reloadTimer(0)
     , rolloverTimer(0)
 {
-    camera = 0;
+//    camera = 0;
     paused = true;
     pausePending = false;
     ffdBusy = true;
@@ -118,11 +118,8 @@ IfSearch::IfSearch(int argc, char *argv[])
     optResolveMin = new Setting(appSettings, tr("Resolve/MinConfidence", "config"), 0, Settings::Volatile);
     optResolveMax = new Setting(appSettings, tr("Resolve/MaxConfidence", "config"), 0, Settings::Volatile);
     optSourceChanged = new Setting(appSettings, tr("Source/Changed"), false, Settings::Volatile);
-#ifdef ENABLE_WATCHDOG
-    optWatchDogValue = new Setting(appSettings, tr("Options/WatchDogValue"), QString(), Settings::Volatile);
-    appSettings->setValue(optWatchDogValue->keyName(), QString("Initializing"));
-#endif
 
+#ifndef TODO0002
     writer = new FileWriter(appSettings, QString(), this);
     writer->setImageCache(&imageCache);
     writer->setCacheDirs(appSettings->value("Output/CacheDirs","FaceCache").toString());
@@ -166,12 +163,11 @@ IfSearch::IfSearch(int argc, char *argv[])
     optAvgFaceEnable = new Setting(appSettings, tr("AvgFace/Enable", "config"), false);
     optAvgFaceMinConsistency = new Setting(appSettings, tr("AvgFace/MinConsistency", "config"), 700);
 #endif
-
     skinDetector = new SkinDetector(SkinDetector::Simple);
     skinMatcher = new SkinMatcher;
     clothesMatchProperties = new ClothesMatchProperties(this);
     clothesMatcher = new ClothesMatcher(clothesMatchProperties);
-
+#endif
 
     QTimer::singleShot(0, this, SLOT(init()));
 } // c'tor
@@ -232,6 +228,7 @@ Return IfSearch::writeXmlResult(QPair<QString,DetectorResult> face,
     return Return();
 } // writeXmlResult(person)
 
+#ifndef TODO0002
 Return IfSearch::writeMatches(const EigenFaceSearchResultList & resList)
 {
     Return rtn;
@@ -298,9 +295,10 @@ Return IfSearch::writeOutputImage(QPair<QString,DetectorResult> face,
         ++i;
     }
     outputMarker.end();
-    fwpImage->write(outputImage, idGenerator.face("Image"));
+//    fwpImage->write(outputImage, idGenerator.face("Image"));
     return Return();
 } // writeOutputImage()
+#endif
 
 bool IfSearch::check(const quint64 daysToLive) const
 {

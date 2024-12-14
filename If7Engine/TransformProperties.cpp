@@ -6,11 +6,14 @@
 TransformProperties::TransformProperties(QObject *parent) :
     QObject(parent)
 {
+#ifndef TODO0002
     DEFINE_QPROPERTIES_CTORS(TRANSFORM_QPROPERTIES);
+#endif
     setObjectName("TransformProperties");
 
 }
 
+#ifndef TODO0002
 bool TransformProperties::isNull(void) const
 {
     if ( ! qIsNull(getRotate()))
@@ -51,3 +54,4 @@ int TransformProperties::dimension(const QSizeF sz) const
     return qRound(qMax(sz.width()  * getScale(),
                        sz.height() * getScale()));
 }
+#endif

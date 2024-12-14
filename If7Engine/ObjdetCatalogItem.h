@@ -12,13 +12,13 @@
 #include <opencv2/objdetect.hpp>
 
 #include "Objdet.h"
-#include "ObjdetCatalog.h"
 
 class ObjdetCatalogItemData;
 
 class ObjdetCatalogItem
 {
 public: // types
+    typedef QPair<QString, QString> Key;
 
 public: // Our ctors
     ObjdetCatalogItem(const Objdet::Class cls);
@@ -30,7 +30,7 @@ public: // const
     QFileInfo xmlFileInfo() const;
     bool xmlFileExists() const;
     QSize catalogSize() const;
-    ObjdetCatalog::Key key() const;
+    Key key() const;
 
 public: // non-const
     bool read(const QDomElement &itemDE);

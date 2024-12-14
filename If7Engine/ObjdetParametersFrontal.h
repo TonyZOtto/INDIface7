@@ -31,5 +31,5 @@ private:
     QString m_MarkScaleColor;
     QString m_MarkExtraColor;
     QString m_CharcolDir;
-    Qstring m_OutputDir;
+    QString m_OutputDir;
 };

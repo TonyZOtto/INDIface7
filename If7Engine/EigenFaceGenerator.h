@@ -121,8 +121,7 @@ public:
     { return adjEyes * (1.0 / HeadScale); }
     int consistency(void) const
     { return Consistency; }
-    ImageInfo getInfo(void)
-    { ImageInfo ii; fInfo.calculate(); ii.addFace(fInfo); return ii; }
+    ImageInfo getInfo(void);
     QString methodString(void) const
     { return "INDIface"; } // TODO
     QSize expectedEyeSize(void) const

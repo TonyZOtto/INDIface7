@@ -5,6 +5,7 @@
 *
 */
 
+#ifndef TODO0002
 
 #include <QBuffer>
 #include <QByteArray>
@@ -249,3 +250,11 @@ void ImageSource::setSampleMsec(int v)
     if ( ! wasStopped)
         start();
 }
+
+qint64 ImageSource::msecsSinceLastGrab() const
+{
+    return (lastgrab_ems < 0)
+    ? 0
+    : (currentEpochMsec() - lastgrab_ems);
+}
+#endif

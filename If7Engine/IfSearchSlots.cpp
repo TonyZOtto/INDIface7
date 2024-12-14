@@ -15,10 +15,11 @@
 #include <ImageCache.h>
 #include <ImageMarker.h>
 #include <ImageSource.h>
-#include <InfoMacros.h>
+//#include <InfoMacros.h>
 #include <InputHotdir.h>
 #include <QQRect.h>
 #include <Return.h>
+#include <Setting.h>
 #include <Settings.h>
 #include <Resolver.h>
 #include <HeightGrid.h>
@@ -27,7 +28,7 @@
 #include <ClothesMatchProperties.h>
 #include <ClothesMatcher.h>
 
-#include "../FSBridge/FSDirectBridge.h"
+//#include "../FSBridge/FSDirectBridge.h"
 
 void IfSearch::pulse(void)
 {
@@ -38,6 +39,7 @@ void IfSearch::pulse(void)
         QTimer::singleShot(10, this, SLOT(quit()));
         return;
     }
+#ifndef TODO0002
 
     if ( ! imageCache.isGrabEmpty())
         QTimer::singleShot(10, this, SLOT(processGrab()));
@@ -57,10 +59,11 @@ void IfSearch::pulse(void)
             camera->restart();
         }
     }
-
+#endif
     QTimer::singleShot(500, this, SLOT(pulse()));
 } // pulse()
 
+#ifndef TODO0002
 void IfSearch::hotdirReady(void)
 {
     FUNCTION();
@@ -136,25 +139,6 @@ void IfSearch::done(void)
     delete appSettings;
     QTimer::singleShot(0, qApp, SLOT(quit()));
 } // done()
-
-#ifdef ENABLE_WATCHDOG
-void IfSearch::dogBite(QVariant lastValue,
-                        MillisecondTime lastTime)
-{
-    QString action = appSettings
-            ->value("Options/WatchDogAction", QString()).toString();
-//    WARNING(tr("WatchDog timer bit; last value %1 at %2; action %3")
-  //          .arg(lastValue.toString()).arg(lastTime.toString()).arg(action));
-    WARNING(tr("WatchDog timer bit; action %1").arg(action));
-    if (false)
-        ;
-    else if (0 == action.compare("ClearURL", Qt::CaseInsensitive))
-    {
-        appSettings->setValue(optInput->keyName(), QString());
-//        changed(optInput->keyName());
-    }
-}
-#endif
 
 void IfSearch::changed(QString key)
 {
@@ -440,3 +424,4 @@ void IfSearch::changed(QString key)
     }
 
 } // changed()
+#endif

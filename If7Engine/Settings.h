@@ -37,7 +37,6 @@ class Settings : public QSettings
     Q_OBJECT
     Q_PROPERTY(int UpdateMsec READ updateMsec WRITE setUpdateMsec)
     Q_PROPERTY(bool WriteBack READ writeBack WRITE setWriteBack)
-    Q_PROPERTY(bool AdvancedMode READ advancedMode WRITE setAdvancedMode)
     Q_PROPERTY(int PollCount READ pollCount)
     friend class Setting;
     friend class SettingItem;
@@ -112,7 +111,6 @@ private:
     void setVersion(const VersionInfo & ver, const QString & key);
 
 public:
-    bool advancedMode(void) { return AdvancedMode; }
     bool writeBack(void) { return WriteBack; }
     int updateMsec(void) { return UpdateMsec; }
     int pollCount(void)	{ return PollCount; }
@@ -140,7 +138,7 @@ private:
     QReadWriteLock * rwlVars;
     QReadWriteLock * rwlProps;
     bool WriteBack;
-    bool AdvancedMode;
+    bool Mode;
     int UpdateMsec;
     int PollCount;
     SettingsScanner * mpScanner;

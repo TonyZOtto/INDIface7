@@ -6,11 +6,6 @@
 
 #pragma once
 #include <qglobal.h>
-#ifdef DDTCORE_LIB
-# define  Q_DECL_EXPORT
-#else
-# define  Q_DECL_IMPORT
-#endif
 
 #include <Return.h>
 
@@ -18,9 +13,10 @@
 #include <QObject>
 
 class StatusHandler;
+
 class  WindowsProcess : public QObject
 {
-    Q_OBJECT;
+    Q_OBJECT
 public:
     enum Returns
     {
@@ -28,8 +24,8 @@ public:
     };
 
 public:
-    WindowsProcess(QObject * parent=0);
-    ~WindowsProcess();
+    WindowsProcess(QObject * parent=0) {;} // TODO
+    ~WindowsProcess() {;} // TODO
 #ifdef WINDOWS
     Return enumerate(void);
     QList<quint32> pidsFor(const QString &  name) const;

@@ -24,7 +24,6 @@ Settings::Settings(QObject * parent)
     PollCount = 0;
     UpdateMsec = 0;
     WriteBack = false;
-    AdvancedMode = false;
 }
 
 Settings::Settings(const QString & organization,
@@ -38,7 +37,6 @@ Settings::Settings(const QString & organization,
     PollCount = 0;
     UpdateMsec = 0;
     WriteBack = false;
-    AdvancedMode = false;
 }
 
 Settings::Settings(const QString & iniFilename,
@@ -51,7 +49,6 @@ Settings::Settings(const QString & iniFilename,
     PollCount = 0;
     UpdateMsec = 0;
     WriteBack = false;
-    AdvancedMode = false;
 }
 
 
@@ -381,13 +378,14 @@ void Settings::dump(const QString & prefix)
         if (prop->object)
             objName = prop->objectName();
         if (objName.isEmpty())
-            objName = QString::number((unsigned int)prop->object, 16);
+            objName = QString::number((qptrdiff)(prop->object), 16);
         if (prop->value.isNull())
             qInfo() << QString("   [%1] {%2} for %3 empty")
                     .arg(flags).arg(prop->key).arg(objName);
         else
             qInfo() << QString("   [%1] {%2} for %3 %4")
-                    .arg(flags).arg(prop->key).arg(objName).arg(prop->value);
+                    .arg(flags).arg(prop->key)
+                    .arg(objName).arg(prop->value.toString());
     }
 } // dump(sev)
 

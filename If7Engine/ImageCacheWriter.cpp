@@ -37,14 +37,15 @@ void ImageCacheWriter::run(void)
 	
 		msleep(msSleep);
 
-		int more = cache->writeNext();
+        int more; // = cache->writeNext();
 
 		msSleep = more ? 5000 : 100;
 	}
 } // run()
 
-// returns # pending, -1 if no writeDir, -2 if locked, -3 on error		
-int ImageCache::writeNext(void) 
+// returns # pending, -1 if no writeDir, -2 if locked, -3 on error
+#ifndef TODO0002
+int ImageCache::writeNext(void)
 {
 	int rtn;
 
@@ -82,6 +83,7 @@ int ImageCache::writeNext(void)
 
 	return rtn;
 } // writeNext()
+#endif
 
 QString ImageCache::writeFile(const QString & imageId, 
 						   QString dirName, 
@@ -90,7 +92,7 @@ QString ImageCache::writeFile(const QString & imageId,
 {
 	QString rtn;
 
-	ImageCacheEntry * ice = find(imageId);
+    ImageCacheEntry * ice = nullptr; // find(imageId);
 	if ( ! ice)
 	{
 		emit warn(tr("Image %1 not in cache").arg(imageId));
@@ -111,7 +113,8 @@ QString ImageCache::writeFile(const QString & imageId,
 	if (fmt.isEmpty())
 		fmt = "JPG";
 
-	if ( ! ice->info.isEmpty() || ! ice->faceTemplate.isNull())
+#ifndef TODO0002
+    if ( ! ice->info.isEmpty() || ! ice->faceTemplate.isNull())
 	{   
 		QImageWriter iw;
 		iw.setFormat(qPrintable(fmt));
@@ -133,7 +136,7 @@ QString ImageCache::writeFile(const QString & imageId,
 		curBytes -= ice->baFileData.size();
 		ice->baFileData.clear();
 	}
-
+#endif
 	if (ice->baFileData.isEmpty() || 0 != fmt.compare(ice->fileFormat, Qt::CaseInsensitive))
 	{
 		ice->curBytes -= ice->baFileData.size();

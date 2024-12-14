@@ -5,6 +5,7 @@
 
 #include <math.h>
 
+#ifndef TODO0002
 bool HaarDetector::isStrange(QQRect rect)
 {
     bool rtn = false;
@@ -339,3 +340,4 @@ void HaarDetector::handleResults(bool returnAll)
     }
     DETAIL("%1 results handled", results.size());
 } // handleResults()
+#endif

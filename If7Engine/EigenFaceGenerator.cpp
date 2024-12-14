@@ -135,12 +135,16 @@ Eyes EigenFaceGenerator::eigenEyes(void) const
 
 Return EigenFaceGenerator::setImage(const QString & fileName)
 {
+#ifndef TODO0002
     QImage image(fileName);
     return setImage(image, ImageInfo(image), fileName);
+#endif
 } // setImage(file)
 
 Return EigenFaceGenerator::setImage(ImageCache * cache, const QString & imageId)
 {
+    Return result(EigenFace::ReturnStatusNull);
+#ifndef TODO0002
     if (cache)
     {
         QImage image = cache->getImage(imageId);
@@ -148,10 +152,10 @@ Return EigenFaceGenerator::setImage(ImageCache * cache, const QString & imageId)
         QString imageSource = cache->getImageFileName(imageId);
         if (imageSource.isEmpty())
             imageSource = imageId;
-        return setImage(image, info, imageSource);
+        result = setImage(image, info, imageSource);
     }
-    else
-        return Return(EigenFace::ReturnStatusNull);
+#endif
+    return result;
 } // setImage(cache)
 
 Return EigenFaceGenerator::setImage(const QImage & image, 
@@ -160,6 +164,7 @@ Return EigenFaceGenerator::setImage(const QImage & image,
 {
     clear(ClearImage);
     // validate image
+#ifndef TODO0002
     originalImage = image;
     ImageInfo ii(image);
     fInfo = ii.face(0);
@@ -177,7 +182,7 @@ Return EigenFaceGenerator::setImage(const QImage & image,
         eyeRoiMethod = Neighbors;
     else if ( ! method.isEmpty())
         eyeRoiMethod = Other;
-
+#endif
     return Return();
 } // setImage()
 
@@ -202,6 +207,14 @@ QImage EigenFaceGenerator::getNormalImage(void)
             emit error(rtn.toString());
     }
     return normalImage;
+}
+
+ImageInfo EigenFaceGenerator::getInfo()
+{
+    ImageInfo ii;
+    fInfo.calculate();
+//    ii.addFace(fInfo);
+    return ii;
 } // getNormalImage()
 
 QImage EigenFaceGenerator::getReconImage(EigenFaceTemplate * tpl, int vector, int layers)

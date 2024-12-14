@@ -12,7 +12,7 @@
 #include <DetectorResult.h>
 #include <EigenFaceTemplate.h>
 #include <EigenFaceSimilarity.h>
-#include <EigenFaceStatus.h>
+//#include <EigenFaceStatus.h>
 #include <EigenFaceSearchSettings.h>
 #include <ImageCache.h>
 class QFileSystemWatcher;
@@ -106,13 +106,14 @@ private slots:
     void start(void);
     void run(void);
     void pulse(void);
-    void reload(void);
+#ifndef TODO0002
+    void processGrab(void);
+    void processFace(void);
+    void changed(QString key);
     void hotdirReady(void);
     void hotdirEmpty(void);
     void grabbed(QString ImageId);
-    void changed(QString key);
-    void processGrab(void);
-    void processFace(void);
+    void reload(void);
     void doEnroll(void);
     void doDelete(void);
     void doRemove(void);
@@ -153,6 +154,7 @@ private slots:
     void error(QString msg);
     void error2(QString id, QString msg);
     void logRollover(void);
+#endif
 
 private:
     VersionInfo version;
@@ -214,7 +216,7 @@ private:
 
     QTimer * rolloverTimer;
 
-    ImageSource * camera;
+    // ImageSource * camera;
 
     MillisecondTime streamBase_mst;
     bool paused;
@@ -226,11 +228,11 @@ private:
     EigenFaceData * eigenData;
     EigenFaceParameters * eigenParms;
     EigenFaceSearcher * eigenMatcher;
-    EigenFaceSearchSettings matchSettings;
-    EigenFaceSearchSettings searchSettings;
+//    EigenFaceSearchSettings matchSettings;
+  //  EigenFaceSearchSettings searchSettings;
     FaceBase * faceBase;
     InputHotdir * hotdir;
-    ImageCache imageCache;
+//    ImageCache imageCache;
     //QString searchId;
     QImage markedImage;
     QImage grabImage;
@@ -244,6 +246,7 @@ private:
     QString commandMode;
 
     IdGenerator idGenerator;
+#ifndef TODO0002
     FileWriter * writer;
     FileWriteProfile * fwpCapture;
     FileWriteProfile * fwpCapture2;
@@ -280,6 +283,7 @@ private:
     FileWriteProfile * fwpResolveFace;
     FileWriteProfile * fwpResolveMarked;
     FileWriteProfile * fwpNoFaceColor;
+#endif
     QMap<QString,FileWriteProfile *> fwpsFaceColor;
 
     QList<QPair<QString,DetectorResult> > pendingFaces;
@@ -287,7 +291,7 @@ private:
 
     int enrollTimeout;
     bool enrollPersonMode;
-    EigenFaceStatus enroll_faceStatus;
+//    EigenFaceStatus enroll_faceStatus;
     QDir enrollDir;
     int enrollPersonKey;
     QString enrollPersonId;
@@ -298,9 +302,9 @@ private:
     QDir searchDir;
     int searchPersonKey;
     QString searchPersonId;
-    EigenFaceTemplate searchTemplate;
+//    EigenFaceTemplate searchTemplate;
     EigenFaceSimilarity * searchSimilarity;
-    EigenFaceSimilarityResultList similarityResultsList;
+//    EigenFaceSimilarityResultList similarityResultsList;
     QStringList searchPending;
     QString searchResults;
     int authConfidence;
@@ -318,7 +322,7 @@ private:
     SkinDetector * skinDetector;
     Resolver * resolver;
     HeightGrid * heightGrid;
-    TransformProperties xformProps;
+//    TransformProperties xformProps;
     FrameStatistics * frameStatistics;
     FramePerformance * framePerformance;
     CsvWriter * fpWriter;

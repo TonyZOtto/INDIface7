@@ -14,7 +14,7 @@ bool ObjdetCatalog::fileExists() const
     return mCatFileInfo.exists();
 }
 
-ObjdetCatalogItem ObjdetCatalog::item(const Key &key) const
+ObjdetCatalogItem ObjdetCatalog::item(const ObjdetCatalogItem::Key &key) const
 {
     return mKeyItemMap.value(key);
 }
@@ -99,8 +99,8 @@ QString ObjdetCatalog::extractDetectorItems()
     return result;
 }
 
-bool operator < (const ObjdetCatalog::Key &lhs,
-                 const ObjdetCatalog::Key &rhs)
+bool operator < (const ObjdetCatalogItem::Key &lhs,
+                 const ObjdetCatalogItem::Key &rhs)
 {
     if (lhs.first  < rhs.first)  return true;
     if (lhs.second < rhs.second) return true;

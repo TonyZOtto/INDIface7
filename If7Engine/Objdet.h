@@ -41,8 +41,8 @@ protected:
 //    Objdet(const QString & classname, QObject * parent=0);
 
 public slots:
-    void selectDetector(const QString & name);
-    void selectXml(const QString & fileName);
+    void selectDetector(const QString & name) {;} // TODO
+    void selectXml(const QString & fileName) {;} // TODO
 
 signals:
     void error(QString message);
@@ -86,7 +86,7 @@ protected:
     void handleResults(bool returnAll=false);
 
 protected slots:
-    bool process(bool returnAll=false);
+//    bool process(bool returnAll=false);
 
 protected:
     QList<QRect> allObjects;

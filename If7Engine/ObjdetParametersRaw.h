@@ -2,7 +2,9 @@
 
 #include <QObject>
 
-#include <opencv2/objdet.hpp>
+#include <QSize>
+
+#include <opencv2/objdetect.hpp>
 
 class ObjdetParametersRaw : public QObject
 {

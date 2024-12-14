@@ -5,11 +5,6 @@
 */
 
 #include <qglobal.h>
-#ifdef DDTIMG_LIB
-# define DDTIMG_EXPORT Q_DECL_EXPORT
-#else
-# define DDTIMG_EXPORT Q_DECL_IMPORT
-#endif
 
 #include <QDir>
 #include <QFileSystemWatcher>
@@ -25,9 +20,10 @@ class QTimer;
 class ImageCache;
 class StatusHandler;
 
-class DDTIMG_EXPORT ImageSource : public QObject
+class ImageSource : public QObject
 {
     Q_OBJECT
+#ifndef TODO0002
     Q_PROPERTY(int SampleMsec READ sampleMsec WRITE setSampleMsec)
     Q_PROPERTY(int MaxCache READ maxCache WRITE setMaxCache)
     Q_PROPERTY(bool Paused READ paused WRITE setPaused)
@@ -50,10 +46,11 @@ private: // properties
     int MaxCache;
     bool Paused;
     QString SourceId;
+#endif
 
 public:
-    ImageSource(QObject * parent=0);
-    ~ImageSource();
+    ImageSource(QObject * parent=0) {;}
+    ~ImageSource() {;}
 
     void setCache(ImageCache * Cache) { cache = Cache; }
     void setStatusHandler(StatusHandler * Status) { status = Status; }
@@ -66,12 +63,7 @@ public:
     QString sourceName(void) const { return name; }
     static qint64 currentEpochMsec(void)
     { return QDateTime::currentMSecsSinceEpoch(); }
-    qint64 msecsSinceLastGrab(void) const
-    {
-        return (lastgrab_ems < 0)
-                ? 0
-                : (currentEpochMsec() - lastgrab_ems);
-    }
+    qint64 msecsSinceLastGrab(void) const;
     qint64 grabGetEpochMsec(void) const
     { return grabGet_ems; }
     qint64 lastGrabEpochMsec(void) const
@@ -81,13 +73,13 @@ private:
     QString canGrab(void);
 
 public slots:
-    void grab(void);
-    void reset(void);
+//    void grab(void);
+  //  void reset(void);
 
 private slots:
-    void sample(void);
-    void httpDone(bool Error);
-    void stateChanged(int state);
+//    void sample(void);
+  //  void httpDone(bool Error);
+    //void stateChanged(int state);
 
 signals:
     void grabDone(QImage image);

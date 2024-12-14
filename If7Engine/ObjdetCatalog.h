@@ -8,14 +8,12 @@
 #include <QString>
 
 #include "Objdet.h"
-
-class ObjdetCatalogItem;
+#include "ObjdetCatalogItem.h"
 
 class ObjdetCatalog : public QObject
 {
     Q_OBJECT
 public: // types
-    typedef QPair<QString, QString> Key;
 
 public: // ctors
     ObjdetCatalog(const QString &catXmlFileName, QObject *parent = nullptr);
@@ -27,8 +25,9 @@ signals:
 public: // const
     QFileInfo fileInfo() const;
     bool fileExists() const;
-    ObjdetCatalogItem item(const Key &key) const;
-    friend bool operator < (const Key &lhs, const Key &rhs);
+    ObjdetCatalogItem item(const ObjdetCatalogItem::Key &key) const;
+    friend bool operator < (const ObjdetCatalogItem::Key &lhs,
+                          const ObjdetCatalogItem::Key &rhs);
 
 
 public: // non-const
@@ -45,7 +44,7 @@ private:
     QFileInfo mCatFileInfo;
     QMap<Objdet::Class, QDomElement> mClassElementMap;
     QMap<Objdet::Class, QString> mClassDefaultDetectorMap;
-    QMap<Key, ObjdetCatalogItem> mKeyItemMap;
+    QMap<ObjdetCatalogItem::Key, ObjdetCatalogItem> mKeyItemMap;
 };
 
 inline QFileInfo ObjdetCatalog::fileInfo() const { return mCatFileInfo; }

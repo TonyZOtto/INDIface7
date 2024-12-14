@@ -77,9 +77,9 @@ Return EigenFaceGenerator::generateTemplate(int minConsistencyOverride)
     return Return();
 } // generateTemplate()
 
-#ifndef TODO0002
 Return EigenFaceGenerator::findHead(void)
 {
+#ifndef TODO0002
     QList<DetectorResult> resultList;
 
     // Prerequisites
@@ -109,12 +109,14 @@ Return EigenFaceGenerator::findHead(void)
                         head.bottomRight() / HeadScale));
         fInfo.set(Feature::Quality, resultList.at(0).score());
     }
+#endif
     return Return();
 } // findHead()
 
 
 Return EigenFaceGenerator::findEyes(void)
 {
+#ifndef TODO0002
     Return rtn;
     QList<DetectorResult> resultList;
 
@@ -206,9 +208,9 @@ Return EigenFaceGenerator::findEyes(void)
     fInfo.set(Feature::LeftEye, leftEye / HeadScale);
     fInfo.set(Feature::RightEye, rightEye / HeadScale);
     fInfo.calculate();
+#endif
     return Return();
 } // findEyes()
-#endif
 
 // 1. Find eye positions that produce the least residual when subtracted
 //		from the first average face. This will produce the "official"
@@ -295,10 +297,10 @@ Return EigenFaceGenerator::generateNormalized(void)
         return Return(EigenFace::ReturnNoEyes);
 //    TRACE("originalImage=%1,%2 normalSize=%3,%4", originalImage.width(), originalImage.height(), normalSize.width(), normalSize.height());
   //  TRACE("adjEyes=%1,%2~%3,%4", adjEyes.left().x(), adjEyes.left().y(), adjEyes.right().x(), adjEyes.right().y());
-    normalImage = EigenFace::normalize(originalImage, adjEyes, normalSize, normalEyes);
+//    normalImage = EigenFace::normalize(originalImage, adjEyes, normalSize, normalEyes);
     QQRect normalHead(normalSize);
-    normalHead = normalHead.scaled((qreal)data->eigenEyes().width()
-                                   / (qreal)normalEyes.width());
+//    normalHead = normalHead.scaled((qreal)data->eigenEyes().width()
+  //                                 / (qreal)normalEyes.width());
     FeatureInfo fInfo;
     fInfo.imageSize(normalImage.size());
     fInfo.headBox((QRect)normalHead);
@@ -306,8 +308,8 @@ Return EigenFaceGenerator::generateNormalized(void)
     fInfo.consistency(consistency());
     fInfo.calculate();
     ImageInfo ii;
-    ii.addFace(fInfo);
-    ii.setImageText(&normalImage);
+///    ii.addFace(fInfo);
+   // ii.setImageText(&normalImage);
 
     return Return();
 } // generateNormalized()

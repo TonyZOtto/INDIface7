@@ -60,9 +60,9 @@ QSize ObjdetCatalogItem::catalogSize() const
     return data->dCatalogSize;
 }
 
-ObjdetCatalog::Key ObjdetCatalogItem::key() const
+ObjdetCatalogItem::Key ObjdetCatalogItem::key() const
 {
-    return ObjdetCatalog::Key(className(), detectorName());
+    return Key(className(), detectorName());
 }
 
 bool ObjdetCatalogItem::read(const QDomElement &itemDE)

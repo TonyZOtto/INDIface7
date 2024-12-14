@@ -23,6 +23,7 @@ class StatusHandler;
 class InputHotdir : public QObject
 {
     Q_OBJECT
+#ifndef TODO0002
     Q_PROPERTY(int SampleMsec READ sampleMsec WRITE setSampleMsec)
     Q_PROPERTY(int MaxCache READ maxCache WRITE setMaxCache)
     Q_PROPERTY(int Jump READ jump WRITE setJump)
@@ -115,7 +116,7 @@ signals:
     void grabWarn(QString warning);
     void empty(void);
     void notEmpty(void);
-
+#endif
 private:
     ImageCache * cache;
     StatusHandler * status;

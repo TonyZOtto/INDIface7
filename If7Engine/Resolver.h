@@ -18,7 +18,7 @@ private:
     };
 
 public:
-    explicit Resolver(QObject *parent = 0);
+    explicit Resolver(QObject *parent = 0) {;} // TODO
     void clearAll(void);
     void clearScores(void);
     bool add(const IdString & name, const int weight=0, const int score=-1);
@@ -35,7 +35,7 @@ signals:
     void resolved(int confidence);
 
 public slots:
-    bool setScore(const IdString & name, const int score);
+//    bool setScore(const IdString & name, const int score);
 
 private:
     QList<Item> List;

@@ -7,14 +7,11 @@
 
 #include "iImageCache.h"
 
-#include <QApplication>
+//#include <QApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QMutexLocker>
-
-
-#include <InfoMacros.h>
 
 ImageCacheEntry::ImageCacheEntry(ImageCache * parent)
     : QObject(parent), cache(parent)
@@ -64,7 +61,7 @@ void ImageCacheEntry::free(void)
     holds.clear();
     score = 0.0;
     profile = 0;
-    info.clear();
+//    info.clear();
 } // free()
 
 ImageCacheEntry * ImageCacheEntry::copy(const QString & newId)
@@ -87,7 +84,7 @@ void ImageCacheEntry::copyCtor(const ImageCacheEntry & that)
     fileFormat = that.fileFormat;
     fileName = that.fileName;
     orig = that.orig;
-    curBytes = that.baFileData.size() + that.orig.numBytes();
+//    curBytes = that.baFileData.size() + that.orig.numBytes();
     timeStamp = that.timeStamp;
     score = that.score;
     info = that.info;
@@ -100,23 +97,17 @@ void ImageCacheEntry::doDeferredMove(void)
     QFileInfo fi(fileName);
     if ( ! fi.exists() && ! deferredMove.isEmpty())
     {
-        WARNING("Move file %1 no longer exists", fileName);
         return;
     }
     if ( ! deferredMove.isEmpty() && fileName.isEmpty())
     {
-        WARNING("No file name for deferred move to %1: %2",
-             deferredMove, imageId);
         return;
     }
 
     if ("~" == deferredMove && ! fileName.isEmpty())
     {
         QMutexLocker lock(&mutex);
-        if (QFile::remove(fileName))
-            TRACE("Deleted %1", fileName);
-        else
-            ERRMSG("Error deleting %1", fileName);
+        QFile::remove(fileName);
         deferredMove.clear();
     }
     else if (! deferredMove.isEmpty() && ! fileName.isEmpty())
@@ -127,24 +118,10 @@ void ImageCacheEntry::doDeferredMove(void)
         dir.cd(deferredMove);
         QString newName = dir.absoluteFilePath(fi.fileName());
         if (QFile::exists(newName))
-        {
-            if (QFile::remove(newName))
-                TRACE("Removed existing %1", newName);
-            else
-                ERRMSG("Error removing existing %1", newName);
-        }
-        if (QFile::rename(fileName, newName))
-            TRACE("Moved %1 to %2", fileName, newName);
-        else
-            ERRMSG("Error moving %1 to %2", fileName, newName);
+            QFile::remove(newName);
+        QFile::rename(fileName, newName);
         if (QFile::exists(fileName))
-        {
-            WARNING("%1 still exists", fileName);
-            if (QFile::remove(fileName))
-                TRACE("Removed existing %1", fileName);
-            else
-                ERRMSG("Error removing existing %1", fileName);
-        }
+            QFile::remove(fileName);
         deferredMove.clear();
     }
 } // moveDir()

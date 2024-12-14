@@ -32,6 +32,7 @@
 
 
 
+#ifndef TODO0002
 void IfSearch::processGrab(void)
 {
     QList<DetectorResult> resultList;
@@ -296,3 +297,4 @@ void IfSearch::processGrab(void)
     if ( ! imageCache.isGrabEmpty())
         QTimer::singleShot(10, this, SLOT(processGrab()));
 } // processGrab()
+#endif

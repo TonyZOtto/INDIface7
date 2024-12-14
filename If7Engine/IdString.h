@@ -6,7 +6,7 @@
 class IdString : public QString
 {
 public:
-    IdString(void);
+    IdString(void) {;}
     IdString(const char * s);
     IdString(const QString & id);
 //    bool isNull(void) const

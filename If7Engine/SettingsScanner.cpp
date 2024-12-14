@@ -61,11 +61,12 @@ void Settings::scanForUpdate(void)
 	if (registry.toInt() != UpdateMsec)
 		emit changeProperty(keyForUpdateMsec, registry);
 } // scanForUpdate() slot
-		
+
 void Settings::scan(void)
 {
 	emit scanStart();
 
+#ifndef TODO0002
 	if (infoOutputSetting)
 	{
 		QString key = infoOutputSetting->key();
@@ -132,9 +133,10 @@ void Settings::scan(void)
 		}
 	} // foreach(var)
 
+#endif
 	emit scanFinish();
 } // scan() signal
-		
+
 void Settings::updatePollCount(void)
 {
 	this->setValue(keyForPollCount, QString::number(PollCount));

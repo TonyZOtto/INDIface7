@@ -13,12 +13,13 @@
 #include <FileWriter.h>
 #include <fbPerson.h>
 #include <ImageCache.h>
-#include <InfoMacros.h>
+//#include <InfoMacros.h>
 #include <InputHotdir.h>
 #include <Return.h>
 #include <Settings.h>
 //#include <Trace.h>
 
+#ifndef TODO0002
 void IfSearch::doEnroll(void)
 {
     if (ffdBusy)
@@ -197,3 +198,4 @@ void IfSearch::enrollError(const QString & reason)
     Info::flush();
     commandMode.clear();
 } // enrollFinish()
+#endif

@@ -11,12 +11,10 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QImage>
-#include <QLabel>
 #include <QReadWriteLock>
 #include <QStringList>
 
 #include <QQRect.h>
-#include <InfoMacros.h>
 #include "iImageCache.h"
 
 
@@ -79,14 +77,15 @@ ImageCache::~ImageCache()
 } // d'tor
 
 /*
-void ImageCache::setStatusHandler(StatusHandler * sts) 
-{ 
-	status = sts; 
+void ImageCache::setStatusHandler(StatusHandler * sts)
+{
+    status = sts;
 	if (status)
 		timeStampString = status->tsStart().toString("DyyyyMMdd-Thhmm");
 }
 */
-bool ImageCache::contains(const QString & ImageId) 
+#ifndef TODO0002
+bool ImageCache::contains(const QString & ImageId)
 { 
     if (rwlMap)		rwlMap->lockForRead();
     bool b = map.contains(ImageId);
@@ -901,3 +900,4 @@ void ImageCache::setHistoryMode(bool mode, const QString & overrideDirName)
     historyMode = mode;
     overrideDir = historyMode ? overrideDirName : QString();
 }
+#endif

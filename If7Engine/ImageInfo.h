@@ -22,6 +22,7 @@ class QDomDocument;
 
 class DDTIMG_EXPORT ImageInfo
 {
+#ifndef TODO0002
 public:
     ImageInfo(void);
     ImageInfo(const QImage & image);
@@ -43,4 +44,5 @@ public:
 private:
     AttributeSet        mAttributeSet;
     QList<FeatureInfo> mFInfoList;
+#endif
 }; // class ImageCache

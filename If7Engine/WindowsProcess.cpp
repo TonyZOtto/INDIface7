@@ -1,4 +1,4 @@
-/** @file WindowsProcess.cpp
+B/** @file WindowsProcess.cpp
 *	Definition of WindowsProcess class for DDT core library
 *
 *	@author	Dynamic DeZigns Technology

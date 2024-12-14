@@ -18,16 +18,16 @@ const QString EigenFaceTemplate::eigenFaceVectorTagName("INDI-EigenFace-EigenFac
 EigenFaceTemplate::EigenFaceTemplate(void)
 {
     DEFINE_PROPERTIES_CTORS(EFTEMPLATE_PROPERTIES);
-    Return::add(EigenFace::ReturnStatusNull, "INDI EigenFace Null Status", Warning);
+//    Return::add(EigenFace::ReturnStatusNull, "INDI EigenFace Null Status", Warning);
 }
 
 EigenFaceTemplate::EigenFaceTemplate(const QByteArray & ba)
 {
     DEFINE_PROPERTIES_CTORS(EFTEMPLATE_PROPERTIES);
-    Return::add(EigenFace::ReturnStatusNull, "INDI EigenFace Null Status", Warning);
+  //  Return::add(EigenFace::ReturnStatusNull, "INDI EigenFace Null Status", Warning);
     clear();
     EigenFaceTemplate eft;
-    eft.read(ba);
+//    eft.read(ba);
     if (eft.isValid())
         *this = eft;
 } // QByteArray c'tor
@@ -57,6 +57,7 @@ void EigenFaceTemplate::add(const EigenFaceTemplate & other)
     distance_efVector_mmap += other.distance_efVector_mmap;
 }
 
+#ifndef TODO0002
 Return EigenFaceTemplate::read(const QDomElement & de)
 {
     Return rtn;
@@ -225,6 +226,7 @@ Return EigenFaceTemplate::write(QIODevice * io) const
 
     return Return();
 } // write(io)
+#endif
 
 QStringList EigenFaceTemplate::idList(void) const
 {

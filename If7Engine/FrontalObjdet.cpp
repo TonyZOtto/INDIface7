@@ -5,5 +5,5 @@
 FrontalObjdet::FrontalObjdet(QObject *parent)
     : BaseObjdetEngine{Objdet::FaceFrontal, parent}
 {
-    setObjectName("FrontalObjdet:" + );
+    setObjectName("FrontalObjdet:TBD");
 }

@@ -3,21 +3,14 @@
 #include "ObjectHelper.h"
 
 BaseObjdetEngine::BaseObjdetEngine(QObject *parent)
-    : QObject{parent}
-    , cmClass(Objdet::$nullClass)
+    : Objdet{parent}
 {
     setObjectName("BaseObjdetEngine:Null");
 }
 
 BaseObjdetEngine::BaseObjdetEngine(const Objdet::Class objcls, QObject *parent)
-    : QObject{parent}
-    , cmClass(objcls)
+    : Objdet{objcls, parent}
 {
     setObjectName("BaseObjdetEngine:" + className(objcls));
 }
 
-QString BaseObjdetEngine::className(const Objdet::Class odc) const
-{
-    const ObjectHelper cOH(this);
-    return cOH.enumKey("Class", odc);
-}

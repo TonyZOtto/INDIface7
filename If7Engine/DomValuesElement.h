@@ -23,7 +23,7 @@ public: // non-const
     void append(const QPoint pt, const QString aName);
     void append(const QQRect rc, const QString aName);
     void append(const QSize sz, const QString aName);
-    void append(const QString &s, const QString aName);
+    void append(const QString &s, const QString aName) {;} // TODO
 
 private:
     QDomElement * pParentDE=nullptr;

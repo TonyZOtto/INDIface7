@@ -9,12 +9,12 @@ class ObjdetResultData;
 class ObjdetResult
 {
 public: // types
-    typdef QList<ObjdetResult> List;
+    typedef QList<ObjdetResult> List;
 
 public: // our ctors
 
 public: // const
-    qreal distance() const;
+    qreal distance() const { return 0.0; } // TODO
 
 public: // non-const
 

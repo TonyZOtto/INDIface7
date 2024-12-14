@@ -52,9 +52,9 @@ Return FileWriteProfile::write(const QString & imageId)
         return Return(FileWriter::ReturnNoCache, imageId);
     }
 
-    QString baseName = imageId + "." + writer()->mpImageCache->format(imageId);
-    QByteArray ba = writer()->mpImageCache->getData(imageId);
-    writer()->enqueue(this, baseName, ba);
+//    QString baseName = imageId + "." + writer()->mpImageCache->format(imageId);
+    //QByteArray ba = writer()->mpImageCache->getData(imageId);
+  //  writer()->enqueue(this, baseName, ba);
 
     return Return();
 } // write(imageId)

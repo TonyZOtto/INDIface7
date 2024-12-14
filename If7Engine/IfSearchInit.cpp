@@ -21,6 +21,7 @@
 #include <ImageSource.h>
 #include <INDIffd.h>
 #include <InputHotdir.h>
+#include <Objdet.h>
 #include <Return.h>
 #include <Settings.h>
 #include <VersionInfo.h>
@@ -32,6 +33,7 @@
 #ifdef ENABLE_WATCHDOG
 #include <eirExe/WatchDog.h>
 #endif
+
 
 void IfSearch::init(void)
 {
@@ -116,19 +118,17 @@ void IfSearch::init(void)
         }
     }
 #endif
-    mpObjdetCatalog = new ObjdetCatalog(this); Q_ASSERT(mpObjdetCatalog);
-    qInfo() << "Running Qt Version" << qVersion()
-            << "built" << QLibraryInfo::buildDate();
-    qInfo() << "Running OpenCV Version" << mpObjdetCatalog->cvVersion();
     detectorsXml     = appSettings->value("Detect/DetectorsXml", "../detectors/Detectors.xml").toString();
-
-
+    mpObjdetCatalog = new ObjdetCatalog(detectorsXml, this); Q_ASSERT(mpObjdetCatalog);
+    qInfo() << "Running Qt Version" << qVersion();
+    qInfo() << "Running OpenCV Version" << Objdet::cvVersion().toString();
 
     eigenFaceDataDir = appSettings->value("Generate/DataDir", "../data/Face1").toString();
     faceBaseBaseDir  = appSettings->value("FaceBase/BaseDir", "../FaceBase").toString();
     faceBaseMaxLoad  = appSettings->value("FaceBase/MaxLoad", 50).toInt();
     faceBaseReload_msd.setToMinutes(appSettings->value("FaceBase/ReloadMins", 0.0).toFloat());
 
+#ifndef TODO0002
     EigenFaceSearchTier::setColor(EigenFaceSearchTier::Best,
                                  appSettings->value("Output/MarkBestColor",
                                                     EigenFaceSearchTier::color(EigenFaceSearchTier::Best)).value<QColor>());
@@ -145,6 +145,7 @@ void IfSearch::init(void)
     optSearchCommand->setValue(QString());
     optEnrollCommand->setValue(QString());
     optRetrieveCommand->setValue(QString());
+#endif
 
 #ifdef ENABLE_WATCHDOG
     _watchdog = new WatchDog(this);
@@ -156,6 +157,7 @@ void IfSearch::init(void)
 void IfSearch::start(void)
 {
     Return rtn;
+#ifndef TODO0002
     QStringList qsl;
 
     /*--- Setup Clothes Matcher ---*/
@@ -289,14 +291,14 @@ void IfSearch::start(void)
                 this, SLOT(dogBite(QVariant,MillisecondTime)));
     }
 #endif
-
+#endif
     QTimer::singleShot(0, this, SLOT(run()));
 } // start()
 
 void IfSearch::run(void)
 {
+#ifndef TODO0002
     FUNCTION();
-
 #ifdef ENABLE_AVGFACE
     if (optAvgFaceEnable->toBool())
         avgFaceInit();
@@ -326,7 +328,7 @@ void IfSearch::run(void)
     changed(optHeightEnable->keyName());
     changed(optInput->keyName());
     changed(optPause->keyName());
-
+#endif
     QTimer::singleShot(0, this, SLOT(pulse()));
 } // run()
 

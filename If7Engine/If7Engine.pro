@@ -14,9 +14,9 @@ include(useOCV4.pri)
 SOURCES += \
     AbstractIdString.cpp \
     AnyColor.cpp \
-    AnyColorMatrix.cpp \
-    AttributeSet.cpp \
-    AverageFace.cpp \
+#    AnyColorMatrix.cpp \
+#    AttributeSet.cpp \
+#    AverageFace.cpp \
     BaseIdBehavior.cpp \
     BaseObjdetEngine.cpp \
     BaseObjdetMarker.cpp \
@@ -24,65 +24,65 @@ SOURCES += \
     CharacteristicColor.cpp \
     ClothesMatchProperties.cpp \
     ClothesMatcher.cpp \
-    ColorModel.cpp \
-    CsvWriter.cpp \
-    DetectorResult.cpp \
+#    ColorModel.cpp \
+#    CsvWriter.cpp \
+#    DetectorResult.cpp \
     DomValuesElement.cpp \
-    EigenFace.cpp \
+#    EigenFace.cpp \
     EigenFaceBitMask.cpp \
     EigenFaceData.cpp \
-    EigenFaceFace.cpp \
+#    EigenFaceFace.cpp \
     EigenFaceGenerator.cpp \
     EigenFaceGenerator2.cpp \
     EigenFaceMaskedArray-IO.cpp \
     EigenFaceMaskedArray-Image.cpp \
     EigenFaceMaskedArray.cpp \
     EigenFaceParameters.cpp \
-    EigenFaceSearchPerson.cpp \
-    EigenFaceSearchResult.cpp \
-    EigenFaceSearchResultList.cpp \
-    EigenFaceSearchSettings.cpp \
-    EigenFaceSearchTier.cpp \
-    EigenFaceSearcher.cpp \
-    EigenFaceSimilarity.cpp \
-    EigenFaceSimilarityEntry.cpp \
-    EigenFaceSimilarityResult.cpp \
-    EigenFaceSimilarityResultList.cpp \
-    EigenFaceStatus.cpp \
+#    EigenFaceSearchPerson.cpp \
+#    EigenFaceSearchResult.cpp \
+#    EigenFaceSearchResultList.cpp \
+#    EigenFaceSearchSettings.cpp \
+#    EigenFaceSearchTier.cpp \
+#    EigenFaceSearcher.cpp \
+#    EigenFaceSimilarity.cpp \
+#    EigenFaceSimilarityEntry.cpp \
+#    EigenFaceSimilarityResult.cpp \
+#    EigenFaceSimilarityResultList.cpp \
+#    EigenFaceStatus.cpp \
     EigenFaceTemplate.cpp \
     EigenFaceVector.cpp \
-    Enumeration.cpp \
-    EyeDetector.cpp \
-    EyesMarker.cpp \
-    FaceBase-Access.cpp \
-    FaceBase-File.cpp \
-    FaceBase.cpp \
+#    Enumeration.cpp \
+#    EyeDetector.cpp \
+#    EyesMarker.cpp \
+#    FaceBase-Access.cpp \
+#    FaceBase-File.cpp \
+#    FaceBase.cpp \
     FeatureInfo.cpp \
     FileWriteProfile.cpp \
     FileWriter.cpp \
     FrameObjdet.cpp \
-    FramePerformance.cpp \
-    FrameStatistics.cpp \
-    FrontalFaceDetector.cpp \
+#    FramePerformance.cpp \
+#    FrameStatistics.cpp \
+#    FrontalFaceDetector.cpp \
     FrontalMarker.cpp \
     FrontalObjdet.cpp \
-    GreyImage.cpp \
-    GroupObjects.cpp \
-    HaarDetector.cpp \
+#    GreyImage.cpp \
+#    GroupObjects.cpp \
+#    HaarDetector.cpp \
     HeightGrid.cpp \
     IdGenerator.cpp \
-    IdString.cpp \
-    IfSearch-AvgFace.cpp \
-    IfSearch-ProcessFace.cpp \
-    IfSearch-ProcessGrab.cpp \
+#    IdString.cpp \
+#    IfSearch-AvgFace.cpp \
+#    IfSearch-ProcessFace.cpp \
+#    IfSearch-ProcessGrab.cpp \
     IfSearch.cpp \
-    IfSearchAuthenticate.cpp \
-    IfSearchEnroll.cpp \
-    IfSearchEnroll2.cpp \
+#    IfSearchAuthenticate.cpp \
+#    IfSearchEnroll.cpp \
+#    IfSearchEnroll2.cpp \
     IfSearchInit.cpp \
-    IfSearchRetrieve.cpp \
-    IfSearchSearch.cpp \
-    IfSearchSimilarity.cpp \
+#    IfSearchRetrieve.cpp \
+#    IfSearchSearch.cpp \
+#    IfSearchSimilarity.cpp \
     IfSearchSlots.cpp \
     ImageCache.cpp \
     ImageCacheCleaner.cpp \
@@ -91,8 +91,8 @@ SOURCES += \
     ImageInfo.cpp \
     ImageMarker.cpp \
     ImageSource.cpp \
-    InputHotdir.cpp \
-    Key.cpp \
+#    InputHotdir.cpp \
+#    Key.cpp \
     MillisecondDelta.cpp \
     MillisecondTime.cpp \
     Objdet.cpp \
@@ -107,17 +107,17 @@ SOURCES += \
     ObjdetResult.cpp \
     ObjdetResultMap.cpp \
     ObjectHelper.cpp \
-    QQRect.cpp \
-    Resolver.cpp \
+#    QQRect.cpp \
+#    Resolver.cpp \
     Return.cpp \
     Setting.cpp \
     SettingProperty.cpp \
     Settings.cpp \
     SettingsScanner.cpp \
-    SkinDetector.cpp \
-    SkinMatchProperties.cpp \
-    SkinMatcher.cpp \
-    TransformProperties.cpp \
+#    SkinDetector.cpp \
+#    SkinMatchProperties.cpp \
+#    SkinMatcher.cpp \
+#    TransformProperties.cpp \
     Variable.cpp \
     VariableGroup.cpp \
     VariableId.cpp \
@@ -126,13 +126,10 @@ SOURCES += \
     VariableSet.cpp \
     VariableType.cpp \
     VersionInfo.cpp \
-    WD-IfSearch.cpp \
-    WD-IfSearchInit.cpp \
-    WD-IfSearchSlots.cpp \
-    WindowsProcess.cpp \
-    ddtcore.cpp \
-    fbPerson.cpp \
-    fbValue.cpp \
+#    WindowsProcess.cpp \
+#    ddtcore.cpp \
+#    fbPerson.cpp \
+#    fbValue.cpp \
     main.cpp \
 
 DISTFILES += \
@@ -258,7 +255,6 @@ HEADERS += \
     VariableSet.h \
     VariableType.h \
     VersionInfo.h \
-    WD-IfSearch.h \
     WindowsProcess.h \
     fbPerson.h \
     fbValue.h \

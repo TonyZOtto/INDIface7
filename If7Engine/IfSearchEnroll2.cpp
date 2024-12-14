@@ -13,12 +13,13 @@
 #include <FileWriter.h>
 #include <fbPerson.h>
 #include <ImageCache.h>
-#include <InfoMacros.h>
+//#include <InfoMacros.h>
 #include <InputHotdir.h>
 #include <Return.h>
 #include <Settings.h>
 
 
+#ifndef TODO0002
 void IfSearch::doDelete(void)
 {
     PROGRESS("[ENROLL] Started for Delete Face");
@@ -398,3 +399,4 @@ void IfSearch::doReenroll(void)
 
     return enrollError("Reenroll is not yet supported");
 } // doReenroll()
+#endif

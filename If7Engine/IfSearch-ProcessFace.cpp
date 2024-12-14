@@ -12,7 +12,7 @@
 #include <EigenFaceParameters.h>
 #include <EigenFaceTemplate.h>
 #include <FaceBase.h>
-#include <FrontalFaceDetector.h>
+//#include <FrontalFaceDetector.h>
 
 #include <Eyes.h>
 #include <FileWriteProfile.h>

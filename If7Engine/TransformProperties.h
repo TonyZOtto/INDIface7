@@ -16,6 +16,7 @@ class QTransform;
 class TransformProperties : public QObject
 {
     Q_OBJECT
+#ifndef TODO0002
     DECLARE_QPROPERTIES(TRANSFORM_QPROPERTIES);
 
 public:
@@ -27,7 +28,7 @@ public:
 signals:
 
 public slots:
-
+#endif
 };
 
 #endif // TRANSFORMPROPERTIES_H

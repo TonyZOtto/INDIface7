@@ -25,7 +25,7 @@ signals:
     void loaded(const bool isError, const QString errorString);
 
 public slots:
-    void load(const QString xmlFileName);
+//    void load(const QString xmlFileName);
 
 public: // const
     Class klass() const;

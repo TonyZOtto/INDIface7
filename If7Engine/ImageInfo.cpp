@@ -12,6 +12,7 @@
 #include <ImageInfo.h>
 
 
+#ifndef TODO0002
 
 ImageInfo::ImageInfo(void)
 {
@@ -48,7 +49,8 @@ ImageInfo & ImageInfo::operator=(const ImageInfo & that)
     this->mFInfoList = that.mFInfoList;
 	return *this;
 }
-		
+
+#ifndef TODO0002
 bool ImageInfo::read(const QDomElement & de)
 {
 	QDomNodeList nodesFaces = de.elementsByTagName("Faces");
@@ -65,6 +67,7 @@ bool ImageInfo::read(const QDomElement & de)
 	}
 	return true;
 } // read(QDomElement)
+#endif
 
 void ImageInfo::addFace(const FeatureInfo &fInfo)
 {
@@ -77,7 +80,8 @@ FeatureInfo ImageInfo::face(int x) const
                ? mFInfoList.at(x)
                : FeatureInfo();
 }
-		
+
+#ifndef TODO0002
 QList<QPoint> ImageInfo::eyes(void) const
 {
 	QList<QPoint> list;
@@ -115,6 +119,7 @@ QList<QRect> ImageInfo::heads(QString usage) const
 	}
 	return list;
 }
+#endif
 
 bool ImageInfo::isEmpty(void)
 {
@@ -131,7 +136,7 @@ bool ImageInfo::writeDomElement(QDomElement * pDE) const
 	{
         QDomElement tFaceDE = pDE->ownerDocument()
                         .createElement("FeatureInfo");
-        cFInfo.fillDomElement(&tFaceDE);
+//        cFInfo.fillDomElement(&tFaceDE);
         faces.appendChild(tFaceDE);
 	}
 	return true;
@@ -150,3 +155,5 @@ bool ImageInfo::setImageText(QImage * image, QString tag)
 	image->setText("INDIinfo", xml);
 	return true;
 } // setImageText()
+#endif
+
