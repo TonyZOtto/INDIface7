@@ -1,65 +1,55 @@
-#ifndef IFSEARCH_H
-#define IFSEARCH_H
-
-#ifndef QT_NO_DEBUG
-//#define ENABLE_AVGFACE
-#endif
+// @file IfSearch.h
+#pragma once
 
 #include <QGuiApplication>
+
 #include <QStringList>
 
+#include "CsvWriter.h"
 #include <Detector.hhh>
 #include <DetectorResult.h>
 #include <EigenFaceTemplate.h>
 #include <EigenFaceSimilarity.h>
-//#include <EigenFaceStatus.h>
+#include <EigenFaceStatus.h>
 #include <EigenFaceSearchSettings.h>
-#include <ImageCache.h>
-class QFileSystemWatcher;
-
 #include <Eyes.h>
-#include <TransformProperties.h>
-
-#include "MillisecondTime.h"
-#include "IdGenerator.h"
-#include "CsvWriter.h"
 #include "FramePerformance.h"
 #include "FrameStatistics.h"
+#include <ImageCache.h>
+#include "IdGenerator.h"
+#include "MillisecondTime.h"
+#include <TransformProperties.h>
 
-class FileWriteProfile;
-class FileWriter;
-class ImageSource;
-class InfoOutputSetting;
-class InputHotdir;
-class Settings;
-class Setting;
-
-class ObjdetCatalog;
-class EigenFaceData;
-class EigenFaceGenerator;
-class EigenFaceParameters;
-class EigenFaceSimilarity;
-class EyeDetector;
-class FrontalFaceDetector;
-class FaceBase;
+class QFileSystemWatcher;
 
 class AverageFace;
 class ClothesMatchProperties;
 class ClothesMatcher;
 class ColorCorrectProperties;
 class ColorCorrection;
+class EigenFaceData;
+class EigenFaceGenerator;
+class EigenFaceParameters;
 class EigenFaceSearcher;
 class EigenFaceSearchResultList;
+class EigenFaceSimilarity;
+class EyeDetector;
+class FaceBase;
+class FileWriteProfile;
+class FileWriter;
+class FrontalFaceDetector;
 class HeightGrid;
+class ImageSource;
+class InfoOutputSetting;
+class InputHotdir;
+class ObjdetCatalog;
 class Resolver;
+class Settings;
+class Setting;
 class SkinDetector;
 class SkinMatchProperties;
 class SkinMatcher;
-#ifdef ENABLE_WATCHDOG
-class WatchDog;
-#endif
 
-#include "Detector.hhh"
 
 class IfSearch : public QGuiApplication
 {
@@ -68,16 +58,6 @@ class IfSearch : public QGuiApplication
 public:
     IfSearch(int argc, char *argv[]);
     ~IfSearch();
-#ifdef ENABLE_WATCHDOG
-signals:
-    void petDog(QVariant value);
-private slots:
-    void dogBite(QVariant lastValue,
-                 MillisecondTime lastTime);
-private:
-    Setting * optWatchDogValue;
-    WatchDog * _watchdog;
-#endif
 
 private:
     Return initEigenFace(void);
@@ -212,11 +192,10 @@ private:
     QString detectorsXml;
     int faceBaseMaxLoad;
     MillisecondDelta faceBaseReload_msd;
-    QTimer * reloadTimer;
+    QTimer * mpReloadTimer;
+    QTimer * mpRolloverTimer;
 
-    QTimer * rolloverTimer;
-
-    // ImageSource * camera;
+    ImageSource * camera;
 
     MillisecondTime streamBase_mst;
     bool paused;
@@ -330,5 +309,4 @@ private:
     //    ColorCorrection * colorCorrection;
 };
 
-#endif // IFSEARCH_H
 

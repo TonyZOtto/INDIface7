@@ -30,8 +30,8 @@ IfSearch::IfSearch(int argc, char *argv[])
     , version(VER_MAJOR, VER_MINOR, VER_BRANCH,
               VER_RELEASE, VER_STRING, VER_COPYRIGHT,
               VER_ORGNAME, VER_APPNAME)
-    , reloadTimer(0)
-    , rolloverTimer(0)
+    , mpReloadTimer(0)
+    , mpRolloverTimer(0)
 {
 //    camera = 0;
     paused = true;
@@ -55,9 +55,6 @@ IfSearch::IfSearch(int argc, char *argv[])
     frameStatistics = 0;
     framePerformance = 0;
     fpWriter = 0;
-#ifdef ENABLE_WATCHDOG
-    _watchdog = 0;
-#endif
 
     appSettings		= Settings::newSettings(this); Q_ASSERT(appSettings);
     appSettings->setValue("Enroll/Command", QString());

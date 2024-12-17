@@ -30,10 +30,6 @@
 #include <HeightGrid.h>
 #include <SkinMatcher.h>
 #include <SkinMatchProperties.h>
-#ifdef ENABLE_WATCHDOG
-#include <eirExe/WatchDog.h>
-#endif
-
 
 void IfSearch::init(void)
 {
@@ -145,10 +141,6 @@ void IfSearch::init(void)
     optSearchCommand->setValue(QString());
     optEnrollCommand->setValue(QString());
     optRetrieveCommand->setValue(QString());
-#endif
-
-#ifdef ENABLE_WATCHDOG
-    _watchdog = new WatchDog(this);
 #endif
 
     QTimer::singleShot(0, this, SLOT(start()));
@@ -281,16 +273,6 @@ void IfSearch::start(void)
         connect(reloadTimer, SIGNAL(timeout()), this, SLOT(reload()));
         reloadTimer->start();
     }
-#ifdef ENABLE_WATCHDOG
-    MillisecondDelta interval;
-    interval.setToMinutes(appSettings->value("Options/WatchDogMins", "0.0").toFloat());
-    if ( ! interval.isNull())
-    {
-        _watchdog->setInterval(interval);
-        connect(_watchdog, SIGNAL(bite(QVariant,MillisecondTime)),
-                this, SLOT(dogBite(QVariant,MillisecondTime)));
-    }
-#endif
 #endif
     QTimer::singleShot(0, this, SLOT(run()));
 } // start()
@@ -302,13 +284,6 @@ void IfSearch::run(void)
 #ifdef ENABLE_AVGFACE
     if (optAvgFaceEnable->toBool())
         avgFaceInit();
-#endif
-#ifdef ENABLE_WATCHDOG
-    if (_watchdog && _watchdog->isReadyToStart())
-    {
-        appSettings->setValue(optWatchDogValue->keyName(), "Start");
-        _watchdog->start();
-    }
 #endif
 
     appSettings->setValue(optShutdown->keyName(), false);

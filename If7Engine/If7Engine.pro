@@ -1,4 +1,5 @@
-QT += core
+QT += core \
+    widgets
 QT += gui
 QT += gui
 QT += xml
@@ -79,11 +80,13 @@ SOURCES += \
 #    IfSearchAuthenticate.cpp \
 #    IfSearchEnroll.cpp \
 #    IfSearchEnroll2.cpp \
+    IfSearchApplication.cpp \
     IfSearchInit.cpp \
 #    IfSearchRetrieve.cpp \
 #    IfSearchSearch.cpp \
 #    IfSearchSimilarity.cpp \
     IfSearchSlots.cpp \
+    IfSearchWindow.cpp \
     ImageCache.cpp \
     ImageCacheCleaner.cpp \
     ImageCacheEntry.cpp \
@@ -205,6 +208,8 @@ HEADERS += \
     IdGenerator.h \
     IdString.h \
     IfSearch.h \
+    IfSearchApplication.h \
+    IfSearchWindow.h \
     ImageCache.h \
     ImageInfo.h \
     ImageMarker.h \
