@@ -96,6 +96,7 @@ SOURCES += \
     ImageSource.cpp \
 #    InputHotdir.cpp \
 #    Key.cpp \
+    LogOutput.cpp \
     MillisecondDelta.cpp \
     MillisecondTime.cpp \
     Objdet.cpp \
@@ -217,6 +218,7 @@ HEADERS += \
     InputHotdir.h \
     Key.h \
     Key.hh \
+    LogOutput.h \
     Matrix.h \
     MillisecondDelta.h \
     MillisecondTime.h \
