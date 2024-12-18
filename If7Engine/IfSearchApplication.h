@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QApplication>
+#include <QFileInfo>
 #include <QWidget>
 
 #include "VersionInfo.h"
@@ -9,9 +10,22 @@
 class IfSearchApplication : public QApplication
 {
     Q_OBJECT
-public:
+public: // types
+    enum ShowOption
+    {
+        $null = 0, Minimized, Normal, Maximized, Defalt=Maximized
+    };
+
+public: // ctors
     IfSearchApplication(int &argc, char **argv);
+
+public: // const
+
+public: // non-const
+    void parseOptions(QApplication * app);
 
 private:
     const VersionInfo cmVersion;
+    ShowOption mShowOption;
+    QFileInfo mLogFI;
 };

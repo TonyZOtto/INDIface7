@@ -1,8 +1,9 @@
 #include "LogOutput.h"
 
 #include <QCoreApplication>
+#include <QDir>
 #include <QFile>
-#include <QFile>
+#include <QFileInfo>
 #include <QTextEdit>
 #include <QWidget>
 
@@ -14,6 +15,7 @@ LogOutput::LogOutput(QWidget * pCentralWidget)
 {
     Q_ASSERT(mpView);
     setObjectName("LogOutput");
+    mpView->setMinimumSize(640, 480);
     mpView->setTextCursor(mCursor);
 }
 
@@ -76,6 +78,12 @@ void LogOutput::writeLines(const QStringList &lines, const QString &prefix)
     }
 }
 
+void LogOutput::errorLine(const QString &msg, const QtMsgType qmt)
+{
+    write(errorPrefix(qmt));
+    write(msg, true);
+}
+
 bool LogOutput::isFileOpen() const
 {
     return nullptr != mpFile;
@@ -84,11 +92,15 @@ bool LogOutput::isFileOpen() const
 bool LogOutput::open(const QFileInfo &fi)
 {
     close();
-    QFile * pFile = new QFile(fi.absoluteFilePath(), this);
+    QString tFileName = fi.absoluteFilePath();
+    if (tFileName.isEmpty())
+        tFileName = QDir::current().path() + "/log/log-@.txt";
+    tFileName.replace("@", QDateTime::currentDateTime()
+                               .toString("DyyyyMMdd-Thhmm"));
+
+    QFile * pFile = new QFile(tFileName, this);
     if (pFile->open(QIODevice::WriteOnly | QIODevice::Text))
-    {
         mpFile = pFile;
-    }
     return isFileOpen();
 }
 
@@ -97,5 +109,26 @@ void LogOutput::close()
     if (mpFile)
         mpFile->close();
     mpFile = nullptr;
+}
+
+void LogOutput::writeCache()
+{
+    if ( ! mViewCache.isEmpty())
+        writeLines(mViewCache);
+    mViewCache.clear();
+}
+
+QString LogOutput::errorPrefix(const QtMsgType qmt)
+{
+    QString result("??????: ");
+    switch (qmt)
+    {
+    case QtInfoMsg:     result = "--INFO: ";    break;
+    case QtDebugMsg:    result = ">TRACE: ";    break;
+    case QtWarningMsg:  result = "*-WARN: ";    break;
+    case QtCriticalMsg: result = "$ERROR: ";    break;
+    case QtFatalMsg:    result = "@FATAL: ";    break;
+    }
+    return result;
 }
 

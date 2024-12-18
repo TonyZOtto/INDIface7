@@ -25,17 +25,20 @@ public slots:
     void writeLine(const QString &line);
     void writeLines(const QStringList &lines);
     void writeLines(const QStringList &lines, const QString &prefix);
-    void errorLine(const QString &msg, const QtMsgType=QtCriticalMsg);
+    void errorLine(const QString &msg, const QtMsgType qmt=QtCriticalMsg);
 
 public: // const
     bool isFileOpen() const;
 
 public: // non-const
-    bool open(const QFileInfo &fi);
+    bool open(const QFileInfo &fi=QFileInfo());
     void close();
 
 protected slots:
     void writeCache();
+
+private:
+    static QString errorPrefix(const QtMsgType qmt);
 
 private:
     QTextEdit * mpView=nullptr;
