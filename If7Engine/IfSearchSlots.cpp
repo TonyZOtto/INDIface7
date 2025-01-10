@@ -34,12 +34,12 @@ void IfSearch::pulse(void)
 {
     //FUNCTION();
     //DETAIL("%1 grabs in cache", imageCache.grabSize());
+#ifndef TODO0002
     if (optShutdown->toBool())
     {
         QTimer::singleShot(10, this, SLOT(quit()));
         return;
     }
-#ifndef TODO0002
 
     if ( ! imageCache.isGrabEmpty())
         QTimer::singleShot(10, this, SLOT(processGrab()));

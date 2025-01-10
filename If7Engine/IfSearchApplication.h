@@ -19,6 +19,9 @@ public: // types
 public: // ctors
     IfSearchApplication(int &argc, char **argv);
 
+public slots:
+    void show(QWidget * wgt);
+
 public: // const
 
 public: // non-const
@@ -29,3 +32,4 @@ private:
     ShowOption mShowOption;
     QFileInfo mLogFI;
 };
+

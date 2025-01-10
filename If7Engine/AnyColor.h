@@ -19,7 +19,6 @@ class AnyColor
 {
 public:
     AnyColor(void);
-    AnyColor(const AnyColor & other);
     AnyColor(const ColorModel model);
     AnyColor(const ColorModel model, qreal f1, qreal f2, qreal f3, qreal f4=0.0);
     AnyColor(const ColorModel model, quint8 u1, quint8 u2, quint8 u3, quint8 u4=0);

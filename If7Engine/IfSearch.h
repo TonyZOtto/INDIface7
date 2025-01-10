@@ -59,28 +59,6 @@ public:
     IfSearch(int argc, char *argv[]);
     ~IfSearch();
 
-private:
-    Return initEigenFace(void);
-    Return writeOutputImage(QPair<QString,DetectorResult> face,
-                                 int consistency,
-                                 QImage normImage,
-                                 const EigenFaceSearchResultList & resList);
-    Return writeXmlResult(QPair<QString,DetectorResult> face,
-                               const EigenFaceSearchResultList & resList);
-    Return writeMatches(const EigenFaceSearchResultList & resList);
-
-    void enrollError(const QString & reason);
-    void searchError(const QString & reason);
-    void retrieveError(const QString & reason);
-    void retrieveNotFound(const QString & reason);
-    bool check(const quint64 daysExpire) const;
-
-#ifdef ENABLE_AVGFACE
-    bool avgFaceInit(void);
-    bool avgFaceProcess(QImage normImage, const Eyes normEyes);
-    bool avgFaceFinish(void);
-#endif
-
 private slots:
     void init(void);
     void start(void);
@@ -135,9 +113,35 @@ private slots:
     void error2(QString id, QString msg);
     void logRollover(void);
 #endif
+#ifdef ENABLE_AVGFACE
+    bool avgFaceInit(void);
+    bool avgFaceProcess(QImage normImage, const Eyes normEyes);
+    bool avgFaceFinish(void);
+#endif
 
 private:
-    VersionInfo version;
+#ifndef TODO0002
+    Return initEigenFace(void);
+    Return writeOutputImage(QPair<QString,DetectorResult> face,
+                            int consistency,
+                            QImage normImage,
+                            const EigenFaceSearchResultList & resList);
+    Return writeXmlResult(QPair<QString,DetectorResult> face,
+                          const EigenFaceSearchResultList & resList);
+    Return writeMatches(const EigenFaceSearchResultList & resList);
+
+    void enrollError(const QString & reason);
+    void searchError(const QString & reason);
+    void retrieveError(const QString & reason);
+    void retrieveNotFound(const QString & reason);
+#endif
+
+private:
+    VersionInfo cmVersion;
+    QTimer * mpReloadTimer;
+    QTimer * mpRolloverTimer;
+
+#ifndef TODO0002
     Settings * appSettings;
     InfoOutputSetting * infoSetting;
     Setting * optNoPrompt;
@@ -192,8 +196,6 @@ private:
     QString detectorsXml;
     int faceBaseMaxLoad;
     MillisecondDelta faceBaseReload_msd;
-    QTimer * mpReloadTimer;
-    QTimer * mpRolloverTimer;
 
     ImageSource * camera;
 
@@ -223,6 +225,7 @@ private:
     int numSearches;
     int msecSearches;
     QString commandMode;
+#endif
 
     IdGenerator idGenerator;
 #ifndef TODO0002

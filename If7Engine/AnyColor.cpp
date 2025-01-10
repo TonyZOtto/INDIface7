@@ -20,16 +20,6 @@ AnyColor::AnyColor(const ColorModel model) :
     channel_[0] = channel_[1] = channel_[2] = channel_[3] = 0.0;
 }
 
-AnyColor::AnyColor(const AnyColor & other) :
-        model_(other.model_),
-        count_(other.count_)
-{
-    channel_[0] = other.channel_[0],
-    channel_[1] = other.channel_[1],
-    channel_[2] = other.channel_[2],
-    channel_[3] = other.channel_[3];
-}
-
 AnyColor::AnyColor(const ColorModel model, qreal f1, qreal f2, qreal f3, qreal f4) :
     model_(model),
     count_(0)

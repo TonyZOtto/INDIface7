@@ -11,6 +11,17 @@ IfSearchApplication::IfSearchApplication(int &argc, char **argv)
     parseOptions(this);
 }
 
+void IfSearchApplication::show(QWidget *wgt)
+{
+    switch (mShowOption)
+    {
+    case Minimized:    wgt->showMinimized();    break;
+    case Normal:       wgt->show();             break;
+    case Maximized:    wgt->showMaximized();    break;
+    default:           wgt->show();             break;
+    }
+}
+
 void IfSearchApplication::parseOptions(QApplication *app)
 {
     ShowOption tShow = $null;
@@ -31,6 +42,6 @@ void IfSearchApplication::parseOptions(QApplication *app)
     else tShow = Defalt;
 
     mShowOption = tShow;
-    //mLogFI = QFileInfo(tParser.positionalArguments().first());
+    if (tParser.positionalArguments().count() > 0)
+        mLogFI = QFileInfo(tParser.positionalArguments().at(0));
 }
-

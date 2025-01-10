@@ -36,8 +36,8 @@ void IfSearch::init(void)
     Return rtn;
     QStringList qsl;
 
-    appSettings->setPollCountKey("Options/PollCount");
 #ifndef TODO0002
+    appSettings->setPollCountKey("Options/PollCount");
     if (appSettings->value("Output/LogStdout", true).toBool())
         Info::add(new InfoOutputFile(stdout));
 
@@ -86,11 +86,11 @@ void IfSearch::init(void)
     INFO(appSettings->programName());
     DETAIL("Running ProcessId=%1", applicationPid());
 #else
-    qInfo() << version.toString() << version.dateTimeString() << version.getAppName();
-    qInfo() << appSettings->programName() << version.getCopyright();
+    qInfo() << cmVersion.toString() << cmVersion.dateTimeString() << cmVersion.getAppName();
+    qInfo() << cmVersion.getAppName() << cmVersion.getCopyright();
     qInfo() << "Running ProcessId:" << applicationPid();
 #endif
-    version.check(0xE3ECE9F0);
+    cmVersion.check(0xE3ECE9F0);
 
 #ifndef TODO0002
     qreal rolloverHours = appSettings->value("Output/RolloverHours").toReal();
@@ -113,16 +113,18 @@ void IfSearch::init(void)
             ERRMSG("Error CONNECTing logRollover() slot");
         }
     }
-#endif
     detectorsXml     = appSettings->value("Detect/DetectorsXml", "../detectors/Detectors.xml").toString();
     mpObjdetCatalog = new ObjdetCatalog(detectorsXml, this); Q_ASSERT(mpObjdetCatalog);
+#endif
     qInfo() << "Running Qt Version" << qVersion();
     qInfo() << "Running OpenCV Version" << Objdet::cvVersion().toString();
 
+#ifndef TODO0002
     eigenFaceDataDir = appSettings->value("Generate/DataDir", "../data/Face1").toString();
     faceBaseBaseDir  = appSettings->value("FaceBase/BaseDir", "../FaceBase").toString();
     faceBaseMaxLoad  = appSettings->value("FaceBase/MaxLoad", 50).toInt();
     faceBaseReload_msd.setToMinutes(appSettings->value("FaceBase/ReloadMins", 0.0).toFloat());
+#endif
 
 #ifndef TODO0002
     EigenFaceSearchTier::setColor(EigenFaceSearchTier::Best,

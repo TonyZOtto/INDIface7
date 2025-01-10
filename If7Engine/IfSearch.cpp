@@ -27,13 +27,14 @@ IfSearch::IfSearch(int argc, char *argv[])
     : QGuiApplication(argc, argv, false)
 //    , matchSettings(EigenFaceSearchSettings::CasualMatch, this)
   //  , searchSettings(EigenFaceSearchSettings::FormalSearch, this)
-    , version(VER_MAJOR, VER_MINOR, VER_BRANCH,
+    , cmVersion(VER_MAJOR, VER_MINOR, VER_BRANCH,
               VER_RELEASE, VER_STRING, VER_COPYRIGHT,
               VER_ORGNAME, VER_APPNAME)
     , mpReloadTimer(0)
     , mpRolloverTimer(0)
 {
-//    camera = 0;
+#ifndef TODO0002
+    camera = 0;
     paused = true;
     pausePending = false;
     ffdBusy = true;
@@ -79,7 +80,9 @@ IfSearch::IfSearch(int argc, char *argv[])
 # else
     optLogDetail	= new Setting(appSettings, tr("Output/LogDetail", "config"), "Info");
 # endif
+# endif
 
+#ifndef TODO0002
     optMarkEyes = new Setting(appSettings, tr("Output/MarkAllEyes", "config"), true, Settings::Volatile);
     optMarkAllEyeColor = new Setting(appSettings, tr("Output/MarkAllEyeColor", "config"), QColor(), Settings::Volatile);
     optMarkAllColor = new Setting(appSettings, tr("Output/MarkAllColor", "config"), QColor(), Settings::Volatile);
@@ -115,6 +118,7 @@ IfSearch::IfSearch(int argc, char *argv[])
     optResolveMin = new Setting(appSettings, tr("Resolve/MinConfidence", "config"), 0, Settings::Volatile);
     optResolveMax = new Setting(appSettings, tr("Resolve/MaxConfidence", "config"), 0, Settings::Volatile);
     optSourceChanged = new Setting(appSettings, tr("Source/Changed"), false, Settings::Volatile);
+#endif
 
 #ifndef TODO0002
     writer = new FileWriter(appSettings, QString(), this);
@@ -173,6 +177,7 @@ IfSearch::~IfSearch()
 {
 }
 
+#ifndef TODO0002
 
 Return IfSearch::writeXmlResult(QPair<QString,DetectorResult> face,
                                 const EigenFaceSearchResultList & resList)
@@ -224,6 +229,7 @@ Return IfSearch::writeXmlResult(QPair<QString,DetectorResult> face,
     */
     return Return();
 } // writeXmlResult(person)
+#endif
 
 #ifndef TODO0002
 Return IfSearch::writeMatches(const EigenFaceSearchResultList & resList)
@@ -296,36 +302,3 @@ Return IfSearch::writeOutputImage(QPair<QString,DetectorResult> face,
     return Return();
 } // writeOutputImage()
 #endif
-
-bool IfSearch::check(const quint64 daysToLive) const
-{
-    quint64 msBase = QDateTime::currentMSecsSinceEpoch();
-    quint64 msInstall = appSettings->value("Options/Install", 0).toULongLong();
-    quint64 installedVersion = appSettings->value("Options/Version", 0).toUInt();
-
-    if (0 == installedVersion || installedVersion < version.toDWord())
-    {
-        msInstall = msBase;
-        appSettings->setValue("Options/Install", msInstall);
-        appSettings->setValue("Options/Version", version.toDWord());
-    }
-
-    if (daysToLive)
-    {
-        quint64 installedDays = (msBase - msInstall) / (24 * 3600000ULL);
-        qint64 remainingDays = daysToLive - installedDays;
-        if (remainingDays < 0)
-        {
-            qCritical("Your EclipseIR SDK license has expired");
-            qFatal("Please mailto:sales@EclipseIR.com for an update");
-            QTimer::singleShot(0, qApp, SLOT(done()));
-            return false;
-        }
-        else if (remainingDays < 30)
-        {
-            qWarning("Your EclipseIR SDK license will expire in less than a month");
-            qWarning("Please mailto:sales@EclipseIR.com for an update");
-        }
-    }
-    return true;
-}

@@ -6,7 +6,7 @@ QT += xml
 CONFIG += c++17
 CONFIG += cmdline
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
-DEFINES += ENABLE_AVGFACE
+#DEFINES += ENABLE_AVGFACE
 DEFINES += TODO0002
 message(TODO: Specify DESTDIR)
 
@@ -188,8 +188,6 @@ HEADERS += \
     EigenFaceTemplate.h \
     EigenFaceVector.h \
     Enumeration.h \
-    Eyes.h \
-    Eyes.hh \
     EyesMarker.h \
     FaceBase.h \
     FeatureInfo.h \
