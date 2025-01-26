@@ -58,6 +58,7 @@ SOURCES += \
 #    FaceBase-Access.cpp \
 #    FaceBase-File.cpp \
 #    FaceBase.cpp \
+    EyesMarker.cpp \
     FeatureInfo.cpp \
     FileWriteProfile.cpp \
     FileWriter.cpp \

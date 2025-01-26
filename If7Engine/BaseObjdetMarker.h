@@ -10,7 +10,7 @@ public:
     explicit BaseObjdetMarker(QObject *parent = nullptr);
 
 public slots:
-    virtual void reset() = 0;
+    virtual void reset() {;}
 
 signals:
 
