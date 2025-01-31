@@ -2,6 +2,9 @@
 
 #include <QMainWindow>
 
+class QGridLayout;
+class QWidget;
+
 class IfSearchApplication;
 
 class IfSearchWindow : public QMainWindow
@@ -11,6 +14,7 @@ public: // ctors
     explicit IfSearchWindow(IfSearchApplication *ifsApp = nullptr);
 
 public slots:
+    void setup();
 
 signals:
 
@@ -22,7 +26,9 @@ public: // pointers
     IfSearchApplication * app();
 
 private:
-    IfSearchApplication * mpIfsApp;
+    IfSearchApplication * mpIfsApp=nullptr;
+    QGridLayout * mpCentralGrid=nullptr;
+    QWidget * mpCentralWidget=nullptr;
 };
 
 inline IfSearchApplication *IfSearchWindow::app() { Q_ASSERT(mpIfsApp); return mpIfsApp; }
