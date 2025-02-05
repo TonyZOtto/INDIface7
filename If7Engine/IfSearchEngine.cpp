@@ -1,4 +1,4 @@
-#include "IfSearch.h"
+#include "IfSearchEngine.h"
 #include "version.h"
 
 #include <QStringList>
@@ -23,8 +23,8 @@
 #include <SkinMatchProperties.h>
 #include <SkinMatcher.h>
 
-IfSearch::IfSearch(int argc, char *argv[])
-    : QGuiApplication(argc, argv, false)
+IfSearchEngine::IfSearchEngine(QObject * parent)
+    : QObject(parent)
 //    , matchSettings(EigenFaceSearchSettings::CasualMatch, this)
   //  , searchSettings(EigenFaceSearchSettings::FormalSearch, this)
     , cmVersion(VER_MAJOR, VER_MINOR, VER_BRANCH,
@@ -173,7 +173,7 @@ IfSearch::IfSearch(int argc, char *argv[])
     QTimer::singleShot(0, this, SLOT(init()));
 } // c'tor
 
-IfSearch::~IfSearch()
+IfSearchEngine::~IfSearchEngine()
 {
 }
 

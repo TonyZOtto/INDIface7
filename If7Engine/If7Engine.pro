@@ -1,13 +1,13 @@
-QT += core \
-    widgets
+QT += core
 QT += gui
-QT += gui
+QT += widgets
 QT += xml
 CONFIG += c++17
-CONFIG += cmdline
+#CONFIG += cmdline
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 #DEFINES += ENABLE_AVGFACE
 DEFINES += TODO0002
+DEFINES += BUILD_OBJDET_EVAL
 message(TODO: Specify DESTDIR)
 
 include(useOCV4.pri)
@@ -77,16 +77,16 @@ SOURCES += \
 #    IfSearch-AvgFace.cpp \
 #    IfSearch-ProcessFace.cpp \
 #    IfSearch-ProcessGrab.cpp \
-    IfSearch.cpp \
 #    IfSearchAuthenticate.cpp \
 #    IfSearchEnroll.cpp \
 #    IfSearchEnroll2.cpp \
     IfSearchApplication.cpp \
-    IfSearchInit.cpp \
+    IfSearchEngien-Slots.cpp \
+    IfSearchEngine-Init.cpp \
+    IfSearchEngine.cpp \
 #    IfSearchRetrieve.cpp \
 #    IfSearchSearch.cpp \
 #    IfSearchSimilarity.cpp \
-    IfSearchSlots.cpp \
     IfSearchWindow.cpp \
     ImageCache.cpp \
     ImageCacheCleaner.cpp \
@@ -207,8 +207,8 @@ HEADERS += \
     INDIffd.h \
     IdGenerator.h \
     IdString.h \
-    IfSearch.h \
     IfSearchApplication.h \
+    IfSearchEngine.h \
     IfSearchWindow.h \
     ImageCache.h \
     ImageInfo.h \

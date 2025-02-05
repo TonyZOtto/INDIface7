@@ -1,4 +1,4 @@
-#include "IfSearch.h"
+#include "IfSearchEngine.h"
 
 #include <QStringList>
 #include <QTimer>
@@ -30,7 +30,7 @@
 
 //#include "../FSBridge/FSDirectBridge.h"
 
-void IfSearch::pulse(void)
+void IfSearchEngine::pulse(void)
 {
     //FUNCTION();
     //DETAIL("%1 grabs in cache", imageCache.grabSize());

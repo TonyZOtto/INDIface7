@@ -22,7 +22,7 @@ IfSearchWindow::IfSearchWindow(IfSearchApplication *ifsApp)
 void IfSearchWindow::setup()
 {
     qInfo() << Q_FUNC_INFO;
-    setMinimumSize(1280, 960);
+    setMinimumSize(1280, 800);
     mpCentralWidget->setLayout(mpCentralGrid);
     setCentralWidget(mpCentralWidget);
 
@@ -36,8 +36,10 @@ void IfSearchWindow::setup()
     pIndiLabel->setPixmap(QPixmap::fromImage(tIndiImage));
     qInfo() << pEircLabel->pixmap().size()
             << pIndiLabel->pixmap().size();
-    mpCentralGrid->addWidget(pEircLabel, 0, 0, Qt::AlignCenter);
-    mpCentralGrid->addWidget(pIndiLabel, 0, 1, Qt::AlignCenter);
+    mpCentralGrid->addWidget(pEircLabel, 0, 0,
+                             Qt::AlignTop | Qt::AlignHCenter);
+    mpCentralGrid->addWidget(pIndiLabel, 0, 1,
+                             Qt::AlignTop | Qt::AlignHCenter);
 
 }
 

@@ -1,5 +1,6 @@
-#include "IfSearch.h"
+#include "IfSearchEngine.h"
 
+#include <QApplication>
 #include <QLibraryInfo>
 #include <QProcessEnvironment>
 #include <QTimer>
@@ -31,7 +32,7 @@
 #include <SkinMatcher.h>
 #include <SkinMatchProperties.h>
 
-void IfSearch::init(void)
+void IfSearchEngine::init(void)
 {
     Return rtn;
     QStringList qsl;
@@ -88,7 +89,7 @@ void IfSearch::init(void)
 #else
     qInfo() << cmVersion.toString() << cmVersion.dateTimeString() << cmVersion.getAppName();
     qInfo() << cmVersion.getAppName() << cmVersion.getCopyright();
-    qInfo() << "Running ProcessId:" << applicationPid();
+    qInfo() << "Running ProcessId:" << QApplication::applicationPid();
 #endif
     cmVersion.check(0xE3ECE9F0);
 
@@ -148,7 +149,7 @@ void IfSearch::init(void)
     QTimer::singleShot(0, this, SLOT(start()));
 } // init()
 
-void IfSearch::start(void)
+void IfSearchEngine::start(void)
 {
     Return rtn;
 #ifndef TODO0002
@@ -279,7 +280,7 @@ void IfSearch::start(void)
     QTimer::singleShot(0, this, SLOT(run()));
 } // start()
 
-void IfSearch::run(void)
+void IfSearchEngine::run(void)
 {
 #ifndef TODO0002
     FUNCTION();

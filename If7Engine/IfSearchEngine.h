@@ -1,8 +1,9 @@
 // @file IfSearch.h
 #pragma once
 
-#include <QGuiApplication>
+#include <QObject>
 
+#include <QGuiApplication>
 #include <QStringList>
 
 #include "CsvWriter.h"
@@ -51,13 +52,13 @@ class SkinMatchProperties;
 class SkinMatcher;
 
 
-class IfSearch : public QGuiApplication
+class IfSearchEngine : public QObject
 {
     Q_OBJECT
 
 public:
-    IfSearch(int argc, char *argv[]);
-    ~IfSearch();
+    IfSearchEngine(QObject * parent=nullptr);
+    ~IfSearchEngine();
 
 private slots:
     void init(void);
