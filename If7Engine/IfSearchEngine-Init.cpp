@@ -1,8 +1,10 @@
 #include "IfSearchEngine.h"
 
 #include <QApplication>
+#include <QDateTime>
 #include <QLibraryInfo>
 #include <QProcessEnvironment>
+#include <QString>
 #include <QTimer>
 
 #include <ObjdetCatalog.h>
@@ -38,16 +40,15 @@ void IfSearchEngine::init(void)
 {
 #ifdef BUILD_OBJDET_EVAL
     const QDateTime cBaseTimestamp = QDateTime::currentDateTime();
-    const cInputDirName("EvalIn");
-    const cOutputBaseDirName("./EvalOut/"
+    const QString cInputDirName("EvalIn");
+    const QString cOutputBaseDirName("./EvalOut/"
                 + cBaseTimestamp.toString("DyyyyMMdd-Thhmm"));
-    const cMarkedDirName("Marked");
-    const cDetectDirName("Detect");
+    const QString cMarkedDirName("Marked");
+    const QString cDetectDirName("Detect");
     const ObjdetCatalog cCatalog("./detectors/Detectors.XML", this);
     if ( ! cCatalog.fileExists())
         qFatal() << "Unable to open detector catalog";
-    const ObjdetCatalogItem cItem
-        = cCatalog.item(ObjdetCatalogItem::Key(Objdet::FaceFrontal));
+
     mInputDir = QDir::current();
     if ( ! mInputDir.cd(cInputDirName))
         qFatal() << "Unable to find input dir:" << cInputDirName;

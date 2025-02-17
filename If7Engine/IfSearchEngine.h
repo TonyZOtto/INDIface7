@@ -44,6 +44,7 @@ class ImageSource;
 class InfoOutputSetting;
 class InputHotdir;
 class ObjdetCatalog;
+class ObjdetFrontal;
 class Resolver;
 class Settings;
 class Setting;
@@ -64,6 +65,7 @@ public:
 public:
     void processEval(const QFileInfo fi);
 private:
+    ObjdetFrontal * mpFrontal=nullptr;
     QDir mInputDir;
     QDir mMarkedDir;
     QDir mDetectDir;
