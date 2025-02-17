@@ -23,6 +23,8 @@
 #include <INDIffd.h>
 #include <InputHotdir.h>
 #include <Objdet.h>
+#include <ObjdetFrontal.h>
+#include <ObjdetParametersRaw.h>
 #include <Return.h>
 #include <Settings.h>
 #include <VersionInfo.h>
@@ -34,10 +36,38 @@
 
 void IfSearchEngine::init(void)
 {
+#ifdef BUILD_OBJDET_EVAL
+    const QDateTime cBaseTimestamp = QDateTime::currentDateTime();
+    const cInputDirName("EvalIn");
+    const cOutputBaseDirName("./EvalOut/"
+                + cBaseTimestamp.toString("DyyyyMMdd-Thhmm"));
+    const cMarkedDirName("Marked");
+    const cDetectDirName("Detect");
+    const ObjdetCatalog cCatalog("./detectors/Detectors.XML", this);
+    if ( ! cCatalog.fileExists())
+        qFatal() << "Unable to open detector catalog";
+    const ObjdetCatalogItem cItem
+        = cCatalog.item(ObjdetCatalogItem::Key(Objdet::FaceFrontal));
+    mInputDir = QDir::current();
+    if ( ! mInputDir.cd(cInputDirName))
+        qFatal() << "Unable to find input dir:" << cInputDirName;
+
+    if ( ! mMarkedDir.mkpath(cOutputBaseDirName)
+            || ! mMarkedDir.cd(cOutputBaseDirName))
+        qFatal() << "Unable to make output dir:" << cOutputBaseDirName;
+    mDetectDir = mMarkedDir;
+    if ( ! mMarkedDir.mkpath(cMarkedDirName)
+        || ! mMarkedDir.cd(cMarkedDirName))
+        qFatal() << "Unable to make marked dir:" << cMarkedDirName;
+    if ( ! mDetectDir.mkpath(cMarkedDirName)
+        || ! mDetectDir.cd(cMarkedDirName))
+        qFatal() << "Unable to make detect dir:" << mDetectDir;
+
+
+#endif
+#ifndef TODO0002
     Return rtn;
     QStringList qsl;
-
-#ifndef TODO0002
     appSettings->setPollCountKey("Options/PollCount");
     if (appSettings->value("Output/LogStdout", true).toBool())
         Info::add(new InfoOutputFile(stdout));
@@ -151,8 +181,15 @@ void IfSearchEngine::init(void)
 
 void IfSearchEngine::start(void)
 {
-    Return rtn;
+#ifdef BUILD_OBJDET_EVAL
+    const QStringList cNameFilter = QStringList() << "*.JPG" << "*.PNG";
+    mInputFiles = mInputDir.entryInfoList(cNameFilter);
+    if (mInputFiles.isEmpty())
+        qFatal() << "No input files in:" << mInputDir.absolutePath();
+
+#endif
 #ifndef TODO0002
+    Return rtn;
     QStringList qsl;
 
     /*--- Setup Clothes Matcher ---*/
@@ -282,6 +319,9 @@ void IfSearchEngine::start(void)
 
 void IfSearchEngine::run(void)
 {
+#ifdef BUILD_OBJDET_EVAL
+
+#endif
 #ifndef TODO0002
     FUNCTION();
 #ifdef ENABLE_AVGFACE

@@ -15,7 +15,6 @@
 #include <ImageCache.h>
 #include <ImageMarker.h>
 #include <ImageSource.h>
-//#include <InfoMacros.h>
 #include <InputHotdir.h>
 #include <QQRect.h>
 #include <Return.h>
@@ -32,9 +31,25 @@
 
 void IfSearchEngine::pulse(void)
 {
+#ifdef BUILD_OBJDET_EVAL
+    if (mInputFiles.isEmpty())
+    {
+        QTimer::singleShot(10, this, SLOT(quit()));
+        return;
+    }
+    QFileInfo tInputFile = mInputFiles.takeFirst();
+    processEval(tInputFile);
+    QTimer::singleShot(500, this, SLOT(pulse()));
+}
+
+void IfSearchEngine::processEval(const QFileInfo fi)
+{
+
+}
+#endif
+#ifndef TODO0002
     //FUNCTION();
     //DETAIL("%1 grabs in cache", imageCache.grabSize());
-#ifndef TODO0002
     if (optShutdown->toBool())
     {
         QTimer::singleShot(10, this, SLOT(quit()));
@@ -59,9 +74,9 @@ void IfSearchEngine::pulse(void)
             camera->restart();
         }
     }
-#endif
     QTimer::singleShot(500, this, SLOT(pulse()));
 } // pulse()
+#endif
 
 #ifndef TODO0002
 void IfSearch::hotdirReady(void)

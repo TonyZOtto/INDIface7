@@ -60,6 +60,16 @@ public:
     IfSearchEngine(QObject * parent=nullptr);
     ~IfSearchEngine();
 
+#ifdef BUILD_OBJDET_EVAL
+public:
+    void processEval(const QFileInfo fi);
+private:
+    QDir mInputDir;
+    QDir mMarkedDir;
+    QDir mDetectDir;
+    QFileInfoList mInputFiles;
+#endif
+
 private slots:
     void init(void);
     void start(void);

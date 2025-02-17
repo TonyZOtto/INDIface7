@@ -7,6 +7,11 @@ ObjdetCatalog::ObjdetCatalog(const QString &catXmlFileName, QObject *parent)
     : QObject(parent)
     , mCatFileInfo(QFileInfo(catXmlFileName))
 {
+    QString result;
+    if (fileExists())
+        result = readXmlFile();
+    if ( ! result.isEmpty())
+        qCritical() << result;
 }
 
 bool ObjdetCatalog::fileExists() const
