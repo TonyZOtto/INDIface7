@@ -10,6 +10,7 @@ DEFINES += BUILD_OBJDET_EVAL
 message(TODO: Specify DESTDIR)
 
 include(useOCV4.pri)
+include(DESTDIR.pri)
 
 SOURCES += \
     AbstractIdString.cpp \
@@ -144,7 +145,9 @@ DISTFILES += \
     FrameSequencer.graphml \
     GradIcon.ico \
     INDIface24.ico \
-    eIRonly24.ico
+    LIBDIR.pri \
+    eIRonly24.ico \
+    version.pri
 
 HEADERS += \
     AbstractIdString.h \

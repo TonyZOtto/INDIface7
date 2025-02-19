@@ -183,11 +183,31 @@ void IfSearchEngine::init(void)
 void IfSearchEngine::start(void)
 {
 #ifdef BUILD_OBJDET_EVAL
-    const QStringList cNameFilter = QStringList() << "*.JPG" << "*.PNG";
-    mInputFiles = mInputDir.entryInfoList(cNameFilter);
-    if (mInputFiles.isEmpty())
-        qFatal() << "No input files in:" << mInputDir.absolutePath();
+    const QString cDetectorsXmlName("./detectors/Detectors.XML");
+    const QString cDetectorClassName("FaceFrontal");
+    const QString cDetectorName(""); // blank=default
 
+
+
+    ObjdetCatalog * pCatalog = new ObjdetCatalog(cDetectorsXmlName, this);
+    Q_ASSERT(pCatalog);
+
+    const ObjdetCatalogItem::Key cKey(cDetectorClassName, cDetectorName);
+    const ObjdetCatalogItem cItem = pCatalog->item(cKey);
+    if ( ! cItem.xmlFileExists())
+        qFatal() << cItem.xmlFileInfo().absoluteFilePath() << "does not exist";
+
+    if (mpFrontal)
+    {
+        mpFrontal->unloadDetector();
+        mpFrontal->deleteLater();
+    }
+    mpFrontal = new ObjdetFrontal(this);
+    mpFrontal->loadDetectorXml(cItem.xmlFileName());
+    if ( ! mpFrontal->isDetectorLoaded())
+        qFatal() << "Failed to load:" << cItem.xmlFileName();
+
+    pCatalog->deleteLater(); pCatalog = nullptr;
 #endif
 #ifndef TODO0002
     Return rtn;
@@ -321,6 +341,10 @@ void IfSearchEngine::start(void)
 void IfSearchEngine::run(void)
 {
 #ifdef BUILD_OBJDET_EVAL
+    const QStringList cNameFilter = QStringList() << "*.JPG" << "*.PNG";
+    mInputFiles = mInputDir.entryInfoList(cNameFilter);
+    if (mInputFiles.isEmpty())
+        qFatal() << "No input files in:" << mInputDir.absolutePath();
 
 #endif
 #ifndef TODO0002

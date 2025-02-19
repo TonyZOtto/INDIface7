@@ -30,8 +30,8 @@ void IfSearchWindow::setup()
     QLabel * pIndiLabel = new QLabel(this);
     QImage tEircImage(":/png/doc/art/logos/EclipseIRLogo.png");
     QImage tIndiImage(":/png/doc/art/logos/INDI200.png");
-    tEircImage = tEircImage.scaledToWidth(600);
-    tIndiImage = tIndiImage.scaledToWidth(600);
+    tEircImage = tEircImage.scaledToWidth(512);
+    tIndiImage = tIndiImage.scaledToWidth(512);
     pEircLabel->setPixmap(QPixmap::fromImage(tEircImage));
     pIndiLabel->setPixmap(QPixmap::fromImage(tIndiImage));
     qInfo() << pEircLabel->pixmap().size()

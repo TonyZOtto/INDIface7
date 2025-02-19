@@ -2,6 +2,7 @@
 
 #include <QObject>
 
+#include <QFileInfo>
 #include <QImage>
 #include <QList>
 #include <QSize>
@@ -10,8 +11,10 @@
 
 #include "DetectorResult.h"
 
-#include <opencv2/opencv.hpp>
-
+//#include <opencv2/opencv.hpp>
+//#include <opencv2/objdetect.hpp>
+#include "C:\code\bin\DbgOpenCV-v4.10.0\include/opencv2/opencv.hpp"
+#include "C:\code\bin\DbgOpenCV-v4.10.0\include/opencv2/objdetect.hpp"
 class ImageCache;
 
 class Objdet : public QObject
@@ -41,10 +44,12 @@ protected:
 //    Objdet(const QString & classname, QObject * parent=0);
 
 public slots:
-    void selectDetector(const QString & name) {;} // TODO
-    void selectXml(const QString & fileName) {;} // TODO
+    void loadDetectorName(const QString & name) {;} // TODO
+    void loadDetectorXml(const QString & fileName);
+    void unloadDetector();
 
 signals:
+    void selected(const QFileInfo &fi);
     void error(QString message);
 
 
@@ -60,7 +65,7 @@ public: // const
     QList<DetectorResult> getResults(void) const { return results; }
     QList<QRect> getAllObjects(void) const { return allObjects; }
     QList<QSize> detectorSizes(void) const;
-    bool hasDetector(void);
+    bool isDetectorLoaded(void);
     QString methodString(void);
     QSize sizeFromXml(const QString & fileName);
     QSize minObjectSize(void) const;
@@ -71,8 +76,8 @@ public: // non-const
 
 public: // pointers
     void cache(ImageCache * pc) { mpCache = pc; }
-    void cascade(CvHaarClassifierCascade * pc) { mpCascade = pc; }
-    CvHaarClassifierCascade * cascade(void) { return mpCascade; }
+    void cascade(cv::CascadeClassifier * pc) { mpCascade = pc; }
+    cv::CascadeClassifier * cascade(void) { return mpCascade; }
 
 public: // static
     static VersionInfo cvVersion();
@@ -95,7 +100,7 @@ protected:
 
 private:
     const Class cmClass=$nullClass;
-    CvHaarClassifierCascade * mpCascade=nullptr;
+    cv::CascadeClassifier * mpCascade=nullptr;
     ImageCache * mpCache=nullptr;
     QImage imgOrig;
     int origScale;

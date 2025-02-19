@@ -26,6 +26,42 @@ Objdet::Objdet(const Class objcls, QObject *parent)
     setObjectName("Objdet:" + className(objcls));
 }
 
+void Objdet::loadDetectorXml(const QString &fileName)
+{
+    qDebug() << Q_FUNC_INFO << fileName;
+    unloadDetector();
+    QFileInfo tFI(fileName);
+    if ( ! tFI.isReadable())
+    {
+        QString tErrMsg("File not readable:" + tFI.absoluteFilePath());
+        emit error(tErrMsg);
+        qCritical() << tErrMsg;
+    }
+    mpCascade = new cv::CascadeClassifier(
+        tFI.absoluteFilePath().toStdString());
+    if (mpCascade->empty())
+    {
+        QString tErrMsg("File failed to load:" + tFI.absoluteFilePath());
+        emit error(tErrMsg);
+        qCritical() << tErrMsg;
+        unloadDetector();
+    }
+}
+
+void Objdet::unloadDetector()
+{
+    if (isDetectorLoaded())
+    {
+        delete mpCascade;
+        mpCascade = nullptr;
+    }
+}
+
+bool Objdet::isDetectorLoaded()
+{
+    return nullptr != mpCascade;
+}
+
 // -------------------------- static ------------------------
 
 VersionInfo Objdet::cvVersion()

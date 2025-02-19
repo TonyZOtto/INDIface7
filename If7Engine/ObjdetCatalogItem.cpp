@@ -43,6 +43,11 @@ QString ObjdetCatalogItem::detectorName() const
     return data->dDetectorName;
 }
 
+QString ObjdetCatalogItem::xmlFileName() const
+{
+    return xmlFileInfo().filePath();
+}
+
 QFileInfo ObjdetCatalogItem::xmlFileInfo() const
 {
     Q_ASSERT(data);

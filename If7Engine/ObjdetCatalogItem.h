@@ -27,6 +27,7 @@ public: // Our ctors
 public: // const
     QString className() const;
     QString detectorName() const;
+    QString xmlFileName() const;
     QFileInfo xmlFileInfo() const;
     bool xmlFileExists() const;
     QSize catalogSize() const;

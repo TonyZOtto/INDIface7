@@ -3,10 +3,10 @@
 # For __DEBUG__ -----------------------------#
 ##############################################
 #OCV4BASE = ../../../bin/DbgOpenCV-v4.10.0
-OCV4BASE = /code/bin/DbgOpenCV-v4.10.0/
 #                 ^--INDIface7
 #              ^--repo
 #           ^code
+OCV4BASE = /code/bin/DbgOpenCV-v4.10.0
 INCLUDEPATH *= $$OCV4BASE/include
     # typical #include's specify opencv2
     # change prefix on release
@@ -17,5 +17,5 @@ LIBS *= -lopencv_highgui4100d
 LIBS *= -lopencv_objdetect4100d
 OCV4BINPATH = $$(OCV4BASE)/x64/mingw/bin # libopencv_*d.dll
 message(--------useOCV4.pri OCV4BASE=$$OCV4BASE OCV4BINPATH==$$OCV4BINPATH)
-message(INCLUDEPATH==$$INCLUDEPATH DESTDIR==$$DESTDIR)
+message(INCLUDEPATH==$$INCLUDEPATH)
 message(LIBS=$$LIBS)
