@@ -7,33 +7,28 @@
 
 class DetectorResult
 {
-private:
-    friend class HaarDetector;
-    DetectorResult(QRect Rect)
-        : k(0), sco(0), rect(Rect)
-        , ptAverage(Rect.topLeft()), szAverage(Rect.size())
-    { allRects.append(Rect); }
+public:
 
 public:
-    DetectorResult(int Rank=0, int Score=0, QRect Rect=QRect(),
-                   QList<QRect> AllRects=QList<QRect>())
-        : k(Rank), sco(Score), rect(Rect), allRects(AllRects) {}
+    DetectorResult(QRect rect);
+    DetectorResult(int rank=0, QRect rect=QRect(),
+                   QList<QRect> allRects=QList<QRect>());
 
 public:
-    int rank(void) { return k; }
-    int score(void) const { return sco; }
-    QRect rectangle(void) const { return rect; }
-    QList<QRect> allRectangles(void) { return allRects; }
+    int rank(void) { return mRank;; }
+    int score(void) const { return mQuality; }
+    QRect rectangle(void) const { return mResultRect; }
+    QList<QRect> allRectangles(void) { return mAllRects; }
 
 private:
-    void addRect(QRect Rect) { rect = rect.united(Rect); allRects.append(Rect); }
-    void addToAverage(QRect Rect);
+    void addRect(QRect Rect) { mResultRect = mResultRect.united(Rect); mAllRects.append(Rect); }
+    void addToAverage(const QRect rect);
 
 private:
-    int k;
-    int sco;
-    QRect rect;
-    QPointF ptAverage;
-    QSizeF szAverage;
-    QList<QRect> allRects;
+    int mRank;
+    int mQuality;
+    QRect mResultRect;
+    QPointF mAverageCenter;
+    QSizeF mAverageSize;
+    QList<QRect> mAllRects;
 };

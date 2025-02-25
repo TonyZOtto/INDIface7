@@ -7,9 +7,9 @@ DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 #DEFINES += ENABLE_AVGFACE
 DEFINES += TODO0002
 DEFINES += BUILD_OBJDET_EVAL
-message(TODO: Specify DESTDIR)
 
-include(useOCV4.pri)
+#include(useOCV4.pri)
+#message(TODO: Specify DESTDIR)
 include(DESTDIR.pri)
 
 SOURCES += \
@@ -27,7 +27,7 @@ SOURCES += \
     ClothesMatcher.cpp \
 #    ColorModel.cpp \
 #    CsvWriter.cpp \
-#    DetectorResult.cpp \
+    DetectorResult.cpp \
     DomValuesElement.cpp \
 #    EigenFace.cpp \
     EigenFaceBitMask.cpp \
@@ -139,7 +139,6 @@ SOURCES += \
 
 DISTFILES += \
     ../../../bin/detectors/detectors/Aim8A001-32-NoSplit.xml \
-    ../../../bin/detectors/detectors/Detectors.xml \
     ../../ottoZcode/doc/desktop/INDIface/Settings2.txt \
     ../../ottoZcode/doc/desktop/INDIface/detect2.txt \
     FrameSequencer.graphml \
@@ -276,3 +275,9 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 RESOURCES += \
     If7Engine.qrc
+
+
+win32: LIBS += -L$$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/x64/mingw/lib/ -llibopencv_objdetect455.dll
+
+INCLUDEPATH += $$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include
+DEPENDPATH += $$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include

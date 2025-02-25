@@ -7,6 +7,8 @@
 #include "VersionInfo.h"
 #include "version.h"
 
+class IfSearchEngine;
+
 class IfSearchApplication : public QApplication
 {
     Q_OBJECT
@@ -21,6 +23,7 @@ public: // ctors
 
 public slots:
     void show(QWidget * wgt);
+    void start();
 
 public: // const
 
@@ -29,6 +32,7 @@ public: // non-const
 
 private:
     const VersionInfo cmVersion;
+    IfSearchEngine * mpEngine=nullptr;
     ShowOption mShowOption;
     QFileInfo mLogFI;
 };

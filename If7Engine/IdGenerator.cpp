@@ -4,6 +4,9 @@
 #include <QDateTime>
 #include <QFileInfo>
 
+#include "MillisecondDelta.h"
+#include "MillisecondTime.h"
+
 QChar IdGenerator::trigger('%');
 QChar IdGenerator::pathSub('/');
 
@@ -170,8 +173,8 @@ QString IdGenerator::stringValue(const QChar c,
     {
     case '%':   return "%";
     case 'i':   return getFrameId();
-    case 'd':   return getModifiedMst().toString("yyyyMMdd");
-    case 't':   return getModifiedMst().toString("hhmmsszzz");
+    case 'd':   return MillisecondTime(getModifiedMst()).toString("yyyyMMdd");
+    case 't':   return MillisecondTime(getModifiedMst()).toString("hhmmsszzz");
     case 'o':   return outputClass;
     case 'A':   return QFileInfo(getFileName()).absoluteDir().path().replace('/', pathSub);
     case 'R':   return QFileInfo(getFileName()).dir().path().replace('/', pathSub);

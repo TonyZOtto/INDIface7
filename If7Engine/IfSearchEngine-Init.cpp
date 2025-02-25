@@ -38,31 +38,9 @@
 
 void IfSearchEngine::init(void)
 {
+    qDebug() << Q_FUNC_INFO;
 #ifdef BUILD_OBJDET_EVAL
-    const QDateTime cBaseTimestamp = QDateTime::currentDateTime();
-    const QString cInputDirName("EvalIn");
-    const QString cOutputBaseDirName("./EvalOut/"
-                + cBaseTimestamp.toString("DyyyyMMdd-Thhmm"));
-    const QString cMarkedDirName("Marked");
-    const QString cDetectDirName("Detect");
-    const ObjdetCatalog cCatalog("./detectors/Detectors.XML", this);
-    if ( ! cCatalog.fileExists())
-        qFatal() << "Unable to open detector catalog";
-
-    mInputDir = QDir::current();
-    if ( ! mInputDir.cd(cInputDirName))
-        qFatal() << "Unable to find input dir:" << cInputDirName;
-
-    if ( ! mMarkedDir.mkpath(cOutputBaseDirName)
-            || ! mMarkedDir.cd(cOutputBaseDirName))
-        qFatal() << "Unable to make output dir:" << cOutputBaseDirName;
-    mDetectDir = mMarkedDir;
-    if ( ! mMarkedDir.mkpath(cMarkedDirName)
-        || ! mMarkedDir.cd(cMarkedDirName))
-        qFatal() << "Unable to make marked dir:" << cMarkedDirName;
-    if ( ! mDetectDir.mkpath(cMarkedDirName)
-        || ! mDetectDir.cd(cMarkedDirName))
-        qFatal() << "Unable to make detect dir:" << mDetectDir;
+    mBaseTimestamp = QDateTime::currentDateTime();
 
 
 #endif
@@ -182,32 +160,33 @@ void IfSearchEngine::init(void)
 
 void IfSearchEngine::start(void)
 {
+    qDebug() << Q_FUNC_INFO;
 #ifdef BUILD_OBJDET_EVAL
     const QString cDetectorsXmlName("./detectors/Detectors.XML");
     const QString cDetectorClassName("FaceFrontal");
     const QString cDetectorName(""); // blank=default
-
-
-
+#if 0
     ObjdetCatalog * pCatalog = new ObjdetCatalog(cDetectorsXmlName, this);
     Q_ASSERT(pCatalog);
+    if ( ! pCatalog->fileExists())
+        qFatal() << pCatalog->fileInfo().absoluteFilePath() << "catalog file does not exist";
 
     const ObjdetCatalogItem::Key cKey(cDetectorClassName, cDetectorName);
     const ObjdetCatalogItem cItem = pCatalog->item(cKey);
     if ( ! cItem.xmlFileExists())
-        qFatal() << cItem.xmlFileInfo().absoluteFilePath() << "does not exist";
-
+        qFatal() << cItem.xmlFileInfo().absoluteFilePath() << "catalog item does not exist";
+#endif
     if (mpFrontal)
     {
         mpFrontal->unloadDetector();
         mpFrontal->deleteLater();
     }
     mpFrontal = new ObjdetFrontal(this);
-    mpFrontal->loadDetectorXml(cItem.xmlFileName());
+    mpFrontal->loadDetectorXml("./detectors/Aim8A001-32-NoSplit.xml");
     if ( ! mpFrontal->isDetectorLoaded())
-        qFatal() << "Failed to load:" << cItem.xmlFileName();
+        qFatal() << "Failed to load:" << mpFrontal->detectorFileInfo();
 
-    pCatalog->deleteLater(); pCatalog = nullptr;
+    //pCatalog->deleteLater(); pCatalog = nullptr;
 #endif
 #ifndef TODO0002
     Return rtn;
@@ -340,11 +319,32 @@ void IfSearchEngine::start(void)
 
 void IfSearchEngine::run(void)
 {
+    qDebug() << Q_FUNC_INFO;
 #ifdef BUILD_OBJDET_EVAL
+    const QString cInputDirName("./EvalIn");
+    const QString cOutputBaseDirName("./EvalOut/"
+                + mBaseTimestamp.toString("DyyyyMMdd-Thhmm"));
+    const QString cMarkedDirName("Marked");
+    const QString cDetectDirName("Detect");
+
+    if ( ! mInputDir.cd(cInputDirName))
+        qFatal() << "No input directory at:" << mInputDir.absolutePath()
+                 << cInputDirName;
     const QStringList cNameFilter = QStringList() << "*.JPG" << "*.PNG";
     mInputFiles = mInputDir.entryInfoList(cNameFilter);
     if (mInputFiles.isEmpty())
         qFatal() << "No input files in:" << mInputDir.absolutePath();
+
+    mOutputBaseDir.mkdir(cOutputBaseDirName);
+    if ( ! mOutputBaseDir.cd(cOutputBaseDirName))
+        qFatal() << "Can't set base output directory";
+    mMarkedDir = mDetectDir = mOutputBaseDir;
+    mMarkedDir.mkdir(cMarkedDirName);
+    mDetectDir.mkdir(cDetectDirName);
+    if ( ! mMarkedDir.cd(cMarkedDirName))
+        qFatal() << "Can't set marked output directory";
+    if ( ! mDetectDir.cd(cDetectDirName))
+        qFatal() << "Can't set detect output directory";
 
 #endif
 #ifndef TODO0002

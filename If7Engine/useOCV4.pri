@@ -6,15 +6,15 @@
 #                 ^--INDIface7
 #              ^--repo
 #           ^code
-OCV4BASE = /code/bin/DbgOpenCV-v4.10.0
+OCV4BASE = C:\Lang\OpenCV-MinGW-Build-OpenCV-4.5.5-x64
 INCLUDEPATH *= $$OCV4BASE/include
     # typical #include's specify opencv2
     # change prefix on release
 LIBS *= -L$$OCV4BASE/x64/mingw/lib # .a files
-LIBS *= -lopencv_core4100d
-LIBS *= -lopencv_highgui4100d
-#LIBS *= -lopencv_imageproc4100d
-LIBS *= -lopencv_objdetect4100d
+LIBS *= -lopencv_core4100d.dll
+#LIBS *= -lopencv_highgui4100d
+LIBS *= -lopencv_imgproc4100d.dll
+LIBS *= -lopencv_objdetect4100d.dll
 OCV4BINPATH = $$(OCV4BASE)/x64/mingw/bin # libopencv_*d.dll
 message(--------useOCV4.pri OCV4BASE=$$OCV4BASE OCV4BINPATH==$$OCV4BINPATH)
 message(INCLUDEPATH==$$INCLUDEPATH)

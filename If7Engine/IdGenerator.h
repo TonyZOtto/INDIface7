@@ -6,9 +6,6 @@
 #include <QRect>
 #include <QString>
 
-#include "MillisecondDelta.h"
-#include "MillisecondTime.h"
-
 #define IDGENERATOR_VARIABLESET(TIVD) \
     TIVD(QRect,             DetectRect,     QRect,      QRect()) \
     TIVD(QLineF,            EyeLine,        QLineF,     QLineF()) \
@@ -20,8 +17,8 @@
     TIVD(int,               FrameNumber,    int,        0) \
     TIVD(int,               BestQuality,    int,        0) \
     TIVD(int,               FaceNumber,     int,        0) \
-    TIVD(MillisecondDelta,  FrameMsd,        qint64,     0) \
-    TIVD(MillisecondTime,   ModifiedMst,    qint64,     0) \
+    TIVD(qint64,            FrameMsd,       qint64,     0) \
+    TIVD(qint64,            ModifiedMst,    qint64,     0) \
     TIVD(QString,           FrameId,        QString,    QString()) \
     TIVD(QString,           FileName,       QString,    QString()) \
     TIVD(int,               FaceKey,        int,        0) \

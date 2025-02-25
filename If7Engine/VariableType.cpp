@@ -61,6 +61,13 @@ public:
     virtual QString csvString(const QVariant & var) const;
 };
 
+class VariableCharBehavior : public VariableType
+{
+public:
+    VariableCharBehavior(QMetaType::Type metaType=QMetaType::QChar);
+    virtual QString csvString(const QVariant & var) const;
+};
+
 class VariableStringListBehavior : public VariableType
 {
 public:
@@ -90,7 +97,8 @@ VariableType * VariableType::behavior(const QMetaType::Type metaType)
     case QMetaType::Int:        return new VariableIntBehavior(metaType);
     case QMetaType::Bool:       return new VariableBoolBehavior(metaType);
     case QMetaType::QString:    return new VariableStringBehavior(metaType);
-   case QMetaType::QStringList: return new VariableStringListBehavior(metaType);
+    case QMetaType::QChar:      return new VariableStringBehavior(metaType);
+    case QMetaType::QStringList: return new VariableStringListBehavior(metaType);
     case QMetaType::QColor:     return new VariableColorBehavior(metaType);
     case QMetaType::QSize:      return new VariableSizeBehavior(metaType);
     case QMetaType::Double:     return new VariableDoubleBehavior(metaType);
@@ -228,6 +236,16 @@ VariableStringBehavior::VariableStringBehavior(QMetaType::Type metaType)
 QString VariableStringBehavior::csvString(const QVariant & var) const
 {
     return '"' + var.toString() + '"';
+}
+
+VariableCharBehavior::VariableCharBehavior(QMetaType::Type metaType)
+    : VariableType(metaType)
+{
+}
+
+QString VariableCharBehavior::csvString(const QVariant & var) const
+{
+    return "'" + var.toString() + "'";
 }
 
 VariableStringListBehavior::VariableStringListBehavior(QMetaType::Type metaType)

@@ -4,6 +4,7 @@
 #include <QObject>
 
 #include <QGuiApplication>
+#include <QImage>
 #include <QStringList>
 
 #include "CsvWriter.h"
@@ -62,14 +63,18 @@ public:
     ~IfSearchEngine();
 
 #ifdef BUILD_OBJDET_EVAL
-public:
+private:
     void processEval(const QFileInfo fi);
+    QImage creatInputImage(const QImage raw);
 private:
     ObjdetFrontal * mpFrontal=nullptr;
+    QDateTime mBaseTimestamp;
     QDir mInputDir;
+    QDir mOutputBaseDir;
     QDir mMarkedDir;
     QDir mDetectDir;
     QFileInfoList mInputFiles;
+    QImage mCurrentInputImage;
 #endif
 
 private slots:

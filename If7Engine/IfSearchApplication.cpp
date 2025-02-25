@@ -2,6 +2,8 @@
 
 #include <QCommandLineParser>
 
+#include "IfSearchEngine.h"
+
 IfSearchApplication::IfSearchApplication(int &argc, char **argv)
     : QApplication(argc, argv)
     , cmVersion(VER_MAJOR, VER_MINOR, VER_BRANCH, VER_RELEASE,
@@ -20,6 +22,11 @@ void IfSearchApplication::show(QWidget *wgt)
     case Maximized:    wgt->showMaximized();    break;
     default:           wgt->show();             break;
     }
+}
+
+void IfSearchApplication::start()
+{
+    mpEngine = new IfSearchEngine(this);
 }
 
 void IfSearchApplication::parseOptions(QApplication *app)

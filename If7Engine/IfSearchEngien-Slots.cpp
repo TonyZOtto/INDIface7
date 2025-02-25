@@ -1,6 +1,8 @@
 #include "IfSearchEngine.h"
 
 #include <QStringList>
+#include <QRect>
+#include <QSize>
 #include <QTimer>
 
 #include <EigenFace.h>
@@ -27,10 +29,13 @@
 #include <ClothesMatchProperties.h>
 #include <ClothesMatcher.h>
 
-//#include "../FSBridge/FSDirectBridge.h"
+#include "ObjdetFrontal.h"
+#include "ObjdetParametersRaw.h"
 
 void IfSearchEngine::pulse(void)
 {
+    qDebug() << Q_FUNC_INFO;
+
 #ifdef BUILD_OBJDET_EVAL
     if (mInputFiles.isEmpty())
     {
@@ -39,12 +44,58 @@ void IfSearchEngine::pulse(void)
     }
     QFileInfo tInputFile = mInputFiles.takeFirst();
     processEval(tInputFile);
-    QTimer::singleShot(500, this, SLOT(pulse()));
+    QTimer::singleShot(50, this, SLOT(pulse()));
 }
 
 void IfSearchEngine::processEval(const QFileInfo fi)
 {
+    const QImage cRawImage(fi.filePath());
+    mCurrentInputImage = creatInputImage(cRawImage);
+    if (mCurrentInputImage.isNull())
+        qCritical() << "Image skipped:" << fi.absoluteFilePath()
+                  << cRawImage.format();
+    Q_ASSERT(mpFrontal);
+    mpFrontal->setImage(mCurrentInputImage);
+    mpFrontal->raw().flags().setFlag(ObjdetParametersRaw::ForceRaw);
+    if ( ! mpFrontal->processCascadeClassifier(true))
+        qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
 
+
+}
+
+QImage IfSearchEngine::creatInputImage(const QImage raw)
+{
+    QImage result;
+    const QSize cInputSize(raw.width() & 0xFFF0, raw.height() & 0xFFF0);
+    const QRect cInputRect(QPoint((raw.width() - cInputSize.width()) / 2,
+                                  (raw.height() - cInputSize.height()) / 2),
+                           cInputSize);
+    result = raw.copy(cInputRect);
+    switch (result.format())
+    {
+    case QImage::Format_Grayscale16:
+    case QImage::Format_Indexed8:
+        result.convertTo(QImage::Format_Grayscale8);
+        // Q_FALLTHROUGH();
+    case QImage::Format_Grayscale8: // As is Greyscale
+        break;
+
+    case QImage::Format_BGR888: // TODO others as needed
+    case QImage::Format_ARGB32:
+    case QImage::Format_ARGB32_Premultiplied:
+        result.convertTo(QImage::Format_RGB32);
+        // Q_FALLTHROUGH();
+    case QImage::Format_RGB32: // As is Color
+        break;
+
+    case QImage::Format_Invalid:
+    case QImage::Format_Mono:
+    case QImage::Format_MonoLSB:
+    default:
+        qWarning() << "Unsupported input image format" << result.format();
+        result = QImage();
+    }
+    return result;
 }
 #endif
 #ifndef TODO0002

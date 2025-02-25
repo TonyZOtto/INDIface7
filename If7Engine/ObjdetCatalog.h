@@ -37,8 +37,9 @@ public: // static
     static QString names(const Objdet::Class objcls);
 
 private:
-    QString extractClassDEs(const QDomElement &rootDE);
-    QString extractDetectorItems();
+    QString processClassDE(const QDomElement &classDE);
+    QString extractDetectorItems(const QDomElement &classDE, const QDomElement &detectorDE);
+    QStringList toDebugStrings();
 
 private:
     QFileInfo mCatFileInfo;

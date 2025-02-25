@@ -11,7 +11,7 @@ DEFINES += TODO0002
 DEFINES += BUILD_OBJDET_EVAL
 message(TODO: Specify DESTDIR)
 
-include(useOCV4.pri)
+#include(useOCV4.pri)
 
 SOURCES += \
     AbstractIdString.cpp \

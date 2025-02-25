@@ -15,5 +15,6 @@ int main(int argc, char *argv[])
     app.parseOptions(&app);
     IfSearchWindow window(&app);
     app.show(&window);
+    app.start();
     return app.exec();
 }

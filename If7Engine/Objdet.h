@@ -10,11 +10,10 @@
 #include <VersionInfo.h>
 
 #include "DetectorResult.h"
+#include "ObjdetParametersRaw.h"
 
-//#include <opencv2/opencv.hpp>
-//#include <opencv2/objdetect.hpp>
-#include "C:\code\bin\DbgOpenCV-v4.10.0\include/opencv2/opencv.hpp"
-#include "C:\code\bin\DbgOpenCV-v4.10.0\include/opencv2/objdetect.hpp"
+#include <opencv2/opencv.hpp>
+#include <opencv2/objdetect.hpp>
 class ImageCache;
 
 class Objdet : public QObject
@@ -44,7 +43,7 @@ protected:
 //    Objdet(const QString & classname, QObject * parent=0);
 
 public slots:
-    void loadDetectorName(const QString & name) {;} // TODO
+    void loadDetectorName(const QString & name) { Q_UNUSED(name); } // TODO
     void loadDetectorXml(const QString & fileName);
     void unloadDetector();
 
@@ -56,28 +55,28 @@ signals:
 public: // const
     QString className() const;
     void clear(void);
-    void setImage(QImage img);
-    void setImage(const QString & ImageId);
-    QImage image(void) const;
-    QImage detectImage(void) const;
+    QImage inputImage(void) const;
 
     QString performanceString(void) const;
-    QList<DetectorResult> getResults(void) const { return results; }
-    QList<QRect> getAllObjects(void) const { return allObjects; }
+    QList<DetectorResult> getResults(void) const { return mDetectorList; }
+    QList<QRect> getAllObjects(void) const { return mAllRects; }
     QList<QSize> detectorSizes(void) const;
     bool isDetectorLoaded(void);
+    QFileInfo detectorFileInfo() const;
     QString methodString(void);
     QSize sizeFromXml(const QString & fileName);
     QSize minObjectSize(void) const;
     QSize maxObjectSize(void) const;
 
 public: // non-const
+    void setImage(const QImage &inputImage);
 
 
 public: // pointers
-    void cache(ImageCache * pc) { mpCache = pc; }
+//    void cache(ImageCache * pc) { mpCache = pc; }
     void cascade(cv::CascadeClassifier * pc) { mpCascade = pc; }
     cv::CascadeClassifier * cascade(void) { return mpCascade; }
+    ObjdetParametersRaw & raw() { return mRawParms; }
 
 public: // static
     static VersionInfo cvVersion();
@@ -85,26 +84,41 @@ public: // static
     static Objdet::Class objectClass(const QString name);
     static QString className(const Objdet::Class objcls);
 
-protected:
-    bool processCascadeClassifier(bool returnAll=false);
+public:
+    bool processCascadeClassifier(const bool returnAll=false);
+    bool processResults(const std::vector<cv::Rect> rects,
+                        const std::vector<int> counts,
+                        const std::vector<cv::Rect> allrects);
     bool loadXmlCascade(const QString & xmlFilename);
-    void handleResults(bool returnAll=false);
+//    void handleResults(bool returnAll=false);
 
 protected slots:
-//    bool process(bool returnAll=false);
 
 protected:
-    QList<QRect> allObjects;
-    QList<DetectorResult>  results;
-    QMultiMap<double, DetectorResult> allResults;
+    QList<QRect> mAllRects;
+    QList<DetectorResult>  mDetectorList;
+    QMultiMap<int, DetectorResult> mQualityResultMap;
 
 private:
     const Class cmClass=$nullClass;
+    QFileInfo mCascadeFileInfo;
     cv::CascadeClassifier * mpCascade=nullptr;
-    ImageCache * mpCache=nullptr;
-    QImage imgOrig;
-    int origScale;
+    ObjdetParametersRaw mRawParms;
+    //ImageCache * mpCache=nullptr;
+    QImage mInputImage;
+    //int origScale;
 };
+
+inline bool Objdet::isDetectorLoaded()
+{
+    Q_ASSERT(mpCascade);
+    return ! mpCascade->empty();
+}
+
+inline QFileInfo Objdet::detectorFileInfo() const
+{
+    return mCascadeFileInfo;
+}
 
 /*
     Q_PROPERTY(QString ClassName READ className)

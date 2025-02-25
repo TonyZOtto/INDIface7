@@ -3,7 +3,6 @@
 
 OURDEST = "{bindir}/{bldcfg}{osbits}-Qt{qtmajor}{cvmajor}-{ver}"
 #message(OURDEST = $$OURDEST)
-#message(VER_STRING = $$VER_STRING)
 
 include(version.pri)
 include(BINDIR.pri)
@@ -19,5 +18,6 @@ OURDEST = $$replace(OURDEST, "{cvmajor}", $$CVMAJOR)
 OURDEST = $$replace(OURDEST, "{ver}", $$VER_STRING)
 #message(OURDEST = $$OURDEST)
 
+#message(VER_STRING = $$VER_STRING)
 DESTDIR = $$OURDEST
-#message(DESTDIR = $$DESTDIR)
+message(DESTDIR = $$DESTDIR)
