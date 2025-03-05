@@ -1,5 +1,6 @@
 #pragma once
 
+#include <QColor>
 #include <QList>
 #include <QPointF>
 #include <QRect>
@@ -7,28 +8,31 @@
 
 class DetectorResult
 {
-public:
+public: // types
+    typedef QList<DetectorResult> List;
 
-public:
-    DetectorResult(QRect rect);
-    DetectorResult(int rank=0, QRect rect=QRect(),
-                   QList<QRect> allRects=QList<QRect>());
+public: // ctors
+    DetectorResult(const QRect rect, const int count=0);
 
-public:
-    int rank(void) { return mRank;; }
-    int score(void) const { return mQuality; }
-    QRect rectangle(void) const { return mResultRect; }
-    QList<QRect> allRectangles(void) { return mAllRects; }
+public: // const
+    int rank(void) const { return mRank; }
+    int quality(void) const { return mQuality; }
+    QRect rect(void) const { return mResultRect; }
+    int count(void) const { return mResultCount; }
+    QList<QRect> includedRects(void) const { return mIncludedRects; }
+    QColor qualityColor(const int midQuality) const;
+    QColor qualityTextColor(const int midQuality) const;
 
-private:
-    void addRect(QRect Rect) { mResultRect = mResultRect.united(Rect); mAllRects.append(Rect); }
-    void addToAverage(const QRect rect);
+public: // non-const
+    void rank(const int r) { mRank = r; }
+    void quality(const int q) { mQuality = q; }
+    void count(const int k) { mResultCount = k; }
+    QList<QRect> takeIncludedRects(const QList<QRect> ar);
 
 private:
     int mRank;
     int mQuality;
     QRect mResultRect;
-    QPointF mAverageCenter;
-    QSizeF mAverageSize;
-    QList<QRect> mAllRects;
+    int mResultCount;
+    QList<QRect> mIncludedRects;
 };

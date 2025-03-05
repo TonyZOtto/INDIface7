@@ -2,10 +2,12 @@
 
 #include <QMetaEnum>
 #include <QMetaObject>
+#include <QPainter>
 
 #include <opencv2/opencv.hpp>
 
 #include "ObjectHelper.h"
+#include "ObjdetRawArguments.h"
 
 Objdet::Objdet(QObject *parent)
     : QObject{parent}
@@ -76,14 +78,115 @@ QImage Objdet::inputImage() const
     return mInputImage;
 }
 
-void Objdet::setImage(const QImage &inputImage)
+QImage Objdet::markedImage(const int minQuality, const int showQuality) const
+{
+    QImage result = mInputImage;
+    QPainter tPainter;
+    tPainter.begin(&result);
+    tPainter.setFont(QFont("helvetica", 16));
+    DetectorResult::List tResultList = resultList().rankedList();
+    qDebug() << Q_FUNC_INFO << mInputImage << tResultList.count()
+             << (tResultList.isEmpty() ? 0 : tResultList.first().quality());
+    while ( ! tResultList.isEmpty())
+    {
+        const DetectorResult cResult = tResultList.takeLast();
+        const QRect cRect = cResult.rect();
+        const int cRank = cResult.rank();
+        const int cQuality = cResult.quality();
+        if (cQuality >= showQuality)
+        {
+            const QString cTitle
+                = QString("#%1 Q%2")
+                      .arg(cRank)
+                      .arg(cQuality, 3, 10, QChar('0'));
+            const QColor cColor = cResult.qualityColor(minQuality);
+            QPen tPen(QBrush(cColor), 7);
+            tPainter.setPen(tPen);
+            tPainter.drawRect(cRect);
+            const QRect cTitleRect(QPoint(cRect.left() - 4,
+                                          cRect.top() - 24),
+                                   QPoint(cRect.right() + 4,
+                                          cRect.top()));
+            tPainter.fillRect(cTitleRect, cColor);
+            tPainter.setPen(cResult.qualityTextColor(minQuality));
+//            tPainter.setBackground(cColor);
+            tPainter.drawText(cTitleRect.bottomLeft(), cTitle);
+        }
+    }
+    tPainter.end();
+    return result;
+}
+
+QImage Objdet::detectImage(const int minQuality) const
+{
+    QImage result = mInputImage;
+    QPainter tPainter;
+    tPainter.begin(&result);
+    tPainter.setPen(Qt::magenta);
+    tPainter.drawRects(resultList().orphanList());
+    tPainter.setFont(QFont("helvetica", 16));
+    DetectorResult::List tResultList = resultList().rankedList();
+    qDebug() << Q_FUNC_INFO << mInputImage << tResultList.count()
+             << (tResultList.isEmpty() ? 0 : tResultList.first().quality())
+             << resultList().orphanList().count();
+    while ( ! tResultList.isEmpty())
+    {
+        const DetectorResult cResult = tResultList.takeLast();
+        const QRect cRect = cResult.rect();
+        const int cRank = cResult.rank();
+        const int cQuality = cResult.quality();
+        const int cCount = cResult.count();
+        const QString cTitle
+            = QString("#%1 Q%2 K%3 W%4")
+                  .arg(cRank)
+                  .arg(cQuality, 3, 10, QChar('0'))
+                  .arg(cCount)
+                  .arg(cRect.width());
+        const QColor cColor = cResult.qualityColor(minQuality);
+        QPen tPen(QBrush(cColor), 1);
+        tPainter.setPen(tPen);
+        tPainter.drawRects(cResult.includedRects());
+        tPen.setWidth(7);
+        tPainter.setPen(tPen);
+        tPainter.drawRect(cRect);
+        const QRect cTitleRect(QPoint(cRect.left() - 4,
+                                      cRect.top() - 24),
+                               QPoint(cRect.right() + 4,
+                                      cRect.top()));
+        tPainter.fillRect(cTitleRect, cColor);
+        tPainter.setPen(cResult.qualityTextColor(minQuality));
+        tPainter.setBackground(cColor);
+        tPainter.drawText(cTitleRect.bottomLeft(), cTitle);
+    }
+    tPainter.end();
+    return result;
+}
+
+void Objdet::set(const ObjdetRawArguments raw)
+{
+    qDebug() << Q_FUNC_INFO << raw.factor() << raw.neighbors()
+             << raw.flags() << raw.minSize() << raw.minSize()
+             << raw.inputSize();
+    mRawParms = raw;
+}
+
+void Objdet::inputImage(const QImage &inputImage)
 {
     qDebug() << Q_FUNC_INFO << inputImage;
     if (inputImage.isGrayscale())
         Q_ASSERT(QImage::Format_Grayscale8 == inputImage.format());
     else
-        Q_ASSERT(QImage::Format_RGB32 == inputImage.format());
+        Q_ASSERT(QImage::Format_ARGB32 == inputImage.format());
     mInputImage = inputImage;
+}
+
+void Objdet::clear()
+{
+    mAllRects.clear(), mOrphanRects.clear(),
+        mResultList.clearResults();
+    mInputImage = QImage(), mGreyImage = QImage();
+    mGreyMat.deallocate();
+    mGreyMat = cv::Mat();
 }
 
 
@@ -166,51 +269,86 @@ bool Objdet::processCascadeClassifier(const bool returnAll)
         return result;                                  /*=====*/
     if (inputImage().isNull())
         return result;                                  /*=====*/
-    const QImage cInputGreyImage = inputImage().convertedTo(QImage::Format_Grayscale8);
-    cv::Mat tGreyMat (cInputGreyImage.height(), cInputGreyImage.width(), CV_8UC1);
-    const int tGreyMatBytes = tGreyMat.checkVector(1, 1, true);
-    qDebug() << Q_FUNC_INFO << returnAll << tGreyMatBytes;
-    Q_ASSERT(cInputGreyImage.bytesPerLine() * cInputGreyImage.width()
-             == tGreyMatBytes);
-    memcpy(tGreyMat.ptr(0), cInputGreyImage.bits(), tGreyMatBytes);
+    mGreyImage = inputImage().convertedTo(QImage::Format_Grayscale8);
+    mGreyMat = cv::Mat(mGreyImage.height(),
+                       mGreyImage.width(), CV_8U);
+    const int tGreyMatBytes = mGreyMat.total();
+    qDebug() << Q_FUNC_INFO << returnAll << mGreyImage.size()
+             << mGreyImage.sizeInBytes() << tGreyMatBytes;
+    Q_ASSERT(mGreyImage.sizeInBytes() == tGreyMatBytes);
+    memcpy(mGreyMat.ptr(0), mGreyImage.bits(), tGreyMatBytes);
     std::vector<cv::Rect> tRectVector;
     std::vector<int> tCountVector;
     std::vector<cv::Rect> tAllRectVector;
-    mpCascade->detectMultiScale(tGreyMat, tRectVector, tCountVector,
-                                raw().Factor(), raw().Neighbors(), raw().Flags(),
+    mpCascade->detectMultiScale(mGreyMat, tRectVector, tCountVector,
+                                raw().factor(), raw().neighbors(), raw().flags(),
                                 raw().cvMinSize(), raw().cvMaxSize());
     if (returnAll)
-        mpCascade->detectMultiScale(tGreyMat, tAllRectVector,
-                                    raw().Factor(), 0, raw().Flags(),
+        mpCascade->detectMultiScale(mGreyMat, tAllRectVector,
+                                    raw().factor(), 0, raw().flags(),
                                     raw().cvMinSize(), raw().cvMaxSize());
 
-    result = processResults(tRectVector, tCountVector, tAllRectVector);
+    result = processResults(tRectVector, tCountVector,
+                            tAllRectVector, raw().factor());
+    qDebug() << __LINE__ << tRectVector.size()
+             << tCountVector.size() << tAllRectVector.size()
+             << mOrphanRects.count();
     return result;
 }
 
 bool Objdet::processResults(const std::vector<cv::Rect> rects,
                             const std::vector<int> counts,
-                            const std::vector<cv::Rect> allrects)
+                            const std::vector<cv::Rect> allrects,
+                            const qreal factor)
 {
-    bool result = rects.size() != 0 && counts.size() != 0
-                  && rects.size() == counts.size();
-    if ( ! result) return result;                               /*=====*/
-    const qreal cFactor = raw().Factor();
-    for (int ix = 0; ix < rects.size(); ++ix)
+//    const qreal cFactor = raw().factor();
+    for (unsigned ix = 0; ix < allrects.size(); ++ix)
+    {
+        const cv::Rect cCvRect = allrects.at(ix);
+        const QRect cRect(cCvRect.tl().x, cCvRect.tl().y,
+                          cCvRect.width, cCvRect.height);
+        mAllRects.append(cRect);
+    }
+    QList<QRect> tRectList = mAllRects;
+    QMultiMap<int, DetectorResult> tQualityResultMap;
+    for (unsigned ix = 0; ix < rects.size(); ++ix)
     {
         const cv::Rect cCvRect = rects.at(ix);
         const int cCount = counts.at(ix);
         const QRect cResultRect(cCvRect.tl().x, cCvRect.tl().y,
                                 cCvRect.width, cCvRect.height);
+        const int cQuality
+            = calculateQuality(cCount, cResultRect.width(), factor);
         DetectorResult tResult(cResultRect);
+        tResult.quality(cQuality);
+        tResult.count(cCount);
+        tRectList = tResult.takeIncludedRects(tRectList);
+        tQualityResultMap.insert( - cQuality, tResult);
     }
+    mOrphanRects = tRectList;
+    int tRank = 0;
+    foreach (DetectorResult dr, tQualityResultMap.values())
+    {
+        dr.rank(++tRank);
+        mResultList.addRanked(dr);
+    }
+    qDebug() << Q_FUNC_INFO << mAllRects.count()
+             << mOrphanRects.count()
+             << mResultList.rankedList().count();
+    return true;
+}
+
+int Objdet::calculateQuality(const int neighborCount,
+                             const int detectWidth,
+                             const qreal factor)
+{
+    int result = 0;
+    Q_ASSERT(detectWidth);
+    if ( ! qFuzzyCompare(1.100, mRawParms.factor()))
+        qWarning() << "Expected factor 1.100";
+    result = int((qreal(neighborCount) / qreal(detectWidth))
+                 * 500.0 * factor * factor);
+    result = qBound(1, result, 999);
+    //qDebug() << Q_FUNC_INFO << neighborCount << detectWidth << result;
     return result;
 }
-/*
-QString ObjdetCatalog::className(const Objdet::Class objcls) // static
-{
-    Objdet od(objcls);
-    const ObjectHelper cOH(od);
-    return cOH.enumKey("Class", objcls);
-}
-*/

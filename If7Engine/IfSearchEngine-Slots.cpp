@@ -30,7 +30,7 @@
 #include <ClothesMatcher.h>
 
 #include "ObjdetFrontal.h"
-#include "ObjdetParametersRaw.h"
+#include "ObjdetRawArguments.h"
 
 void IfSearchEngine::pulse(void)
 {
@@ -39,7 +39,7 @@ void IfSearchEngine::pulse(void)
 #ifdef BUILD_OBJDET_EVAL
     if (mInputFiles.isEmpty())
     {
-        QTimer::singleShot(10, this, SLOT(quit()));
+        QTimer::singleShot(10, qApp, SLOT(quit()));
         return;
     }
     QFileInfo tInputFile = mInputFiles.takeFirst();
@@ -50,20 +50,32 @@ void IfSearchEngine::pulse(void)
 void IfSearchEngine::processEval(const QFileInfo fi)
 {
     const QImage cRawImage(fi.filePath());
-    mCurrentInputImage = creatInputImage(cRawImage);
+    mCurrentInputImage = createInputImage(cRawImage);
     if (mCurrentInputImage.isNull())
         qCritical() << "Image skipped:" << fi.absoluteFilePath()
                   << cRawImage.format();
     Q_ASSERT(mpFrontal);
-    mpFrontal->setImage(mCurrentInputImage);
-    mpFrontal->raw().flags().setFlag(ObjdetParametersRaw::ForceRaw);
+    mpFrontal->clear();
+    ObjdetRawArguments tRaw;
+    tRaw.factor(1.100), tRaw.neighbors(3), tRaw.flags(0),
+        tRaw.set(ObjdetRawArguments::ForceRaw),
+        tRaw.minSize(QSize()), tRaw.maxSize(QSize()),
+        tRaw.inputSize(mCurrentInputImage.size());
+    mpFrontal->inputImage(mCurrentInputImage);
+    mpFrontal->set(tRaw);
     if ( ! mpFrontal->processCascadeClassifier(true))
         qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
-
-
+    QImage tMarked = mpFrontal->markedImage(500);
+    const QFileInfo tMarkedFI(mMarkedDir, fi.completeBaseName() + ".png");
+    if (tMarked.save(tMarkedFI.absoluteFilePath()))
+        qInfo() << tMarkedFI.absoluteFilePath() << tMarked;
+    QImage tDetect = mpFrontal->detectImage(500);
+    const QFileInfo tDetectFI(mDetectDir, fi.completeBaseName() + ".png");
+    if (tDetect.save(tDetectFI.absoluteFilePath()))
+        qInfo() << tDetectFI.absoluteFilePath() << tDetect;
 }
 
-QImage IfSearchEngine::creatInputImage(const QImage raw)
+QImage IfSearchEngine::createInputImage(const QImage raw)
 {
     QImage result;
     const QSize cInputSize(raw.width() & 0xFFF0, raw.height() & 0xFFF0);
@@ -81,11 +93,11 @@ QImage IfSearchEngine::creatInputImage(const QImage raw)
         break;
 
     case QImage::Format_BGR888: // TODO others as needed
-    case QImage::Format_ARGB32:
+    case QImage::Format_RGB32:
     case QImage::Format_ARGB32_Premultiplied:
-        result.convertTo(QImage::Format_RGB32);
+        result.convertTo(QImage::Format_ARGB32);
         // Q_FALLTHROUGH();
-    case QImage::Format_RGB32: // As is Color
+    case QImage::Format_ARGB32: // As is Color
         break;
 
     case QImage::Format_Invalid:

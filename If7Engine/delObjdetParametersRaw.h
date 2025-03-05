@@ -29,8 +29,10 @@ public: // const
     cv::Size cvMinSize() const;
     cv::Size cvMaxSize() const;
 
+public: // non-const
+    void set(const Flag f, bool is=true);
+
 public: // pointers
-    FlagSet & flags();
 
 
     // ------------------ properties ---------------------
@@ -71,11 +73,6 @@ private:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(ObjdetParametersRaw::FlagSet)
-
-inline ObjdetParametersRaw::FlagSet &ObjdetParametersRaw::flags()
-{
-    return mFlags;
-}
 
 inline qreal ObjdetParametersRaw::Factor() const
 {

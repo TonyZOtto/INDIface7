@@ -19,3 +19,11 @@ cv::Size ObjdetParametersRaw::cvMaxSize() const
 {
     return cv::Size(mMaxSize.width(), mMaxSize.height());
 }
+
+void ObjdetParametersRaw::set(const Flag f, bool is)
+{
+    if (is)
+        mFlags |= f;
+    else
+        mFlags &= ~ f;
+}

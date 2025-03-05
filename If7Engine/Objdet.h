@@ -10,7 +10,8 @@
 #include <VersionInfo.h>
 
 #include "DetectorResult.h"
-#include "ObjdetParametersRaw.h"
+#include "DetectorResultList.h"
+#include "ObjdetRawArguments.h"
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/objdetect.hpp>
@@ -54,12 +55,12 @@ signals:
 
 public: // const
     QString className() const;
-    void clear(void);
     QImage inputImage(void) const;
+    ObjdetRawArguments raw() const { return mRawParms; }
 
     QString performanceString(void) const;
-    QList<DetectorResult> getResults(void) const { return mDetectorList; }
-    QList<QRect> getAllObjects(void) const { return mAllRects; }
+    DetectorResultList resultList(void) const { return mResultList; }
+    QList<QRect> allRects(void) const { return mAllRects; }
     QList<QSize> detectorSizes(void) const;
     bool isDetectorLoaded(void);
     QFileInfo detectorFileInfo() const;
@@ -67,16 +68,26 @@ public: // const
     QSize sizeFromXml(const QString & fileName);
     QSize minObjectSize(void) const;
     QSize maxObjectSize(void) const;
+    QImage markedImage(const int minQuality,
+                       const int showQuality=200) const;
+    QImage detectImage(const int minQuality) const;
 
 public: // non-const
-    void setImage(const QImage &inputImage);
-
+    void set(const ObjdetRawArguments raw);
+    void inputImage(const QImage &inputImage);
+    void clear();
+    bool processCascadeClassifier(const bool returnAll=false);
+    bool processResults(const std::vector<cv::Rect> rects,
+                        const std::vector<int> counts,
+                        const std::vector<cv::Rect> allrects, const qreal factor);
+    int calculateQuality(const int neighborCount, const int detectWidth,
+                         const qreal factor);
+    bool loadXmlCascade(const QString & xmlFilename);
 
 public: // pointers
 //    void cache(ImageCache * pc) { mpCache = pc; }
     void cascade(cv::CascadeClassifier * pc) { mpCascade = pc; }
     cv::CascadeClassifier * cascade(void) { return mpCascade; }
-    ObjdetParametersRaw & raw() { return mRawParms; }
 
 public: // static
     static VersionInfo cvVersion();
@@ -85,27 +96,21 @@ public: // static
     static QString className(const Objdet::Class objcls);
 
 public:
-    bool processCascadeClassifier(const bool returnAll=false);
-    bool processResults(const std::vector<cv::Rect> rects,
-                        const std::vector<int> counts,
-                        const std::vector<cv::Rect> allrects);
-    bool loadXmlCascade(const QString & xmlFilename);
-//    void handleResults(bool returnAll=false);
 
 protected slots:
 
-protected:
-    QList<QRect> mAllRects;
-    QList<DetectorResult>  mDetectorList;
-    QMultiMap<int, DetectorResult> mQualityResultMap;
-
 private:
+    QList<QRect> mAllRects;
+    QList<QRect> mOrphanRects;
+    DetectorResultList mResultList;
     const Class cmClass=$nullClass;
     QFileInfo mCascadeFileInfo;
     cv::CascadeClassifier * mpCascade=nullptr;
-    ObjdetParametersRaw mRawParms;
+    ObjdetRawArguments mRawParms;
     //ImageCache * mpCache=nullptr;
     QImage mInputImage;
+    QImage mGreyImage;
+    cv::Mat mGreyMat;
     //int origScale;
 };
 

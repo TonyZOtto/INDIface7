@@ -28,6 +28,7 @@ SOURCES += \
 #    ColorModel.cpp \
 #    CsvWriter.cpp \
     DetectorResult.cpp \
+    DetectorResultList.cpp \
     DomValuesElement.cpp \
 #    EigenFace.cpp \
     EigenFaceBitMask.cpp \
@@ -81,8 +82,8 @@ SOURCES += \
 #    IfSearchEnroll.cpp \
 #    IfSearchEnroll2.cpp \
     IfSearchApplication.cpp \
-    IfSearchEngien-Slots.cpp \
     IfSearchEngine-Init.cpp \
+    IfSearchEngine-Slots.cpp \
     IfSearchEngine.cpp \
 #    IfSearchRetrieve.cpp \
 #    IfSearchSearch.cpp \
@@ -107,7 +108,7 @@ SOURCES += \
     ObjdetParameters.cpp \
     ObjdetParametersEyes.cpp \
     ObjdetParametersFrontal.cpp \
-    ObjdetParametersRaw.cpp \
+    ObjdetRawArguments.cpp \
     ObjdetResource.cpp \
     ObjdetResult.cpp \
     ObjdetResultMap.cpp \
@@ -145,6 +146,7 @@ DISTFILES += \
     GradIcon.ico \
     INDIface24.ico \
     LIBDIR.pri \
+    QualityScore.md \
     eIRonly24.ico \
     version.pri
 
@@ -167,6 +169,7 @@ HEADERS += \
     DDTcore.h \
     Detector.hhh \
     DetectorResult.h \
+    DetectorResultList.h \
     DomValuesElement.h \
     DualMap.h \
     EigenFace.h \
@@ -233,7 +236,7 @@ HEADERS += \
     ObjdetParameters.h \
     ObjdetParametersEyes.h \
     ObjdetParametersFrontal.h \
-    ObjdetParametersRaw.h \
+    ObjdetRawArguments.h \
     ObjdetResource.h \
     ObjdetResult.h \
     ObjdetResultMap.h \
@@ -278,6 +281,11 @@ RESOURCES += \
 
 
 win32: LIBS += -L$$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/x64/mingw/lib/ -llibopencv_objdetect455.dll
+
+INCLUDEPATH += $$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include
+DEPENDPATH += $$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include
+
+win32: LIBS += -L$$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/x64/mingw/lib/ -llibopencv_core455.dll
 
 INCLUDEPATH += $$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include
 DEPENDPATH += $$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include

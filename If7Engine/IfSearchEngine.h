@@ -8,8 +8,9 @@
 #include <QStringList>
 
 #include "CsvWriter.h"
-#include <Detector.hhh>
+//#include <Detector.hhh>
 #include <DetectorResult.h>
+#include <DetectorResultList.h>
 #include <EigenFaceTemplate.h>
 #include <EigenFaceSimilarity.h>
 #include <EigenFaceStatus.h>
@@ -21,6 +22,7 @@
 #include "IdGenerator.h"
 #include "MillisecondTime.h"
 #include <TransformProperties.h>
+#include "VersionInfo.h"
 
 class QFileSystemWatcher;
 
@@ -65,7 +67,7 @@ public:
 #ifdef BUILD_OBJDET_EVAL
 private:
     void processEval(const QFileInfo fi);
-    QImage creatInputImage(const QImage raw);
+    QImage createInputImage(const QImage raw);
 private:
     ObjdetFrontal * mpFrontal=nullptr;
     QDateTime mBaseTimestamp;
@@ -75,6 +77,7 @@ private:
     QDir mDetectDir;
     QFileInfoList mInputFiles;
     QImage mCurrentInputImage;
+    DetectorResultList mResults;
 #endif
 
 private slots:

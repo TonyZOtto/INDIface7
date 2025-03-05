@@ -26,7 +26,7 @@
 #include <InputHotdir.h>
 #include <Objdet.h>
 #include <ObjdetFrontal.h>
-#include <ObjdetParametersRaw.h>
+#include <ObjdetRawArguments.h>
 #include <Return.h>
 #include <Settings.h>
 #include <VersionInfo.h>
@@ -100,7 +100,6 @@ void IfSearchEngine::init(void)
     qInfo() << cmVersion.getAppName() << cmVersion.getCopyright();
     qInfo() << "Running ProcessId:" << QApplication::applicationPid();
 #endif
-    cmVersion.check(0xE3ECE9F0);
 
 #ifndef TODO0002
     qreal rolloverHours = appSettings->value("Output/RolloverHours").toReal();
@@ -335,12 +334,12 @@ void IfSearchEngine::run(void)
     if (mInputFiles.isEmpty())
         qFatal() << "No input files in:" << mInputDir.absolutePath();
 
-    mOutputBaseDir.mkdir(cOutputBaseDirName);
+    mOutputBaseDir.mkpath(cOutputBaseDirName);
     if ( ! mOutputBaseDir.cd(cOutputBaseDirName))
         qFatal() << "Can't set base output directory";
     mMarkedDir = mDetectDir = mOutputBaseDir;
-    mMarkedDir.mkdir(cMarkedDirName);
-    mDetectDir.mkdir(cDetectDirName);
+    mMarkedDir.mkpath(cMarkedDirName);
+    mDetectDir.mkpath(cDetectDirName);
     if ( ! mMarkedDir.cd(cMarkedDirName))
         qFatal() << "Can't set marked output directory";
     if ( ! mDetectDir.cd(cDetectDirName))

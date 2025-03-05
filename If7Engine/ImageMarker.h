@@ -44,4 +44,4 @@ public:
                        Qt::Corner corner=Qt::TopLeftCorner);
 
 private:
-}; // class Config
+};
