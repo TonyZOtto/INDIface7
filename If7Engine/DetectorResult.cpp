@@ -33,12 +33,12 @@ QColor DetectorResult::qualityTextColor(const int midQuality) const
 QList<QRect> DetectorResult::takeIncludedRects(const QList<QRect> ar)
 {
     QList<QRect> result;
-    const int cWidth = rect().width();
     const int cMinWidth = qreal(rect().width()) / 1.3;
     const int cMaxWidth = qreal(rect().width()) * 1.3;
     foreach (const QRect rc, ar)
         if (rect().contains(rc.center())
-                && cWidth > cMinWidth && cWidth < cMaxWidth)
+                && rc.width() > cMinWidth
+                && rc.width() < cMaxWidth)
             mIncludedRects << rc;
         else
             result << rc;

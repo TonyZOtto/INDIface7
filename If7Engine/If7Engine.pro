@@ -98,7 +98,6 @@ SOURCES += \
     ImageSource.cpp \
 #    InputHotdir.cpp \
 #    Key.cpp \
-    LogOutput.cpp \
     MillisecondDelta.cpp \
     MillisecondTime.cpp \
     Objdet.cpp \
@@ -124,6 +123,7 @@ SOURCES += \
 #    SkinMatchProperties.cpp \
 #    SkinMatcher.cpp \
 #    TransformProperties.cpp \
+    StdOut.cpp \
     Variable.cpp \
     VariableGroup.cpp \
     VariableId.cpp \
@@ -145,6 +145,7 @@ DISTFILES += \
     FrameSequencer.graphml \
     GradIcon.ico \
     INDIface24.ico \
+    Installing.md \
     LIBDIR.pri \
     QualityScore.md \
     eIRonly24.ico \
@@ -221,7 +222,6 @@ HEADERS += \
     InputHotdir.h \
     Key.h \
     Key.hh \
-    LogOutput.h \
     Matrix.h \
     MillisecondDelta.h \
     MillisecondTime.h \
@@ -256,6 +256,7 @@ HEADERS += \
     SkinDetector.h \
     SkinMatchProperties.h \
     SkinMatcher.h \
+    StdOut.h \
     TransformProperties.h \
     Variable.h \
     VariableGroup.h \
@@ -280,12 +281,8 @@ RESOURCES += \
     If7Engine.qrc
 
 
-win32: LIBS += -L$$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/x64/mingw/lib/ -llibopencv_objdetect455.dll
 
-INCLUDEPATH += $$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include
-DEPENDPATH += $$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include
-
-win32: LIBS += -L$$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/x64/mingw/lib/ -llibopencv_core455.dll
+win32: LIBS += -L$$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/x64/mingw/lib/ -llibopencv_core455.dll -llibopencv_objdetect455.dll
 
 INCLUDEPATH += $$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include
 DEPENDPATH += $$PWD/../../../../Lang/OpenCV-MinGW-Build-OpenCV-4.5.5-x64/include

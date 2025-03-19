@@ -40,16 +40,16 @@ void Objdet::loadDetectorXml(const QString &fileName)
         emit error(tErrMsg);
         qCritical() << tErrMsg;
     }
-#if 1
+#if 0
     const std::__cxx11::basic_string<char,
                                      std::char_traits<char>,
                                      std::allocator<char> >
         cStdCascadeXmlName = tFI.absoluteFilePath().toStdString();
 #else
-    std::__1::basic_string<char,
-                           std::__1::char_traits<char>,
-                           std::__1::allocator<char> > const&
-        = cStdCascadeXmlName = tFI.absoluteFilePath().toStdString();
+    std::basic_string<char,
+                           std::char_traits<char>,
+                           std::allocator<char> > const&
+        cStdCascadeXmlName = tFI.absoluteFilePath().toStdString();
 #endif
 
     Q_ASSERT(mpCascade);
@@ -78,9 +78,10 @@ QImage Objdet::inputImage() const
     return mInputImage;
 }
 
-QImage Objdet::markedImage(const int minQuality, const int showQuality) const
+QImage Objdet::markedImage(const int minQuality, int showQuality) const
 {
     QImage result = mInputImage;
+    if (showQuality < 0) showQuality = minQuality / 2;
     QPainter tPainter;
     tPainter.begin(&result);
     tPainter.setFont(QFont("helvetica", 16));
@@ -126,7 +127,7 @@ QImage Objdet::detectImage(const int minQuality) const
     tPainter.drawRects(resultList().orphanList());
     tPainter.setFont(QFont("helvetica", 16));
     DetectorResult::List tResultList = resultList().rankedList();
-    qDebug() << Q_FUNC_INFO << mInputImage << tResultList.count()
+    qDebug() << Q_FUNC_INFO << mInputImage.size() << tResultList.count()
              << (tResultList.isEmpty() ? 0 : tResultList.first().quality())
              << resultList().orphanList().count();
     while ( ! tResultList.isEmpty())
@@ -324,8 +325,11 @@ bool Objdet::processResults(const std::vector<cv::Rect> rects,
         tResult.count(cCount);
         tRectList = tResult.takeIncludedRects(tRectList);
         tQualityResultMap.insert( - cQuality, tResult);
+        qDebug() << Q_FUNC_INFO << cQuality << cResultRect
+                 << tQualityResultMap.count() << tRectList.count();
     }
     mOrphanRects = tRectList;
+    mResultList.orphanList(mOrphanRects);
     int tRank = 0;
     foreach (DetectorResult dr, tQualityResultMap.values())
     {

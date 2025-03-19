@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Package>
+    <DisplayName>INDIface7 ObjDet Evaluation</DisplayName>
+    <Description>Install the trial face engine.</Description>
+    <Version>7.9.3</Version>
+    <ReleaseDate>2025-03-05</ReleaseDate>
+    <Licenses></Licenses>
+    <Default></Default>
+    <Script></Script>
+</Package>

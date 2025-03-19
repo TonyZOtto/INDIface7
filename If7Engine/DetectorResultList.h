@@ -37,6 +37,7 @@ public: // non-const
                     =std::vector<cv::Rect>());
     void calculate(const ObjdetRawArguments raw);
     void addRanked(const DetectorResult &dr);
+    void orphanList(const QList<QRect> ol);
     void clearAll();
     void clearInputs();
     void clearResults();
@@ -63,6 +64,11 @@ inline QList<QRect> DetectorResultList::allRectList() const
 inline QList<QRect> DetectorResultList::orphanList() const
 {
     return mOrphanRectList;
+}
+
+inline void DetectorResultList::orphanList(const QList<QRect> ol)
+{
+    mOrphanRectList = ol;
 }
 
 

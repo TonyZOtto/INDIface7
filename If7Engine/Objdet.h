@@ -69,7 +69,7 @@ public: // const
     QSize minObjectSize(void) const;
     QSize maxObjectSize(void) const;
     QImage markedImage(const int minQuality,
-                       const int showQuality=200) const;
+                       int showQuality=-1) const;
     QImage detectImage(const int minQuality) const;
 
 public: // non-const

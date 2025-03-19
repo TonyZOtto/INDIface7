@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Installer>
+    <Title>INDIface7 Installer</Title>
+    <Name>If7ODEval</Name>
+    <Version>7.90.3</Version>
+    <Publisher>Eclipse Identity Recognition Corporation</Publisher>
+    <StartMenuDir>If7ODEval</StartMenuDir>
+    <TargetDir>@RootDir@/EclipseIR/bin</TargetDir>
+    <RunProgram>@TargetDir@/If7ODEval</RunProgram>
+    <RunProgramArguments>
+        <Argument>--minimized</Argument>
+    </RunProgramArguments>
+</Installer>
+
