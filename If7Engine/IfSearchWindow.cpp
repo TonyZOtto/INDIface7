@@ -3,7 +3,7 @@
 #include <QGridLayout>
 #include <QImage>
 #include <QLabel>
-#include <QPixmap>
+#include <QTextEdit>
 #include <QTimer>
 #include <QWidget>
 
@@ -12,34 +12,103 @@
 IfSearchWindow::IfSearchWindow(IfSearchApplication *ifsApp)
     : QMainWindow{nullptr}
     , mpIfsApp(ifsApp)
+    , mpCentralWidget(new QWidget)
+    , mpCentralGrid(new QGridLayout)
+    , mpFrameGrid(new QGridLayout)
+    , mpFaceGrid(new QGridLayout)
+    , mpMarkedLabel(new QLabel)
+    , mpDetectLabel(new QLabel)
+    , mpMessageWidget(new QTextEdit)
 {
     setObjectName("IfSearchWindow");
-    mpCentralGrid = new QGridLayout;
-    mpCentralWidget = new QWidget;
     QTimer::singleShot(100, this, &IfSearchWindow::setup);
 }
 
 void IfSearchWindow::setup()
 {
     qInfo() << Q_FUNC_INFO;
+    Q_ASSERT(mpCentralWidget); Q_ASSERT(mpCentralGrid);
     setMinimumSize(1280, 800);
     mpCentralWidget->setLayout(mpCentralGrid);
     setCentralWidget(mpCentralWidget);
+    mpCentralGrid->addLayout(mpFrameGrid, 0, 0, Qt::AlignHCenter);
+    mpCentralGrid->addLayout(mpFaceGrid, 1, 0, Qt::AlignHCenter);
+    mpCentralGrid->addWidget(mpMessageWidget, 2, 0, Qt::AlignLeft);
+    mpMessageWidget->setMinimumSize(1200, 800 - 640 - 40);
+    Q_ASSERT(mpFrameGrid);
+    mpFrameGrid->setRowMinimumHeight(0, maxFrameDim());
+    mpFrameGrid->setColumnMinimumWidth(0, maxFrameDim());
+    mpFrameGrid->setColumnMinimumWidth(1, maxFrameDim());
+    mpFrameGrid->addWidget(mpMarkedLabel, 0, 0,
+                           Qt::AlignTop | Qt::AlignHCenter);
+    mpFrameGrid->addWidget(mpDetectLabel, 0, 1,
+                           Qt::AlignTop | Qt::AlignHCenter);
+    mpFaceGrid->setRowMinimumHeight(0, faceThumbSize().height());
 
-    QLabel * pEircLabel = new QLabel(this);
-    QLabel * pIndiLabel = new QLabel(this);
     QImage tEircImage(":/png/doc/art/logos/EclipseIRLogo.png");
     QImage tIndiImage(":/png/doc/art/logos/INDI200.png");
-    tEircImage = tEircImage.scaledToWidth(512);
-    tIndiImage = tIndiImage.scaledToWidth(512);
-    pEircLabel->setPixmap(QPixmap::fromImage(tEircImage));
-    pIndiLabel->setPixmap(QPixmap::fromImage(tIndiImage));
-    qInfo() << pEircLabel->pixmap().size()
-            << pIndiLabel->pixmap().size();
-    mpCentralGrid->addWidget(pEircLabel, 0, 0,
-                             Qt::AlignTop | Qt::AlignHCenter);
-    mpCentralGrid->addWidget(pIndiLabel, 0, 1,
-                             Qt::AlignTop | Qt::AlignHCenter);
+    setMarked(tEircImage);
+    setDetect(tIndiImage);
+    setMessage(app()->parser().helpText());
+    QTimer::singleShot(100, this, &IfSearchWindow::show);
+}
 
+void IfSearchWindow::clear()
+{
+    setMarked(QImage());
+    setDetect(QImage());
+    for (int ix = 0; ix < mFaceLabels.count(); ++ix)
+        mpFaceGrid->removeWidget(mFaceLabels.at(ix));
+    mFacePixmaps.clear();
+    mFaceLabels.clear();
+}
+
+void IfSearchWindow::show()
+{
+    Q_ASSERT(mpMarkedLabel); Q_ASSERT(mpDetectLabel);
+    mpMarkedLabel->setPixmap(mMarkedPixmap);
+    mpDetectLabel->setPixmap(mDetectPixmap);
+    Q_ASSERT(mFaceLabels.isEmpty());
+    foreach (const QPixmap cPixmap, mFacePixmaps)
+    {
+        QLabel * pFaceLabel = new QLabel;
+        Q_ASSERT(pFaceLabel);
+        pFaceLabel->setPixmap(cPixmap);
+        mpFaceGrid->addWidget(pFaceLabel);
+    }
+}
+
+void IfSearchWindow::setMarked(const QImage &img)
+{
+    mMarkedPixmap = scaledPixmap(img);
+}
+
+void IfSearchWindow::setDetect(const QImage &img)
+{
+    mDetectPixmap = scaledPixmap(img);
+}
+
+void IfSearchWindow::appendFace(const QImage &img)
+{
+    mFacePixmaps.append(scaledPixmap(img));
+}
+
+void IfSearchWindow::setMessage(const QString &s)
+{
+    Q_ASSERT(mpMessageWidget);
+    mpMessageWidget->clear();
+    mpMessageWidget->setText(s);
+}
+
+/* ------------------------ static ------------------------- */
+
+QPixmap IfSearchWindow::scaledPixmap(const QImage &img)
+{
+    QPixmap result;
+    if (img.width() > img.height())
+        result = QPixmap::fromImage(img.scaledToWidth(maxFrameDim()));
+    else
+        result = QPixmap::fromImage(img.scaledToHeight(maxFrameDim()));
+    return result;
 }
 

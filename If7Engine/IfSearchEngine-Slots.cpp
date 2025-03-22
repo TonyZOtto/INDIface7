@@ -39,7 +39,7 @@ void IfSearchEngine::pulse(void)
 #ifdef BUILD_OBJDET_EVAL
     if (mInputFiles.isEmpty())
     {
-        QTimer::singleShot(10, qApp, SLOT(quit()));
+//        QTimer::singleShot(10, qApp, SLOT(quit()));
         return;
     }
     QFileInfo tInputFile = mInputFiles.takeFirst();

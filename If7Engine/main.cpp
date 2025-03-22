@@ -6,13 +6,9 @@
 
 int main(int argc, char *argv[])
 {
-    IfSearchApplication app(argc, argv);
     VersionInfo vi(VER_MAJOR, VER_MINOR, VER_BRANCH, VER_RELEASE,
                    VER_STRING, VER_COPYRIGHT, VER_ORGNAME, VER_APPNAME);
-    app.setOrganizationName(vi.getOrgName());
-    app.setApplicationName(vi.getAppName());
-    app.setApplicationVersion(vi.toString());
-    app.parseOptions(&app);
+    IfSearchApplication app(argc, argv, vi);
     IfSearchWindow window(&app);
     app.show(&window);
     app.start();

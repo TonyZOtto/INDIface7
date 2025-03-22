@@ -1,54 +1,95 @@
 #include "IfSearchApplication.h"
 
-#include <QCommandLineParser>
+#include <QCommandLineOption>
+#include <QWidget>
 
 #include "IfSearchEngine.h"
 
-IfSearchApplication::IfSearchApplication(int &argc, char **argv)
+IfSearchApplication::IfSearchApplication(int &argc, char **argv,
+                                         const VersionInfo vi)
     : QApplication(argc, argv)
-    , cmVersion(VER_MAJOR, VER_MINOR, VER_BRANCH, VER_RELEASE,
-               VER_STRING, VER_COPYRIGHT, VER_ORGNAME, VER_APPNAME)
+    , cmVersion(vi)
 {
     setObjectName("IfSearchApplication");
-    parseOptions(this);
+    setOrganizationName(version().getOrgName());
+    setApplicationName(version().getAppName());
+    setApplicationVersion(version().toString());
 }
 
 void IfSearchApplication::show(QWidget *wgt)
 {
-    switch (mShowOption)
+    if (options().show <= $null || options().show >= $max)
+        options().show = Normalized;
+    switch (options().show)
     {
     case Minimized:    wgt->showMinimized();    break;
-    case Normal:       wgt->show();             break;
+    case Normalized:   wgt->show();             break;
     case Maximized:    wgt->showMaximized();    break;
-    default:           wgt->show();             break;
+    case $null: case $max: default: Q_ASSERT("options().show");
     }
 }
 
 void IfSearchApplication::start()
 {
+    setupOptions();
+    parseOptions(this);
     mpEngine = new IfSearchEngine(this);
+}
+
+void IfSearchApplication::setupOptions()
+{
+    qInfo() << Q_FUNC_INFO;
+    parser().setApplicationDescription("IfSearch Engine");
+    parser().addHelpOption();
+    parser().addVersionOption();
+    parser().addOption({"showmin", "Minimize Window."});
+    parser().addOption({"shownorm", "Show Normal Window."});
+    parser().addOption({"showmax", "Show Maximized Window."});
+    parser().addOption({{"q", "minQuality"},
+                       "Set Minimum Detected Face Quality.",
+                       "<100~900>",
+                       QString::number(defaultOptions().minQuality)});
+    parser().addOption({{"x", "frontalDetectorName"},
+                       "Select Frontal Detector."
+                       "<name> or blank",
+                       defaultOptions().frontalDetectorName});
+    parser().addOption({{"f", "frontalFactor"},
+                       "Set Frontal Detector Density Factor.",
+                       "<100~4000>",
+                       QString::number(defaultOptions().frontalFactor)});
+    parser().addOption({{"m", "markedDir"},
+                       "Specify Marked Directory Name.",
+                       "<directory name>",
+                       defaultOptions().markedDir.path()});
+    parser().addOption({{"m", "noFaceDir"},
+                       "Specify No Faces Detected Directory Name.",
+                       "<directory name>",
+                       defaultOptions().noFaceDir.path()});
+    parser().addOption({{"d", "detectedFaceDir"},
+                       "Specify Detected Faces Directory Name.",
+                       "<directory name>",
+                       defaultOptions().detectedFaceDir.path()});
+    parser().addOption({{"o", "frontalObjdetDir"},
+                       "Specify Diagnostic Frontal Face Object Detection Directory Name.",
+                       "<directory name>",
+                       defaultOptions().frontalObjdetDir.path()});
+    parser().addOption({{"l", "logFile"},
+                       "Specify Destination File Name for Logging.",
+                       "<file name>",
+                       defaultOptions().logFI.filePath()});
 }
 
 void IfSearchApplication::parseOptions(QApplication *app)
 {
+    qInfo() << Q_FUNC_INFO;
+    parser().process(*app);
+
     ShowOption tShow = $null;
-    QCommandLineParser tParser;
-    tParser.setApplicationDescription("IfSearch Engine");
-    tParser.addHelpOption();
-    tParser.addVersionOption();
-    tParser.addPositionalArgument("logfile",
-                                 "Destination File for Logging.");
-    tParser.addOption({{"n", "showmin"}, "Show Minimized Log Window."});
-    tParser.addOption({{"m", "shownorm"}, "Show Normal Log Window."});
-    tParser.addOption({{"x", "showmax"}, "Show Maximized Log Window."});
-    tParser.process(*app);
+    if (parser().isSet("showmin")) tShow = Minimized;
+    else if (parser().isSet("shownorm")) tShow = Normalized;
+    else if (parser().isSet("showmax")) tShow = Maximized;
+    options().show = tShow;
 
-    if (tParser.isSet("showmin")) tShow = Minimized;
-    else if (tParser.isSet("shownorm")) tShow = Normal;
-    else if (tParser.isSet("showmax")) tShow = Maximized;
-    else tShow = Defalt;
-
-    mShowOption = tShow;
-    if (tParser.positionalArguments().count() > 0)
-        mLogFI = QFileInfo(tParser.positionalArguments().at(0));
+    qDebug() << parser().value("minQuality");
 }
+
