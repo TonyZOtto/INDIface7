@@ -22,7 +22,7 @@ public: // ctors
 public slots:
     void setup();
     void clear(); // private?
-    void show();
+    void update();
     void setMarked(const QImage &img);
     void setDetect(const QImage &img);
     void appendFace(const QImage &img);
@@ -40,7 +40,7 @@ public: // pointers
 private: // static
     static int maxFrameDim();
     static QSize faceThumbSize();
-    static QPixmap scaledPixmap(const QImage &img);
+    static QPixmap scaledPixmap(const QImage &img, const int dim);
 
 private:
     IfSearchApplication * mpIfsApp=nullptr;

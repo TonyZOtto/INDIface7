@@ -29,6 +29,8 @@
 #include <ClothesMatchProperties.h>
 #include <ClothesMatcher.h>
 
+#include "IfSearchApplication.h"
+#include "IfSearchWindow.h"
 #include "ObjdetFrontal.h"
 #include "ObjdetRawArguments.h"
 
@@ -65,14 +67,18 @@ void IfSearchEngine::processEval(const QFileInfo fi)
     mpFrontal->set(tRaw);
     if ( ! mpFrontal->processCascadeClassifier(true))
         qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
-    QImage tMarked = mpFrontal->markedImage(500);
+    mResults = mpFrontal->resultList();
+    QImage tMarkedImager = mpFrontal->markedImage(500);
+    app()->win()->setMarked(tMarkedImager);
     const QFileInfo tMarkedFI(mMarkedDir, fi.completeBaseName() + ".png");
-    if (tMarked.save(tMarkedFI.absoluteFilePath()))
-        qInfo() << tMarkedFI.absoluteFilePath() << tMarked;
-    QImage tDetect = mpFrontal->detectImage(500);
+    if (tMarkedImager.save(tMarkedFI.absoluteFilePath()))
+        qInfo() << tMarkedFI.absoluteFilePath() << tMarkedImager;
+    QImage tDetectImage = mpFrontal->detectImage(500);
+    app()->win()->setDetect(tDetectImage);
     const QFileInfo tDetectFI(mDetectDir, fi.completeBaseName() + ".png");
-    if (tDetect.save(tDetectFI.absoluteFilePath()))
-        qInfo() << tDetectFI.absoluteFilePath() << tDetect;
+    if (tDetectImage.save(tDetectFI.absoluteFilePath()))
+        qInfo() << tDetectFI.absoluteFilePath() << tDetectImage;
+    app()->win()->update();
 }
 
 QImage IfSearchEngine::createInputImage(const QImage raw)
@@ -108,6 +114,11 @@ QImage IfSearchEngine::createInputImage(const QImage raw)
         result = QImage();
     }
     return result;
+}
+
+void IfSearchEngine::extractDetectedFaceImages()
+{
+
 }
 #endif
 #ifndef TODO0002

@@ -5,6 +5,7 @@
 
 #include <QGuiApplication>
 #include <QImage>
+#include <QList>
 #include <QStringList>
 
 #include "CsvWriter.h"
@@ -55,20 +56,26 @@ class SkinDetector;
 class SkinMatchProperties;
 class SkinMatcher;
 
+class IfSearchApplication;
+
 
 class IfSearchEngine : public QObject
 {
     Q_OBJECT
 
 public:
-    IfSearchEngine(QObject * parent=nullptr);
+    IfSearchEngine(IfSearchApplication * parent=nullptr);
     ~IfSearchEngine();
 
 #ifdef BUILD_OBJDET_EVAL
 private:
     void processEval(const QFileInfo fi);
     QImage createInputImage(const QImage raw);
+    void extractDetectedFaceImages();
+    IfSearchApplication * app();
+
 private:
+    IfSearchApplication * mpApplication=nullptr;
     ObjdetFrontal * mpFrontal=nullptr;
     QDateTime mBaseTimestamp;
     QDir mInputDir;
@@ -78,6 +85,7 @@ private:
     QFileInfoList mInputFiles;
     QImage mCurrentInputImage;
     DetectorResultList mResults;
+    QList<QImage> mDetectedFaces;
 #endif
 
 private slots:
@@ -332,5 +340,7 @@ private:
     //    ColorCorrectProperties * ccProps;
     //    ColorCorrection * colorCorrection;
 };
+
+inline IfSearchApplication *IfSearchEngine::app() { return mpApplication; }
 
 

@@ -23,8 +23,11 @@
 #include <SkinMatchProperties.h>
 #include <SkinMatcher.h>
 
-IfSearchEngine::IfSearchEngine(QObject * parent)
+#include "IfSearchApplication.h"
+
+IfSearchEngine::IfSearchEngine(IfSearchApplication *parent)
     : QObject(parent)
+    , mpApplication(parent)
 //    , matchSettings(EigenFaceSearchSettings::CasualMatch, this)
   //  , searchSettings(EigenFaceSearchSettings::FormalSearch, this)
     , cmVersion(VER_MAJOR, VER_MINOR, VER_BRANCH,

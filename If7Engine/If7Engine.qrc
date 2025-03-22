@@ -2,5 +2,6 @@
     <qresource prefix="/png">
         <file>doc/art/logos/EclipseIRLogo.png</file>
         <file>doc/art/logos/INDI200.png</file>
+        <file>doc/art/RonOtto1952Thumb.png</file>
     </qresource>
 </RCC>

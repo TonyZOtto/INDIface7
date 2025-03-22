@@ -47,10 +47,12 @@ void IfSearchWindow::setup()
 
     QImage tEircImage(":/png/doc/art/logos/EclipseIRLogo.png");
     QImage tIndiImage(":/png/doc/art/logos/INDI200.png");
+    QImage tFaceImage(":/png/doc/art/RonOtto1952Thumb.png");
     setMarked(tEircImage);
     setDetect(tIndiImage);
+    appendFace(tFaceImage);
     setMessage(app()->parser().helpText());
-    QTimer::singleShot(100, this, &IfSearchWindow::show);
+    QTimer::singleShot(100, this, &IfSearchWindow::update);
 }
 
 void IfSearchWindow::clear()
@@ -58,13 +60,18 @@ void IfSearchWindow::clear()
     setMarked(QImage());
     setDetect(QImage());
     for (int ix = 0; ix < mFaceLabels.count(); ++ix)
-        mpFaceGrid->removeWidget(mFaceLabels.at(ix));
+    {
+        QLabel * pLabel = mFaceLabels.at(ix);
+        mpFaceGrid->removeWidget(pLabel);
+        pLabel->deleteLater();
+    }
     mFacePixmaps.clear();
     mFaceLabels.clear();
 }
 
-void IfSearchWindow::show()
+void IfSearchWindow::update()
 {
+    qInfo() << Q_FUNC_INFO;
     Q_ASSERT(mpMarkedLabel); Q_ASSERT(mpDetectLabel);
     mpMarkedLabel->setPixmap(mMarkedPixmap);
     mpDetectLabel->setPixmap(mDetectPixmap);
@@ -80,17 +87,17 @@ void IfSearchWindow::show()
 
 void IfSearchWindow::setMarked(const QImage &img)
 {
-    mMarkedPixmap = scaledPixmap(img);
+    mMarkedPixmap = scaledPixmap(img, maxFrameDim());
 }
 
 void IfSearchWindow::setDetect(const QImage &img)
 {
-    mDetectPixmap = scaledPixmap(img);
+    mDetectPixmap = scaledPixmap(img, maxFrameDim());
 }
 
 void IfSearchWindow::appendFace(const QImage &img)
 {
-    mFacePixmaps.append(scaledPixmap(img));
+    mFacePixmaps.append(scaledPixmap(img, 128));
 }
 
 void IfSearchWindow::setMessage(const QString &s)
@@ -102,13 +109,14 @@ void IfSearchWindow::setMessage(const QString &s)
 
 /* ------------------------ static ------------------------- */
 
-QPixmap IfSearchWindow::scaledPixmap(const QImage &img)
+QPixmap IfSearchWindow::scaledPixmap(const QImage &img,
+                                     const int dim)
 {
     QPixmap result;
     if (img.width() > img.height())
-        result = QPixmap::fromImage(img.scaledToWidth(maxFrameDim()));
+        result = QPixmap::fromImage(img.scaledToWidth(dim));
     else
-        result = QPixmap::fromImage(img.scaledToHeight(maxFrameDim()));
+        result = QPixmap::fromImage(img.scaledToHeight(dim));
     return result;
 }
 

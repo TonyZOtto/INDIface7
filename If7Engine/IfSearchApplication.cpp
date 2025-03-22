@@ -4,6 +4,7 @@
 #include <QWidget>
 
 #include "IfSearchEngine.h"
+#include "IfSearchWindow.h"
 
 IfSearchApplication::IfSearchApplication(int &argc, char **argv,
                                          const VersionInfo vi)
@@ -16,15 +17,18 @@ IfSearchApplication::IfSearchApplication(int &argc, char **argv,
     setApplicationVersion(version().toString());
 }
 
-void IfSearchApplication::show(QWidget *wgt)
+void IfSearchApplication::show(IfSearchWindow *wgt)
 {
+    mpWindow = wgt;
     if (options().show <= $null || options().show >= $max)
         options().show = Normalized;
+    qInfo() << Q_FUNC_INFO << options().show;
     switch (options().show)
     {
-    case Minimized:    wgt->showMinimized();    break;
-    case Normalized:   wgt->show();             break;
-    case Maximized:    wgt->showMaximized();    break;
+    case Minimized:    win()->showMinimized();      break;
+    case Normalized:   win()->show();               break;
+    case Maximized:    win()->showMaximized();      break;
+    case FullScreen:   win()->showFullScreen();     break;
     case $null: case $max: default: Q_ASSERT("options().show");
     }
 }
@@ -45,6 +49,7 @@ void IfSearchApplication::setupOptions()
     parser().addOption({"showmin", "Minimize Window."});
     parser().addOption({"shownorm", "Show Normal Window."});
     parser().addOption({"showmax", "Show Maximized Window."});
+    parser().addOption({"showfull", "Show Full Screen."});
     parser().addOption({{"q", "minQuality"},
                        "Set Minimum Detected Face Quality.",
                        "<100~900>",
@@ -61,7 +66,7 @@ void IfSearchApplication::setupOptions()
                        "Specify Marked Directory Name.",
                        "<directory name>",
                        defaultOptions().markedDir.path()});
-    parser().addOption({{"m", "noFaceDir"},
+    parser().addOption({{"n", "noFaceDir"},
                        "Specify No Faces Detected Directory Name.",
                        "<directory name>",
                        defaultOptions().noFaceDir.path()});
@@ -88,6 +93,7 @@ void IfSearchApplication::parseOptions(QApplication *app)
     if (parser().isSet("showmin")) tShow = Minimized;
     else if (parser().isSet("shownorm")) tShow = Normalized;
     else if (parser().isSet("showmax")) tShow = Maximized;
+    else if (parser().isSet("showfull")) tShow = FullScreen;
     options().show = tShow;
 
     qDebug() << parser().value("minQuality");

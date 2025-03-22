@@ -10,6 +10,7 @@ class QWidget;
 #include "VersionInfo.h"
 
 class IfSearchEngine;
+class IfSearchWindow;
 
 class IfSearchApplication : public QApplication
 {
@@ -17,7 +18,7 @@ class IfSearchApplication : public QApplication
 public: // types
     enum ShowOption
     {
-        $null = 0, Minimized, Normalized, Maximized, $max
+        $null = 0, Minimized, Normalized, Maximized, FullScreen, $max
     };
     struct Options
     {
@@ -41,7 +42,7 @@ public: // ctors
                         const VersionInfo vi);
 
 public slots:
-    void show(QWidget * wgt);
+    void show(IfSearchWindow *wgt);
     void start();
 
 public: // const
@@ -54,11 +55,15 @@ public: // non-const
     void setupOptions();
     void parseOptions(QApplication * app);
 
+public: // pointers
+    IfSearchWindow * win();
+
 public: // static
     static Options defaultOptions();
 
 private:
     const VersionInfo cmVersion;
+    IfSearchWindow * mpWindow=nullptr;
     IfSearchEngine * mpEngine=nullptr;
     QCommandLineParser mParser;
     Options mOptions;
@@ -69,5 +74,6 @@ inline IfSearchApplication::Options IfSearchApplication::options() const { retur
 inline IfSearchApplication::Options IfSearchApplication::defaultOptions() { return Options(); }
 inline IfSearchApplication::Options & IfSearchApplication::options() { return mOptions; }
 inline QCommandLineParser & IfSearchApplication::parser() { return mParser; }
+inline IfSearchWindow *IfSearchApplication::win() { return mpWindow; }
 
 

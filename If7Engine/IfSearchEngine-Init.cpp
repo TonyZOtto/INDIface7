@@ -36,6 +36,9 @@
 #include <SkinMatcher.h>
 #include <SkinMatchProperties.h>
 
+#include "IfSearchApplication.h"
+#include "IfSearchWindow.h"
+
 void IfSearchEngine::init(void)
 {
     qDebug() << Q_FUNC_INFO;
@@ -344,7 +347,7 @@ void IfSearchEngine::run(void)
         qFatal() << "Can't set marked output directory";
     if ( ! mDetectDir.cd(cDetectDirName))
         qFatal() << "Can't set detect output directory";
-
+    app()->win()->clear();
 #endif
 #ifndef TODO0002
     FUNCTION();
