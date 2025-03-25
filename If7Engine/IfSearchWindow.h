@@ -5,6 +5,7 @@
 #include <QPixmap>
 
 class QGridLayout;
+class QHBoxLayout;
 class QImage;
 class QLabel;
 class QSize;
@@ -21,7 +22,8 @@ public: // ctors
 
 public slots:
     void setup();
-    void clear(); // private?
+    void clearPixmaps(); // private?
+    void clearFaceLabels(); // private?
     void update();
     void setMarked(const QImage &img);
     void setDetect(const QImage &img);
@@ -47,7 +49,7 @@ private:
     QWidget * mpCentralWidget=nullptr;
     QGridLayout * mpCentralGrid=nullptr;
     QGridLayout * mpFrameGrid=nullptr;
-    QGridLayout * mpFaceGrid=nullptr;
+    QGridLayout * mpFaceLayout=nullptr;
     QPixmap mMarkedPixmap;
     QPixmap mDetectPixmap;
     QLabel * mpMarkedLabel;

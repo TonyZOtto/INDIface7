@@ -68,16 +68,17 @@ void IfSearchEngine::processEval(const QFileInfo fi)
     if ( ! mpFrontal->processCascadeClassifier(true))
         qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
     mResults = mpFrontal->resultList();
-    QImage tMarkedImager = mpFrontal->markedImage(500);
-    app()->win()->setMarked(tMarkedImager);
-    const QFileInfo tMarkedFI(mMarkedDir, fi.completeBaseName() + ".png");
-    if (tMarkedImager.save(tMarkedFI.absoluteFilePath()))
-        qInfo() << tMarkedFI.absoluteFilePath() << tMarkedImager;
+    QImage tMarkedImage = mpFrontal->markedImage(500);
+    app()->win()->setMarked(tMarkedImage);
+    const QFileInfo tMarkedFI(mMarkedDir, fi.baseName() + ".png");
+    if (tMarkedImage.save(tMarkedFI.absoluteFilePath()))
+        qInfo() << tMarkedFI.absoluteFilePath() << tMarkedImage;
     QImage tDetectImage = mpFrontal->detectImage(500);
     app()->win()->setDetect(tDetectImage);
-    const QFileInfo tDetectFI(mDetectDir, fi.completeBaseName() + ".png");
+    const QFileInfo tDetectFI(mFrontalObjDetDir, fi.baseName() + ".png");
     if (tDetectImage.save(tDetectFI.absoluteFilePath()))
         qInfo() << tDetectFI.absoluteFilePath() << tDetectImage;
+    extractDetectedFaceImages(fi);
     app()->win()->update();
 }
 
@@ -116,8 +117,35 @@ QImage IfSearchEngine::createInputImage(const QImage raw)
     return result;
 }
 
-void IfSearchEngine::extractDetectedFaceImages()
+void IfSearchEngine::extractDetectedFaceImages(const QFileInfo &inputFI,
+                                               const int minQuality)
 {
+    qInfo() << Q_FUNC_INFO << mResults.count();
+    foreach (const DetectorResult cResult, mResults.rankedList())
+    {
+        const int cQuality = cResult.quality();
+        if (cQuality < minQuality) break;               /*-----*/
+        const QRect cDetectRect = cResult.rect();
+        const QRect cCropRect = cDetectRect; // TODO?
+        const int cRank = cResult.rank();
+        const QImage cFaceImage = mCurrentInputImage.copy(cCropRect);
+        mDetectedFaces.append(cFaceImage);
+        const QString cFaceFileName
+            = QString("./Q%1/#%2q%3x%4y%5w%6e%7-%8.png")
+                  .arg(cQuality/100*100, 3, 10, QChar('0'))     // 1
+                  .arg(cRank, 2, 10, QChar('0'))                // 2
+                  .arg(cQuality, 3, 10, QChar('0'))             // 3
+                  .arg(cDetectRect.x(), 4, 10, QChar('0'))      // 4
+                  .arg(cDetectRect.y(), 4, 10, QChar('0'))      // 5
+                  .arg(cDetectRect.width(), 3, 10,QChar('0'))   // 6
+                  .arg(0, 3, 10, QChar('0'))                    // 7
+                  .arg(inputFI.baseName());                     // 8
+        const QFileInfo cFaceFI(mDetectedFacesDir, cFaceFileName);
+        cFaceFI.dir().mkpath(".");
+        qInfo() << cFaceFI.absoluteFilePath()
+                << cFaceImage.save(cFaceFI.filePath(), "PNG", 90);
+        app()->win()->appendFace(cFaceImage);
+    }
 
 }
 #endif

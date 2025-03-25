@@ -1,6 +1,7 @@
 #include "IfSearchWindow.h"
 
 #include <QGridLayout>
+#include <QHBoxLayout>
 #include <QImage>
 #include <QLabel>
 #include <QTextEdit>
@@ -15,7 +16,7 @@ IfSearchWindow::IfSearchWindow(IfSearchApplication *ifsApp)
     , mpCentralWidget(new QWidget)
     , mpCentralGrid(new QGridLayout)
     , mpFrameGrid(new QGridLayout)
-    , mpFaceGrid(new QGridLayout)
+    , mpFaceLayout(new QGridLayout)
     , mpMarkedLabel(new QLabel)
     , mpDetectLabel(new QLabel)
     , mpMessageWidget(new QTextEdit)
@@ -32,18 +33,18 @@ void IfSearchWindow::setup()
     mpCentralWidget->setLayout(mpCentralGrid);
     setCentralWidget(mpCentralWidget);
     mpCentralGrid->addLayout(mpFrameGrid, 0, 0, Qt::AlignHCenter);
-    mpCentralGrid->addLayout(mpFaceGrid, 1, 0, Qt::AlignHCenter);
+    mpCentralGrid->addLayout(mpFaceLayout, 1, 0, Qt::AlignHCenter);
     mpCentralGrid->addWidget(mpMessageWidget, 2, 0, Qt::AlignLeft);
     mpMessageWidget->setMinimumSize(1200, 800 - 640 - 40);
     Q_ASSERT(mpFrameGrid);
     mpFrameGrid->setRowMinimumHeight(0, maxFrameDim());
     mpFrameGrid->setColumnMinimumWidth(0, maxFrameDim());
     mpFrameGrid->setColumnMinimumWidth(1, maxFrameDim());
+    mpFaceLayout->setRowMinimumHeight(0, faceThumbSize().height());
     mpFrameGrid->addWidget(mpMarkedLabel, 0, 0,
                            Qt::AlignTop | Qt::AlignHCenter);
     mpFrameGrid->addWidget(mpDetectLabel, 0, 1,
                            Qt::AlignTop | Qt::AlignHCenter);
-    mpFaceGrid->setRowMinimumHeight(0, faceThumbSize().height());
 
     QImage tEircImage(":/png/doc/art/logos/EclipseIRLogo.png");
     QImage tIndiImage(":/png/doc/art/logos/INDI200.png");
@@ -55,33 +56,39 @@ void IfSearchWindow::setup()
     QTimer::singleShot(100, this, &IfSearchWindow::update);
 }
 
-void IfSearchWindow::clear()
+void IfSearchWindow::clearPixmaps()
 {
     setMarked(QImage());
     setDetect(QImage());
+    mFacePixmaps.clear();
+}
+
+void IfSearchWindow::clearFaceLabels()
+{
     for (int ix = 0; ix < mFaceLabels.count(); ++ix)
     {
         QLabel * pLabel = mFaceLabels.at(ix);
-        mpFaceGrid->removeWidget(pLabel);
+        mpFaceLayout->removeWidget(pLabel);
         pLabel->deleteLater();
     }
-    mFacePixmaps.clear();
     mFaceLabels.clear();
 }
 
 void IfSearchWindow::update()
 {
-    qInfo() << Q_FUNC_INFO;
+    qInfo() << Q_FUNC_INFO << mFacePixmaps.count();
     Q_ASSERT(mpMarkedLabel); Q_ASSERT(mpDetectLabel);
     mpMarkedLabel->setPixmap(mMarkedPixmap);
     mpDetectLabel->setPixmap(mDetectPixmap);
+    clearFaceLabels();
     Q_ASSERT(mFaceLabels.isEmpty());
+    int nColumn = 0;
     foreach (const QPixmap cPixmap, mFacePixmaps)
     {
         QLabel * pFaceLabel = new QLabel;
         Q_ASSERT(pFaceLabel);
         pFaceLabel->setPixmap(cPixmap);
-        mpFaceGrid->addWidget(pFaceLabel);
+        mpFaceLayout->addWidget(pFaceLabel, 0, nColumn++);
     }
 }
 

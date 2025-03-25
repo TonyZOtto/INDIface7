@@ -327,7 +327,8 @@ void IfSearchEngine::run(void)
     const QString cOutputBaseDirName("./EvalOut/"
                 + mBaseTimestamp.toString("DyyyyMMdd-Thhmm"));
     const QString cMarkedDirName("Marked");
-    const QString cDetectDirName("Detect");
+    const QString cFrontalObjDetDirName("FrontalObjDet");
+    const QString cDetectedFacesDirName("DetectedFaces");
 
     if ( ! mInputDir.cd(cInputDirName))
         qFatal() << "No input directory at:" << mInputDir.absolutePath()
@@ -340,14 +341,17 @@ void IfSearchEngine::run(void)
     mOutputBaseDir.mkpath(cOutputBaseDirName);
     if ( ! mOutputBaseDir.cd(cOutputBaseDirName))
         qFatal() << "Can't set base output directory";
-    mMarkedDir = mDetectDir = mOutputBaseDir;
+    mMarkedDir = mFrontalObjDetDir = mDetectedFacesDir = mOutputBaseDir;
     mMarkedDir.mkpath(cMarkedDirName);
-    mDetectDir.mkpath(cDetectDirName);
+    mFrontalObjDetDir.mkpath(cFrontalObjDetDirName);
+    mDetectedFacesDir.mkpath(cDetectedFacesDirName);
     if ( ! mMarkedDir.cd(cMarkedDirName))
         qFatal() << "Can't set marked output directory";
-    if ( ! mDetectDir.cd(cDetectDirName))
-        qFatal() << "Can't set detect output directory";
-    app()->win()->clear();
+    if ( ! mFrontalObjDetDir.cd(cFrontalObjDetDirName))
+        qFatal() << "Can't set objdet output directory";
+    if ( ! mDetectedFacesDir.cd(cDetectedFacesDirName))
+        qFatal() << "Can't set detected faces output directory";
+    app()->win()->clearPixmaps();
 #endif
 #ifndef TODO0002
     FUNCTION();

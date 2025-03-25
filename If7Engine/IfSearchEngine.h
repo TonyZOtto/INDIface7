@@ -71,7 +71,8 @@ public:
 private:
     void processEval(const QFileInfo fi);
     QImage createInputImage(const QImage raw);
-    void extractDetectedFaceImages();
+    void extractDetectedFaceImages(const QFileInfo &inputFI,
+                                   const int minQuality=500);
     IfSearchApplication * app();
 
 private:
@@ -81,7 +82,8 @@ private:
     QDir mInputDir;
     QDir mOutputBaseDir;
     QDir mMarkedDir;
-    QDir mDetectDir;
+    QDir mFrontalObjDetDir;
+    QDir mDetectedFacesDir;
     QFileInfoList mInputFiles;
     QImage mCurrentInputImage;
     DetectorResultList mResults;

@@ -120,7 +120,9 @@ QImage Objdet::markedImage(const int minQuality, int showQuality) const
 
 QImage Objdet::detectImage(const int minQuality) const
 {
-    QImage result = mInputImage;
+    QImage result = mInputImage
+            .convertedTo(QImage::Format_Grayscale8)
+            .convertedTo(QImage::Format_ARGB32);
     QPainter tPainter;
     tPainter.begin(&result);
     tPainter.setPen(Qt::magenta);
