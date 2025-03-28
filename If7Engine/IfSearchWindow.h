@@ -23,8 +23,7 @@ public: // ctors
 public slots:
     void setup();
     void clearPixmaps(); // private?
-    void clearFaceLabels(); // private?
-    void update();
+    void clearFacePixmaps(); // private?
     void setMarked(const QImage &img);
     void setDetect(const QImage &img);
     void appendFace(const QImage &img);
@@ -55,7 +54,6 @@ private:
     QLabel * mpMarkedLabel;
     QLabel * mpDetectLabel;
     QList<QPixmap> mFacePixmaps;
-    QList<QLabel *> mFaceLabels;
     QTextEdit * mpMessageWidget=nullptr;
 };
 

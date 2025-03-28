@@ -22,19 +22,24 @@ public: // types
     };
     struct Options
     {
-        ShowOption  show = Normalized;
-        bool        supressMarked = false;
+        QDir        inputDir = QDir("./input");
+        QDir        baseOutputDir = QDir("./output/@");
+//        bool        supressMarked = false;
         int         minQuality = 500;
+        int         sampleMsec = 1000;
+        int         waitingMsec = 60000;
+        ShowOption  show = Normalized;
+        bool        loop = false;
+        bool        deleteAfter = false;
+        bool        finishedQuit = false;
         QFileInfo   detectorsXmlFI = QFileInfo("./detectors/Detectors.XML");
         QString     frontalDetectorName;
         int         frontalFactor = 100;
-        QDir        inputDir = QDir("./Input");
-        QDir        baseOutputDir = QDir("./@");
-        QDir        markedDir = QDir(baseOutputDir.path() + "./Marked");
-        QDir        noFaceDir = QDir(baseOutputDir.path() + "./NoFace");
-        QDir        detectedFaceDir = QDir(baseOutputDir.path() + "./DetectedFace");
-        QDir        frontalObjdetDir = QDir(baseOutputDir.path() + "./FrontalObjdet");
-        QFileInfo   logFI = QFileInfo(baseOutputDir, "./IfSearch.log");
+        QDir        markedDir = QDir("./Marked");
+        QDir        noFaceDir = QDir("./NoFace");
+        QDir        detectedFacesDir = QDir("./DetectedFaces");
+        QDir        frontalObjdetDir = QDir("./FrontalObjdet");
+        QFileInfo   logFI = QFileInfo("./IfSearch.log");
     };
 
 public: // ctors
@@ -47,6 +52,7 @@ public slots:
 
 public: // const
     VersionInfo version() const;
+    QFileInfo exeFileInfo() const;
     Options options() const;
 
 public: // non-const

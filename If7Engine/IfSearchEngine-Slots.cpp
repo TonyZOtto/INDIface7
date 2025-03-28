@@ -41,22 +41,43 @@ void IfSearchEngine::pulse(void)
 #ifdef BUILD_OBJDET_EVAL
     if (mInputFiles.isEmpty())
     {
-//        QTimer::singleShot(10, qApp, SLOT(quit()));
+        if (options().finishedQuit)
+            QTimer::singleShot(10, qApp, SLOT(quit()));
+        else if (options().loop)
+            getInputFiles();
+        else if (getInputFiles())
+            QTimer::singleShot(options().sampleMsec, this, SLOT(pulse()));
+        else if (options().waitingMsec)
+            QTimer::singleShot(options().waitingMsec, this, SLOT(pulse()));
         return;
     }
     QFileInfo tInputFile = mInputFiles.takeFirst();
     processEval(tInputFile);
-    QTimer::singleShot(50, this, SLOT(pulse()));
+    QTimer::singleShot(options().sampleMsec, this, SLOT(pulse()));
+}
+
+int IfSearchEngine::getInputFiles()
+{
+    mInputDir.cd(app()->exeFileInfo().dir().absolutePath());
+    if ( ! mInputDir.cd(options().inputDir.path()))
+        qCritical() << "No input directory at:" << mInputDir.absolutePath();
+    static const QStringList scNameFilter = QStringList() << "*.JPG" << "*.PNG";
+    mInputFiles = mInputDir.entryInfoList(scNameFilter);
+    if (mInputFiles.isEmpty())
+        qCritical() << "No input files in:" << mInputDir.absolutePath();
+    return mInputFiles.count();
 }
 
 void IfSearchEngine::processEval(const QFileInfo fi)
 {
+    qInfo() << Q_FUNC_INFO << fi.baseName();
     const QImage cRawImage(fi.filePath());
     mCurrentInputImage = createInputImage(cRawImage);
     if (mCurrentInputImage.isNull())
         qCritical() << "Image skipped:" << fi.absoluteFilePath()
                   << cRawImage.format();
     Q_ASSERT(mpFrontal);
+    app()->win()->clearPixmaps();
     mpFrontal->clear();
     ObjdetRawArguments tRaw;
     tRaw.factor(1.100), tRaw.neighbors(3), tRaw.flags(0),
@@ -69,17 +90,31 @@ void IfSearchEngine::processEval(const QFileInfo fi)
         qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
     mResults = mpFrontal->resultList();
     QImage tMarkedImage = mpFrontal->markedImage(500);
-    app()->win()->setMarked(tMarkedImage);
     const QFileInfo tMarkedFI(mMarkedDir, fi.baseName() + ".png");
     if (tMarkedImage.save(tMarkedFI.absoluteFilePath()))
         qInfo() << tMarkedFI.absoluteFilePath() << tMarkedImage;
     QImage tDetectImage = mpFrontal->detectImage(500);
-    app()->win()->setDetect(tDetectImage);
     const QFileInfo tDetectFI(mFrontalObjDetDir, fi.baseName() + ".png");
     if (tDetectImage.save(tDetectFI.absoluteFilePath()))
         qInfo() << tDetectFI.absoluteFilePath() << tDetectImage;
+    app()->win()->clearFacePixmaps();
+    app()->win()->setMarked(tMarkedImage);
+    app()->win()->setDetect(tDetectImage);
+    if (mResults.count() == 0)
+    {
+        const QFileInfo tNoFaceFI(mNoFaceDir, fi.baseName() + ".png");
+        if (tMarkedImage.save(tNoFaceFI.absoluteFilePath()))
+            qInfo() << tNoFaceFI.absoluteFilePath() << tMarkedImage;
+        app()->win()->clearFacePixmaps();
+    }
     extractDetectedFaceImages(fi);
-    app()->win()->update();
+    if (options().deleteAfter)
+    {
+        QFile tInputFile(fi.filePath());
+        tInputFile.remove();
+        qDebug() << fi.absoluteFilePath() << "removed";
+    }
+
 }
 
 QImage IfSearchEngine::createInputImage(const QImage raw)
@@ -121,6 +156,7 @@ void IfSearchEngine::extractDetectedFaceImages(const QFileInfo &inputFI,
                                                const int minQuality)
 {
     qInfo() << Q_FUNC_INFO << mResults.count();
+    app()->win()->clearFacePixmaps();
     foreach (const DetectorResult cResult, mResults.rankedList())
     {
         const int cQuality = cResult.quality();

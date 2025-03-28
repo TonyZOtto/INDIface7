@@ -56,8 +56,7 @@ class SkinDetector;
 class SkinMatchProperties;
 class SkinMatcher;
 
-class IfSearchApplication;
-
+#include "IfSearchApplication.h"
 
 class IfSearchEngine : public QObject
 {
@@ -73,7 +72,8 @@ private:
     QImage createInputImage(const QImage raw);
     void extractDetectedFaceImages(const QFileInfo &inputFI,
                                    const int minQuality=500);
-    IfSearchApplication * app();
+    IfSearchApplication * app() const;
+    IfSearchApplication::Options options() const;
 
 private:
     IfSearchApplication * mpApplication=nullptr;
@@ -82,8 +82,9 @@ private:
     QDir mInputDir;
     QDir mOutputBaseDir;
     QDir mMarkedDir;
-    QDir mFrontalObjDetDir;
+    QDir mNoFaceDir;
     QDir mDetectedFacesDir;
+    QDir mFrontalObjDetDir;
     QFileInfoList mInputFiles;
     QImage mCurrentInputImage;
     DetectorResultList mResults;
@@ -95,6 +96,7 @@ private slots:
     void start(void);
     void run(void);
     void pulse(void);
+    int getInputFiles();
 #ifndef TODO0002
     void processGrab(void);
     void processFace(void);
@@ -343,6 +345,7 @@ private:
     //    ColorCorrection * colorCorrection;
 };
 
-inline IfSearchApplication *IfSearchEngine::app() { return mpApplication; }
+inline IfSearchApplication *IfSearchEngine::app() const { return mpApplication; }
+inline IfSearchApplication::Options IfSearchEngine::options() const { return app()->options(); }
 
 

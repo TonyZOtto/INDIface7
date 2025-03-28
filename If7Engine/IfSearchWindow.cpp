@@ -36,6 +36,7 @@ void IfSearchWindow::setup()
     mpCentralGrid->addLayout(mpFaceLayout, 1, 0, Qt::AlignHCenter);
     mpCentralGrid->addWidget(mpMessageWidget, 2, 0, Qt::AlignLeft);
     mpMessageWidget->setMinimumSize(1200, 800 - 640 - 40);
+    mpMessageWidget->setFontFamily("courier");
     Q_ASSERT(mpFrameGrid);
     mpFrameGrid->setRowMinimumHeight(0, maxFrameDim());
     mpFrameGrid->setColumnMinimumWidth(0, maxFrameDim());
@@ -45,66 +46,54 @@ void IfSearchWindow::setup()
                            Qt::AlignTop | Qt::AlignHCenter);
     mpFrameGrid->addWidget(mpDetectLabel, 0, 1,
                            Qt::AlignTop | Qt::AlignHCenter);
-
+#if 0
     QImage tEircImage(":/png/doc/art/logos/EclipseIRLogo.png");
     QImage tIndiImage(":/png/doc/art/logos/INDI200.png");
     QImage tFaceImage(":/png/doc/art/RonOtto1952Thumb.png");
     setMarked(tEircImage);
     setDetect(tIndiImage);
     appendFace(tFaceImage);
+#endif
     setMessage(app()->parser().helpText());
-    QTimer::singleShot(100, this, &IfSearchWindow::update);
 }
 
 void IfSearchWindow::clearPixmaps()
 {
     setMarked(QImage());
     setDetect(QImage());
+    clearFacePixmaps();
+    update();
+}
+
+void IfSearchWindow::clearFacePixmaps()
+{
+    for (int col = 0; col < mpFaceLayout->columnCount(); ++col)
+        mpFaceLayout->removeItem(mpFaceLayout->itemAtPosition(0, col));
     mFacePixmaps.clear();
-}
-
-void IfSearchWindow::clearFaceLabels()
-{
-    for (int ix = 0; ix < mFaceLabels.count(); ++ix)
-    {
-        QLabel * pLabel = mFaceLabels.at(ix);
-        mpFaceLayout->removeWidget(pLabel);
-        pLabel->deleteLater();
-    }
-    mFaceLabels.clear();
-}
-
-void IfSearchWindow::update()
-{
-    qInfo() << Q_FUNC_INFO << mFacePixmaps.count();
-    Q_ASSERT(mpMarkedLabel); Q_ASSERT(mpDetectLabel);
-    mpMarkedLabel->setPixmap(mMarkedPixmap);
-    mpDetectLabel->setPixmap(mDetectPixmap);
-    clearFaceLabels();
-    Q_ASSERT(mFaceLabels.isEmpty());
-    int nColumn = 0;
-    foreach (const QPixmap cPixmap, mFacePixmaps)
-    {
-        QLabel * pFaceLabel = new QLabel;
-        Q_ASSERT(pFaceLabel);
-        pFaceLabel->setPixmap(cPixmap);
-        mpFaceLayout->addWidget(pFaceLabel, 0, nColumn++);
-    }
 }
 
 void IfSearchWindow::setMarked(const QImage &img)
 {
     mMarkedPixmap = scaledPixmap(img, maxFrameDim());
+    mpMarkedLabel->setPixmap(mMarkedPixmap);
 }
 
 void IfSearchWindow::setDetect(const QImage &img)
 {
     mDetectPixmap = scaledPixmap(img, maxFrameDim());
+    mpDetectLabel->setPixmap(mDetectPixmap);
 }
 
 void IfSearchWindow::appendFace(const QImage &img)
 {
-    mFacePixmaps.append(scaledPixmap(img, 128));
+    const int cColumn = mFacePixmaps.count();
+    const QPixmap cPixmap = scaledPixmap(img, 128);
+    mFacePixmaps.append(cPixmap);
+    QLabel * pFaceLabel = new QLabel;
+    Q_ASSERT(pFaceLabel);
+    pFaceLabel->setPixmap(cPixmap);
+    mpFaceLayout->addWidget(pFaceLabel, 0, cColumn);
+
 }
 
 void IfSearchWindow::setMessage(const QString &s)
