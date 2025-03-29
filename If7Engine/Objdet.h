@@ -27,7 +27,7 @@ public: // types
         FaceFrontal,
         FaceProfileLeft,
         FaceProfileRight,
-        EyeEither,
+        Eyes,
         EyeLeft,
         EyeRight,
         EyeBoth,

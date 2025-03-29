@@ -48,6 +48,7 @@ class ImageSource;
 class InfoOutputSetting;
 class InputHotdir;
 class ObjdetCatalog;
+class ObjdetEyes;
 class ObjdetFrontal;
 class Resolver;
 class Settings;
@@ -70,14 +71,22 @@ public:
 private:
     void processEval(const QFileInfo fi);
     QImage createInputImage(const QImage raw);
+    QImage createEyesImage(const QImage &ltImage, const QImage &rtImage,
+                           const DetectorResultList &ltResults,
+                           const DetectorResultList &rtResults);
+    QImage createNormImage();
+    void drawEye(QPainter *pPainter, const QImage &eyeImage,
+                   const DetectorResultList &eyeResults);
     void extractDetectedFaceImages(const QFileInfo &inputFI,
                                    const int minQuality=500);
+    void findEyes(const int ix);
     IfSearchApplication * app() const;
     IfSearchApplication::Options options() const;
 
 private:
     IfSearchApplication * mpApplication=nullptr;
     ObjdetFrontal * mpFrontal=nullptr;
+    ObjdetEyes * mpEyes=nullptr;
     QDateTime mBaseTimestamp;
     QDir mInputDir;
     QDir mOutputBaseDir;
@@ -87,8 +96,10 @@ private:
     QDir mFrontalObjDetDir;
     QFileInfoList mInputFiles;
     QImage mCurrentInputImage;
-    DetectorResultList mResults;
-    QList<QImage> mDetectedFaces;
+    QImage mCurrentEyesImage;
+    QLine mCurrentEyeLine;
+    DetectorResultList mFaceResults;
+    QList<QImage> mDetectedFaceImages;
 #endif
 
 private slots:

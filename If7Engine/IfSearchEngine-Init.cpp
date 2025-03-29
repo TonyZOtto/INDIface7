@@ -8,6 +8,9 @@
 #include <QTimer>
 
 #include <ObjdetCatalog.h>
+#include <ObjdetEyes.h>
+#include <IfSearchApplication.h>
+#include <IfSearchWindow.h>
 
 #include <DDTcore.h>
 #include <Detector.hhh>
@@ -36,8 +39,6 @@
 #include <SkinMatcher.h>
 #include <SkinMatchProperties.h>
 
-#include "IfSearchApplication.h"
-#include "IfSearchWindow.h"
 
 void IfSearchEngine::init(void)
 {
@@ -187,6 +188,15 @@ void IfSearchEngine::start(void)
     mpFrontal->loadDetectorXml("./detectors/Aim8A001-32-NoSplit.xml");
     if ( ! mpFrontal->isDetectorLoaded())
         qFatal() << "Failed to load:" << mpFrontal->detectorFileInfo();
+    if (mpEyes)
+    {
+        mpEyes->unloadDetector();
+        mpEyes->deleteLater();
+    }
+    mpEyes = new ObjdetEyes(this);
+    mpEyes->loadDetectorXml("./detectors/haarcascade_eye.xml");
+    if ( ! mpEyes->isDetectorLoaded())
+        qFatal() << "Failed to load:" << mpEyes->detectorFileInfo();
 
     //pCatalog->deleteLater(); pCatalog = nullptr;
 #endif

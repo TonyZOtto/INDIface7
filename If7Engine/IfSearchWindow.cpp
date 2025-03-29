@@ -84,16 +84,29 @@ void IfSearchWindow::setDetect(const QImage &img)
     mpDetectLabel->setPixmap(mDetectPixmap);
 }
 
-void IfSearchWindow::appendFace(const QImage &img)
+void IfSearchWindow::appendFace(const QImage &img,
+                                const QImage &eyesImage,
+                                const QImage &normImage)
 {
     const int cColumn = mFacePixmaps.count();
-    const QPixmap cPixmap = scaledPixmap(img, 128);
-    mFacePixmaps.append(cPixmap);
+    const QPixmap cFacePixmap = scaledPixmap(img, 128);
+    const QPixmap cEyesPixmap = QPixmap::fromImage(eyesImage);
+    const QPixmap cNormPixmap = QPixmap::fromImage(normImage);
+    mFacePixmaps.append(cFacePixmap);
+    mEyesPixmaps.append(cEyesPixmap);
+    mNormPixmaps.append(cNormPixmap);
     QLabel * pFaceLabel = new QLabel;
+    QLabel * pEyesLabel = new QLabel;
+    QLabel * pNormLabel = new QLabel;
     Q_ASSERT(pFaceLabel);
-    pFaceLabel->setPixmap(cPixmap);
+    Q_ASSERT(pEyesLabel);
+    Q_ASSERT(pNormLabel);
+    pFaceLabel->setPixmap(cFacePixmap);
+    pEyesLabel->setPixmap(cEyesPixmap);
+    pNormLabel->setPixmap(cEyesPixmap);
     mpFaceLayout->addWidget(pFaceLabel, 0, cColumn);
-
+    mpFaceLayout->addWidget(pFaceLabel, 1, cColumn);
+    mpFaceLayout->addWidget(pNormLabel, 2, cColumn);
 }
 
 void IfSearchWindow::setMessage(const QString &s)

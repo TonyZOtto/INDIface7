@@ -24,6 +24,8 @@ public:
 
 public: // const
     int count() const;
+    DetectorResult at(const int ix) const;
+    DetectorResult best() const;
     DetectorResult::List rankedList() const;
     QList<QRect> allRectList() const;
     QList<QRect> orphanList() const;
@@ -53,6 +55,8 @@ private:
 };
 
 inline int DetectorResultList::count() const { return mRankedList.count(); }
+inline DetectorResult DetectorResultList::at(const int ix) const { return rankedList().at(ix); }
+inline DetectorResult DetectorResultList::best() const { return rankedList().first(); }
 inline DetectorResult::List DetectorResultList::rankedList() const { return mRankedList; }
 inline QList<QRect> DetectorResultList::allRectList() const { return mAllRectList; }
 inline QList<QRect> DetectorResultList::orphanList() const { return mOrphanRectList; }

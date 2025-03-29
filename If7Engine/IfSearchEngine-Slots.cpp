@@ -1,8 +1,11 @@
 #include "IfSearchEngine.h"
 
-#include <QStringList>
+#include <QBrush>
+#include <QPainter>
+#include <QPen>
 #include <QRect>
 #include <QSize>
+#include <QStringList>
 #include <QTimer>
 
 #include <EigenFace.h>
@@ -29,8 +32,11 @@
 #include <ClothesMatchProperties.h>
 #include <ClothesMatcher.h>
 
+#include "DetectorResult.h"
+#include "DetectorResultList.h"
 #include "IfSearchApplication.h"
 #include "IfSearchWindow.h"
+#include "ObjdetEyes.h"
 #include "ObjdetFrontal.h"
 #include "ObjdetRawArguments.h"
 
@@ -87,8 +93,8 @@ void IfSearchEngine::processEval(const QFileInfo fi)
     mpFrontal->inputImage(mCurrentInputImage);
     mpFrontal->set(tRaw);
     if ( ! mpFrontal->processCascadeClassifier(true))
-        qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
-    mResults = mpFrontal->resultList();
+        qCritical() << "Facial ObjDet failed:" << fi.absoluteFilePath();
+    mFaceResults = mpFrontal->resultList();
     QImage tMarkedImage = mpFrontal->markedImage(500);
     const QFileInfo tMarkedFI(mMarkedDir, fi.baseName() + ".png");
     if (tMarkedImage.save(tMarkedFI.absoluteFilePath()))
@@ -100,7 +106,7 @@ void IfSearchEngine::processEval(const QFileInfo fi)
     app()->win()->clearFacePixmaps();
     app()->win()->setMarked(tMarkedImage);
     app()->win()->setDetect(tDetectImage);
-    if (mResults.count() == 0)
+    if (mFaceResults.count() == 0)
     {
         const QFileInfo tNoFaceFI(mNoFaceDir, fi.baseName() + ".png");
         if (tMarkedImage.save(tNoFaceFI.absoluteFilePath()))
@@ -108,6 +114,8 @@ void IfSearchEngine::processEval(const QFileInfo fi)
         app()->win()->clearFacePixmaps();
     }
     extractDetectedFaceImages(fi);
+    for (int ix = 0; ix < mFaceResults.count(); ++ix)
+        findEyes(ix);
     if (options().deleteAfter)
     {
         QFile tInputFile(fi.filePath());
@@ -152,12 +160,94 @@ QImage IfSearchEngine::createInputImage(const QImage raw)
     return result;
 }
 
+QImage IfSearchEngine::createEyesImage(const QImage &ltImage, const QImage &rtImage,
+                                       const DetectorResultList &ltResults,
+                                       const DetectorResultList &rtResults)
+{
+    Q_ASSERT(ltImage.width() == 64);
+    QImage result(QSize(128, 128), QImage::Format_ARGB32);
+    QPainter tPainter;
+    tPainter.begin(&result);
+    drawEye(&tPainter, ltImage, ltResults);
+    drawEye(&tPainter, rtImage, rtResults);
+    tPainter.end();
+    return result;
+}
+
+QImage IfSearchEngine::createNormImage()
+{
+    const QSize cNormImageSize(128, 128);
+    QImage result(cNormImageSize, QImage::Format_ARGB32);
+    result.fill(Qt::gray);
+    const QImage cFrameImage = mCurrentInputImage.convertedTo(QImage::Format_ARGB32);
+    const QPointF cLtEyePoint(cNormImageSize.width() / 4, cNormImageSize.height() / 4);
+    const QPointF cRtEyePoint = cLtEyePoint + QPointF(cNormImageSize.width() / 2, 0);
+    const QLineF cNormEyeLine(cLtEyePoint, cRtEyePoint);
+    const QPointF cNormEyeCenter = cNormEyeLine.center();
+    QPointF eyeCenter = (mCurrentEyeLine.p1() + mCurrentEyeLine.p2()) / 2;
+    double fall = mCurrentEyeLine.p2().y() - mCurrentEyeLine.p1().y();
+    double run  = qMax(1, mCurrentEyeLine.p2().x() - mCurrentEyeLine.p1().x());
+    double theta = atan(fall / run);
+    double eyeDistance = sqrt(fall * fall + run * run);
+    double outDistance = cNormEyeLine.p2().x() - cNormEyeLine.p1().x();
+    double scale = eyeDistance / outDistance;
+    // T (top) point locates line above eyes
+    QPointF T = eyeCenter + QPointF(scale * cNormEyeCenter.y() *  sin(theta),
+                                    scale * cNormEyeCenter.y() * -cos(theta));
+    // O (origin) is origin of normalized image
+    QPointF O = T - QPointF(scale * cNormEyeCenter.x() * cos(theta),
+                            scale * cNormEyeCenter.x() * sin(theta));
+
+    double scaledSin = scale * sin(theta);
+    double scaledCos = scale * cos(theta);
+    for (int r = 0; r < cNormImageSize.height(); ++r)
+    {
+        for (int c = 0; c < cNormImageSize.width(); ++c)
+        {
+            double x = O.x() - (double)r * scaledSin + (double)c * scaledCos,
+                y = O.y() + (double)r * scaledCos + (double)c * scaledSin;
+            int ix = x + 0.5, iy = y + 0.5;
+            if (ix >= 0 && ix < cFrameImage.width()
+                && iy >= 0 && iy < cFrameImage.height())
+            {
+                const QRgb cFrameRgb = cFrameImage.pixel(ix, iy);
+                result.setPixel(ix, iy, cFrameRgb);
+            }
+        } // for(c)
+    } // for(r)
+
+    return result;
+
+}
+
+void IfSearchEngine::drawEye(QPainter * pPainter, const QImage &eyeImage,
+                               const DetectorResultList &eyeResults)
+{
+    pPainter->drawImage(QPoint( 0, 0), eyeImage);
+    pPainter->drawImage(QPoint(64, 0), eyeImage.convertedTo(QImage::Format_Grayscale8));
+    DetectorResult::List tResultRanked = eyeResults.rankedList();
+    while ( ! tResultRanked.isEmpty())
+    {
+        const DetectorResult dr = tResultRanked.takeLast();
+        const QRect cRect = dr.rect();
+        //const int cQuality = dr.quality();
+        const QColor cColor = dr.qualityColor(500);
+        QPen tPen(QBrush(cColor), 3);
+        pPainter->setPen(tPen);
+        pPainter->drawRect(cRect);
+    }
+    pPainter->setPen(Qt::magenta);
+    foreach (const QRect rc, eyeResults.allRectList())
+        pPainter->drawRect(QRect(rc.topLeft() + QPoint(64, 0), rc.size()));
+
+}
+
 void IfSearchEngine::extractDetectedFaceImages(const QFileInfo &inputFI,
                                                const int minQuality)
 {
-    qInfo() << Q_FUNC_INFO << mResults.count();
+    qInfo() << Q_FUNC_INFO << mFaceResults.count();
     app()->win()->clearFacePixmaps();
-    foreach (const DetectorResult cResult, mResults.rankedList())
+    foreach (const DetectorResult cResult, mFaceResults.rankedList())
     {
         const int cQuality = cResult.quality();
         if (cQuality < minQuality) break;               /*-----*/
@@ -165,7 +255,7 @@ void IfSearchEngine::extractDetectedFaceImages(const QFileInfo &inputFI,
         const QRect cCropRect = cDetectRect; // TODO?
         const int cRank = cResult.rank();
         const QImage cFaceImage = mCurrentInputImage.copy(cCropRect);
-        mDetectedFaces.append(cFaceImage);
+        mDetectedFaceImages.append(cFaceImage);
         const QString cFaceFileName
             = QString("./Q%1/#%2q%3x%4y%5w%6e%7-%8.png")
                   .arg(cQuality/100*100, 3, 10, QChar('0'))     // 1
@@ -180,9 +270,43 @@ void IfSearchEngine::extractDetectedFaceImages(const QFileInfo &inputFI,
         cFaceFI.dir().mkpath(".");
         qInfo() << cFaceFI.absoluteFilePath()
                 << cFaceImage.save(cFaceFI.filePath(), "PNG", 90);
-        app()->win()->appendFace(cFaceImage);
+        const QImage cNormImage = createNormImage();
+        app()->win()->appendFace(cFaceImage, mCurrentEyesImage, cNormImage);
     }
 
+}
+
+void IfSearchEngine::findEyes(const int faceIndex)
+{
+    qInfo() << Q_FUNC_INFO << faceIndex;
+    const QImage cFaceImage = mDetectedFaceImages.at(faceIndex);
+    const QSize cEyeImageSize(64,64);
+    const QSize cCropSize = cFaceImage.size() / 2;
+    const QImage cLtImage = cFaceImage.copy(QRect(QPoint(0, 0),
+                                                  cCropSize)).scaled(cEyeImageSize);
+    const QImage cRtImage = cFaceImage.copy(QRect(QPoint(cFaceImage.width() / 2, 0),
+                                                  cCropSize)).scaled(cEyeImageSize);
+    mpEyes->clear();
+    ObjdetRawArguments tRaw;
+    tRaw.factor(1.100), tRaw.neighbors(3), tRaw.flags(0),
+        tRaw.set(ObjdetRawArguments::ForceRaw),
+        tRaw.minSize(QSize()), tRaw.maxSize(QSize()),
+        tRaw.inputSize(mCurrentInputImage.size());
+    mpEyes->inputImage(cLtImage);
+    mpEyes->set(tRaw);
+    if ( ! mpEyes->processCascadeClassifier(true))
+        qCritical() << "Left ObjDet failed:" << faceIndex;
+    DetectorResultList tLtResultList = mpEyes->resultList();
+    mpEyes->inputImage(cRtImage);
+    if ( ! mpEyes->processCascadeClassifier(true))
+        qCritical() << "Right ObjDet failed:" << faceIndex;
+    DetectorResultList tRtResultList = mpEyes->resultList();
+    mCurrentEyesImage = createEyesImage(cLtImage, cRtImage, tLtResultList, tRtResultList);
+    const QRect cFaceRect = mFaceResults.at(faceIndex).rect();
+    mCurrentEyeLine = QLine(cFaceRect.topLeft()
+                    + tLtResultList.best().rect().center(),
+                            cFaceRect.bottomRight()
+                                + tRtResultList.best().rect().center());
 }
 #endif
 #ifndef TODO0002

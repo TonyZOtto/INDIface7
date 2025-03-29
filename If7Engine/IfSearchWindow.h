@@ -26,7 +26,9 @@ public slots:
     void clearFacePixmaps(); // private?
     void setMarked(const QImage &img);
     void setDetect(const QImage &img);
-    void appendFace(const QImage &img);
+    void appendFace(const QImage &faceImage,
+                    const QImage &eyesImage,
+                    const QImage &normImage);
     void setMessage(const QString &s);
 
 signals:
@@ -54,6 +56,8 @@ private:
     QLabel * mpMarkedLabel;
     QLabel * mpDetectLabel;
     QList<QPixmap> mFacePixmaps;
+    QList<QPixmap> mEyesPixmaps;
+    QList<QPixmap> mNormPixmaps;
     QTextEdit * mpMessageWidget=nullptr;
 };
 
