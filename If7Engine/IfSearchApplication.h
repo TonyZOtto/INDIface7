@@ -63,6 +63,7 @@ public: // non-const
 
 public: // pointers
     IfSearchWindow * win();
+    IfSearchEngine * eng();
 
 public: // static
     static Options defaultOptions();
@@ -80,6 +81,7 @@ inline IfSearchApplication::Options IfSearchApplication::options() const { retur
 inline IfSearchApplication::Options IfSearchApplication::defaultOptions() { return Options(); }
 inline IfSearchApplication::Options & IfSearchApplication::options() { return mOptions; }
 inline QCommandLineParser & IfSearchApplication::parser() { return mParser; }
-inline IfSearchWindow *IfSearchApplication::win() { return mpWindow; }
+inline IfSearchWindow *IfSearchApplication::win() { Q_ASSERT(mpWindow); return mpWindow; }
+inline IfSearchEngine *IfSearchApplication::eng() { Q_ASSERT(mpEngine); return mpEngine; }
 
 

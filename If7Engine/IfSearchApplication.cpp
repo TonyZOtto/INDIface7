@@ -1,6 +1,7 @@
 #include "IfSearchApplication.h"
 
 #include <QCommandLineOption>
+#include <QStringList>
 #include <QWidget>
 
 #include "IfSearchEngine.h"
@@ -42,7 +43,8 @@ void IfSearchApplication::start()
 
 QFileInfo IfSearchApplication::exeFileInfo() const
 {
-    return QFileInfo(QApplication::arguments().first());
+    const QStringList cArgs = QApplication::arguments();
+    return QFileInfo(cArgs.first());
 }
 
 void IfSearchApplication::setupOptions()
@@ -51,26 +53,26 @@ void IfSearchApplication::setupOptions()
     parser().setApplicationDescription("IfSearch Engine");
     parser().addHelpOption();
     parser().addVersionOption();
-    parser().addPositionalArgument("Input Directory",
+    parser().addPositionalArgument("InputDirectory",
                                    "Directory containing input images [default=./Input]");
-    parser().addPositionalArgument("Base Out Directory",
+    parser().addPositionalArgument("BaseOutputDirectory",
                                    "Destination Base Directory for Output Image Directories (@=timestamp) [default=./Output/@]");
     parser().addOption({"showmin", "Minimize Window."});
-    parser().addOption({"shownorm", "Show Normal Window."});
+    parser().addOption({"shownorm", "Show Normal Window. [default]"});
     parser().addOption({"showmax", "Show Maximized Window."});
     parser().addOption({"showfull", "Show Full Screen."});
     parser().addOption({{"s", "supressNoFaceMarked"},
                        "Don't Output Marked Image If No Faces Detected."});
     parser().addOption({{"q", "minQuality"},
-                        "Set Minimum Detected Face Quality.",
+                        "Set Minimum Detected Face Quality. [default 500]",
                         "100~900",
                         QString::number(defaultOptions().minQuality)});
     parser().addOption({{"z", "sampleMsec"},
-                        "Process Input Directory Timer",
-                        "<0~60000>",
+                        "Process Input Directory Timer [default 1000]",
+                        "0~60000",
                         QString::number(defaultOptions().sampleMsec)});
     parser().addOption({{"w", "waitingMsec"},
-                        "Waiting for Input Directory Timer",
+                        "Waiting for Input Directory Timer [default 60000]",
                         "0~600000",
                         QString::number(defaultOptions().waitingMsec)});
     parser().addOption({{"l", "loop"},
@@ -80,36 +82,36 @@ void IfSearchApplication::setupOptions()
     parser().addOption({{"e", "finishedQuit"},
                         "Quit after Processing Input Directory"});
     parser().addOption({{"c", "detectorsXml"},
-                       "Select Frontal Detector."
+                       "Specify Detector Catalog. [default ./detectors/Detectors.XML]"
                        "filepath or blank",
                        defaultOptions().detectorsXmlFI.filePath()});
     parser().addOption({{"x", "frontalDetectorName"},
-                        "Select Frontal Detector by Name."
-                        "<name> or blank",
+                        "Select Frontal Detector by Name. [default class default]"
+                        "name",
                         defaultOptions().frontalDetectorName});
     parser().addOption({{"f", "frontalFactor"},
-                       "Set Frontal Detector Density Factor.",
-                       "<10~5000>",
+                       "Set Frontal Detector Density Factor. [default 100]",
+                       "10~5000",
                        QString::number(defaultOptions().frontalFactor)});
     parser().addOption({{"m", "markedDir"},
                        "Specify Marked Directory Name.",
-                       "<directory name>",
+                       "directory name",
                        defaultOptions().markedDir.path()});
     parser().addOption({{"n", "noFaceDir"},
                        "Specify No Faces Detected Directory Name.",
-                       "<directory name>",
+                       "directory name",
                        defaultOptions().noFaceDir.path()});
     parser().addOption({{"d", "detectedFacesDir"},
                        "Specify Detected Faces Directory Name.",
-                       "<directory name>",
+                       "directory name",
                        defaultOptions().detectedFacesDir.path()});
     parser().addOption({{"o", "frontalObjdetDir"},
                        "Specify Diagnostic Frontal Face Object Detection Directory Name.",
-                       "<directory name>",
+                       "directory name",
                        defaultOptions().frontalObjdetDir.path()});
     parser().addOption({{"g", "logFile"},
-                       "Specify Destination File Name for Logging.",
-                       "<file name>",
+                       "Specify Destination File Name for Logging. [default ./IfSearch.log]",
+                       "file name",
                        defaultOptions().logFI.filePath()});
 }
 
