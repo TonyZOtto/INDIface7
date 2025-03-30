@@ -1,178 +1,20 @@
 #include "IfSearchEngine.h"
 #include "version.h"
 
-#include <QStringList>
+#include <QtDebug>
+#include <QRect>
+#include <QSize>
 #include <QTimer>
 
-#include <EigenFaceGenerator.h>
-#include <EigenFaceSearchResultList.h>
-#include <EigenFaceSearchTier.h>
-#include <EigenFaceSearchPerson.h>
-#include <FaceBase.h>
-#include <FileWriteProfile.h>
-#include <FileWriter.h>
-#include <ImageMarker.h>
-#include <ImageMarker.h>
-#include <Return.h>
-#include <Setting.h>
-#include <Settings.h>
-
-#include <ClothesMatchProperties.h>
-#include <ClothesMatcher.h>
-#include <SkinDetector.h>
-#include <SkinMatchProperties.h>
-#include <SkinMatcher.h>
-
 #include "IfSearchApplication.h"
+#include "IfSearchWindow.h"
+#include "ObjdetFrontal.h"
 
 IfSearchEngine::IfSearchEngine(IfSearchApplication *parent)
     : QObject(parent)
     , mpApplication(parent)
-//    , matchSettings(EigenFaceSearchSettings::CasualMatch, this)
-  //  , searchSettings(EigenFaceSearchSettings::FormalSearch, this)
-    , cmVersion(VER_MAJOR, VER_MINOR, VER_BRANCH,
-              VER_RELEASE, VER_STRING, VER_COPYRIGHT,
-              VER_ORGNAME, VER_APPNAME)
-    , mpReloadTimer(0)
-    , mpRolloverTimer(0)
 {
-#ifndef TODO0002
-    camera = 0;
-    paused = true;
-    pausePending = false;
-    ffdBusy = true;
-    avgFace = 0;
-    ffd = 0;
-    eigenFace = 0;
-    eigenMatcher = 0;
-    searchSimilarity = 0;
-    eigenData = 0;
-    eigenParms = 0;
-    hotdir = 0;
-    enrollDir = QDir();
-    searchDir = QDir();
-    authWatcher = 0;
-    resolver = 0;
-    heightGrid = 0;
-    numSearches = 0;
-    msecSearches = 0;
-    frameStatistics = 0;
-    framePerformance = 0;
-    fpWriter = 0;
-
-    appSettings		= Settings::newSettings(this); Q_ASSERT(appSettings);
-    appSettings->setValue("Enroll/Command", QString());
-    appSettings->setValue("Retrieve/Command", QString());
-    appSettings->setValue("Search/Command", QString());
-    appSettings->setValue("Output/FramesProcessed",
-                          QString::number(FramesProcessed=0));
-    appSettings->setValue("Output/NullFrames",
-                          QString::number(NullFrames=0));
-    appSettings->setValue("Output/FacesProcessed",
-                          QString::number(FacesProcessed=0));
-    appSettings->setValue("Input/Processing", QString());
-    optNoPrompt		= new Setting(appSettings, tr("Options/NoPrompt", "config"), true);
-    optShutdown		= new Setting(appSettings, tr("Options/Shutdown", "config"), false, Settings::Volatile);
-    appSettings->setValue(optShutdown->keyName(), true);
-    optInput		= new Setting(appSettings, tr("Input/URL", "config"), QString(), Settings::Volatile);
-    optPause		= new Setting(appSettings, tr("Input/Pause", "config"), false, Settings::Volatile);
-    optRestartSecs  = new Setting(appSettings, tr("Input/RestartSecs", "config"), 10, Settings::Volatile);
-    optLogFile		= new Setting(appSettings, tr("Output/LogFile", "config"), "./log/@.log");
-# ifdef _DEBUG
-    optLogDetail	= new Setting(appSettings, tr("Output/LogDetail", "config"), "Detail");
-# else
-    optLogDetail	= new Setting(appSettings, tr("Output/LogDetail", "config"), "Info");
-# endif
-# endif
-
-#ifndef TODO0002
-    optMarkEyes = new Setting(appSettings, tr("Output/MarkAllEyes", "config"), true, Settings::Volatile);
-    optMarkAllEyeColor = new Setting(appSettings, tr("Output/MarkAllEyeColor", "config"), QColor(), Settings::Volatile);
-    optMarkAllColor = new Setting(appSettings, tr("Output/MarkAllColor", "config"), QColor(), Settings::Volatile);
-    optMarkFaceColor= new Setting(appSettings, tr("Output/MarkFaceColor", "config"), QColor(Qt::yellow), Settings::Volatile);
-    optMarkEyeRoiColor= new Setting(appSettings, tr("Output/MarkEyeRoiColor", "config"), QColor(), Settings::Volatile);
-    optMarkBadFaceColor	= new Setting(appSettings, tr("Output/MarkBadFaceColor", "config"), QColor(Qt::green), Settings::Volatile);
-    optMarkNoEyesColor	= new Setting(appSettings, tr("Output/MarkNoEyesColor", "config"), QColor(Qt::blue), Settings::Volatile);
-    optMarkEyeColor	= new Setting(appSettings, tr("Output/MarkEyeColor", "config"), QColor(Qt::yellow), Settings::Volatile);
-    optMarkBackgroundColor	= new Setting(appSettings, tr("Output/MarkBackgroundColor", "config"), QColor(), Settings::Volatile);
-    optMarkBackgroundTransparency = new Setting(appSettings, tr("Output/MarkBackgroundTransparency", "config"), 100, Settings::Volatile);
-    optMarkOverCrop	= new Setting(appSettings, tr("Output/MarkOverCrop", "config"), 175, Settings::Volatile);
-    optMarkOverMark	= new Setting(appSettings, tr("Output/MarkOverMark", "config"), 150, Settings::Volatile);
-    optMarkClothes	= new Setting(appSettings, tr("Output/MarkClothes", "config"), false, Settings::Volatile);
-    optAppendPersonId= new Setting(appSettings, tr("Match/AppendPersonId", "config"), false, Settings::Volatile);
-    optMarkBackgroundFile = new Setting(appSettings, tr("Output/MarkBackgroundFile", "config"), QString(), Settings::Volatile);
-    optForceMarked = new Setting(appSettings, tr("Output/ForceMarked", "config"), false, Settings::Volatile);
-    optForceHeight = new Setting(appSettings, tr("Output/ForceHeight", "config"), false, Settings::Volatile);
-    optWriteFaceInfo = new Setting(appSettings, tr("Output/WriteFaceInfo", "config"), true, Settings::Volatile);
-    optDetectEnable	= new Setting(appSettings, tr("Detect/Enable", "config"), false, Settings::Volatile);
-    optMatchEnable	= new Setting(appSettings, tr("Match/Enable", "config"), false, Settings::Volatile);
-    optGenerateEnable = new Setting(appSettings, tr("Generate/Enable", "config"), false, Settings::Volatile);
-    optGenerateFactor = new Setting(appSettings, tr("Generate/Factor", "config"), 3.0);
-    optClothesEnable = new Setting(appSettings, tr("Clothes/Enable", "config"), false, Settings::Volatile);
-    optHeightEnable = new Setting(appSettings, tr("Height/Enable", "config"), false, Settings::Volatile);
-    // optHeightCalibrateDir = new Setting(appSettings, tr("Height/CalibrateDir", "config"), false, Settings::Volatile);
-    optResolveEnable = new Setting(appSettings, tr("Resolve/Enable", "config"), false, Settings::Volatile);
-    optFaceColorEnable = new Setting(appSettings, tr("FaceColor/Enable", "config"), false, Settings::Volatile);
-    //	optFaceColorRegionScale = new Setting(appSettings, tr("FaceColor/RegionScale", "config"), 100, Settings::Volatile);
-    optEnrollCommand= new Setting(appSettings, tr("Enroll/Command", "config"), QString(), Settings::Volatile);
-    optSearchCommand= new Setting(appSettings, tr("Search/Command", "config"), QString(), Settings::Volatile);
-    optRetrieveCommand= new Setting(appSettings, tr("Retrieve/Command", "config"), QString(), Settings::Volatile);
-    optInputOverCrop = new Setting(appSettings, tr("Detect/InputOverCrop", "config"), 0, Settings::Volatile);
-    optResolveMin = new Setting(appSettings, tr("Resolve/MinConfidence", "config"), 0, Settings::Volatile);
-    optResolveMax = new Setting(appSettings, tr("Resolve/MaxConfidence", "config"), 0, Settings::Volatile);
-    optSourceChanged = new Setting(appSettings, tr("Source/Changed"), false, Settings::Volatile);
-#endif
-
-#ifndef TODO0002
-    writer = new FileWriter(appSettings, QString(), this);
-    writer->setImageCache(&imageCache);
-    writer->setCacheDirs(appSettings->value("Output/CacheDirs","FaceCache").toString());
-    fwpCapture      = writer->newProfile("Capture", FileWriter::CaptureImage | FileWriter::TempAndRename);
-    fwpCapture2     = writer->newProfile("Capture2");
-    fwpMarked       = writer->newProfile("Marked", FileWriter::TempAndRename);
-    fwpNoMark       = writer->newProfile("NoMark");
-    fwpUnMarked     = writer->newProfile("UnMarked");
-    fwpMarkedFace   = writer->newProfile("MarkedFace");
-    fwpRecon        = writer->newProfile("Recon");
-    fwpVector       = writer->newProfile("Vector");
-    fwpNoFace       = writer->newProfile("NoFace");
-    fwpNoEyes       = writer->newProfile("NoEyes");
-    fwpBadFace      = writer->newProfile("BadFace");
-    fwpNoMatch      = writer->newProfile("NoMatch", FileWriter::FaceImage);
-    fwpMatch        = writer->newProfile("Match", FileWriter::Copy);
-    fwpFace         = writer->newProfile("Face", FileWriter::FaceImage);
-    fwpFaceCache    = writer->newProfile("FaceCache", FileWriter::FaceImage | FileWriter::Cache);
-    fwpBody         = writer->newProfile("Body");
-    fwpClothes      = writer->newProfile("Clothes");
-    fwpNoClothes    = writer->newProfile("NoClothes");
-    fwpClothesFace  = writer->newProfile("ClothesFace");
-    fwpHeight       = writer->newProfile("Height");
-    fwpNoHeight     = writer->newProfile("NoHeight");
-    fwpHeightFace   = writer->newProfile("HeightFace");
-    fwpXml          = writer->newProfile("Xml", FileWriter::XmlText);
-    fwpImage        = writer->newProfile("Image");
-    fwpRetrieve     = writer->newProfile("Retrieve", FileWriter::Copy, "Retrieve/OutputDir");
-    fwpRetrRecon    = writer->newProfile("Retrieve", FileWriter::$null, "Retrieve/ReconDir");
-    fwpSearch       = writer->newProfile("Search", FileWriter::Copy, "Search/OutputDir");
-    fwpSimilarity   = writer->newProfile("Similarity", FileWriter::$null, "Search/SimilarityDir");
-    fwpDetect       = writer->newProfile("Detect", FileWriter::$null, "Detect/OutputDir");
-    fwpGenerate     = writer->newProfile("Generate", FileWriter::$null, "Generate/OutputDir");
-    fwpSkin         = writer->newProfile("Skin", FileWriter::$null, "Detect/SkinDir");
-    fwpCharcol      = writer->newProfile("Charcol", FileWriter::$null, "Detect/CharcolDir");
-    fwpResolveMarked= writer->newProfile("ResolveMarked", FileWriter::TempAndRename, "Resolve/MarkedDir");
-    fwpResolveFace  = writer->newProfile("ResolveFace", FileWriter::$null, "Resolve/FaceDir");
-    fwpNoFaceColor  = writer->newProfile("NoFaceColor", FileWriter::$null, "FaceColor/NoOutputDir");
-#ifdef ENABLE_AVGFACE
-    fwpAvgFace      = writer->newProfile("AvgFace", FileWriter::FaceImage, "AvgFace/OutputDir");
-    optAvgFaceEnable = new Setting(appSettings, tr("AvgFace/Enable", "config"), false);
-    optAvgFaceMinConsistency = new Setting(appSettings, tr("AvgFace/MinConsistency", "config"), 700);
-#endif
-    skinDetector = new SkinDetector(SkinDetector::Simple);
-    skinMatcher = new SkinMatcher;
-    clothesMatchProperties = new ClothesMatchProperties(this);
-    clothesMatcher = new ClothesMatcher(clothesMatchProperties);
-#endif
-
+    setObjectName("IfSearchEngine");
     QTimer::singleShot(0, this, SLOT(init()));
 } // c'tor
 
@@ -180,128 +22,207 @@ IfSearchEngine::~IfSearchEngine()
 {
 }
 
-#ifndef TODO0002
-
-Return IfSearch::writeXmlResult(QPair<QString,DetectorResult> face,
-                                const EigenFaceSearchResultList & resList)
+void IfSearchEngine::init(void)
 {
-    /*
-    QDomDocument doc("INDIfacePersonResult");
-    QDomElement deMain = doc.createElement("PersonResultList");
-    doc.appendChild(deMain);
+    qDebug() << Q_FUNC_INFO;
+    mBaseTimestamp = QDateTime::currentDateTime();
+}
 
-    QDomElement deFace = doc.createElement("SearchFace");
-    deMain.appendChild(deFace);
-    deFace.setAttribute("ImageId", face.first);
-    deFace.setAttribute("FaceCenterX", face.second.rectangle().center().x());
-    deFace.setAttribute("FaceCenterY", face.second.rectangle().center().y());
-    deFace.setAttribute("FaceWidth", face.second.rectangle().width());
-    deFace.setAttribute("FaceHeight", face.second.rectangle().height());
-    if (fwpCapture->isActive())
-        deFace.setAttribute("CaptureFile", fwpCapture->filePath(face.first));
-    if (fwpFace->isActive())
-        deFace.setAttribute("FaceFile", fwpFace->filePath(idGenerator.face("Face")));
-
-    int rank = 0;
-    foreach (EigenFaceResult person, resList)
-    {
-        QDomElement dePerson = doc.createElement(person.personKey() ? "PersonResult" : "UnidentifiedResult");
-        deMain.appendChild(dePerson);
-        dePerson.setAttribute("Rank", ++rank);
-        dePerson.setAttribute("Confidence", person.confidence());
-        if (person.personKey())
-        {
-            dePerson.setAttribute("PersonKey", person.personKey());
-            QString personId = faceBase->personId(person.personKey());
-            if ( ! personId.isEmpty())
-                dePerson.setAttribute("PersonId",  personId);
-        }
-
-        foreach(EigenFaceResultFace res, person.results())
-        {
-            QDomElement de = doc.createElement("ResultEntry");
-            dePerson.appendChild(de);
-            de.setAttribute("Distance", res.distance());
-            de.setAttribute("FaceKey", res.faceKey());
-            de.setAttribute("FaceId", faceBase->faceId(res.faceKey(), res.personKey()));
-            de.setAttribute("NormalizedImageFile", faceBase->enrolledImageName(res.faceKey()));
-        }
-    } // foreach
-
-    RETURN(fwpXml->write(doc, idGenerator.face("Xml")));
-    */
-    return Return();
-} // writeXmlResult(person)
-#endif
-
-#ifndef TODO0002
-Return IfSearch::writeMatches(const EigenFaceSearchResultList & resList)
+void IfSearchEngine::start(void)
 {
-    Return rtn;
-    int rank = 0;
+    qDebug() << Q_FUNC_INFO;
+    const QString cDetectorsXmlName("./detectors/Detectors.XML");
+    const QString cDetectorClassName("FaceFrontal");
+    const QString cDetectorName(""); // blank=default
+    QTimer::singleShot(0, this, SLOT(run()));
+} // start()
 
-    foreach (EigenFaceSearchPerson res, resList)
-    {
-        QString enrolledImageFileName = faceBase->enrolledImageName(res.bestFaceKey());
-        idGenerator.setRank(++rank);
-        idGenerator.setConfidence(res.getConfidence());
-        idGenerator.setTier(res.getTier().indicator());
-        QString baseName = idGenerator.face("Match");
-        fwpMatch->write(QFile(enrolledImageFileName), baseName);
-    } // foreach
-
-    return rtn;
-} // writeMatches(face)
-
-Return IfSearch::writeOutputImage(QPair<QString,DetectorResult> face,
-                                  int consistency,
-                                  QImage normImage,
-                                  const EigenFaceSearchResultList & resList)
+void IfSearchEngine::run(void)
 {
-    static int pos[] = { 0, 1, 2, 3, 7, 11, 15, 14, 13, 12, 8, 4 };
+    qDebug() << Q_FUNC_INFO;
 
-    QImage outputImage(normImage.size() * 2, normImage.format());
-    outputImage.fill(Qt::black);
-    ImageMarker outputMarker(&outputImage);
-    QSize thumbSize = normImage.size() / 2;
+    getInputFiles();
 
-    QColor consistencyColor = optMarkBadFaceColor->value<QColor>();
-    if ( ! consistencyColor.isValid()) consistencyColor = Qt::green;
-    ImageMarker normMarker(&normImage);
-    normMarker.title(tr("C%1 %2").arg(consistency).arg(face.first));
-    normMarker.score(consistency, 6, Qt::black, Qt::white, consistencyColor);
-    normMarker.eyes(eigenFace->normalEyes());
-    normMarker.end();
-    outputMarker.drawImage(QPoint(thumbSize.width(), thumbSize.height()), normImage);
+    mOutputBaseDir.cd(app()->exeFileInfo().dir().absolutePath());
+    QString tOutputBaseDirName = options().baseOutputDir.path();
+    tOutputBaseDirName.replace('@', QDateTime::currentDateTime()
+                                        .toString("DyyyyMMdd-Thhmm"));
+    mOutputBaseDir.mkpath(tOutputBaseDirName);
+    if ( ! mOutputBaseDir.cd(tOutputBaseDirName))
+        qCritical() << "Can't set base output directory";
+    mMarkedDir = mNoFaceDir = mFrontalObjDetDir
+        = mDetectedFacesDir = mOutputBaseDir;
+    qDebug() << mOutputBaseDir << mMarkedDir << mDetectedFacesDir;
+    if ( ! mMarkedDir.mkpath(options().markedDir.path()))
+        qCritical() << "Can't make marked output directory";
+    if ( ! mNoFaceDir.mkpath(options().noFaceDir.path()))
+        qCritical() << "Can't make no faces detected output directory";
+    if ( ! mDetectedFacesDir.mkpath(options().detectedFacesDir.path()))
+        qCritical() << "Can't make detected faces output directory";
+    if ( ! mFrontalObjDetDir.mkpath(options().frontalObjdetDir.path()))
+        qCritical() << "Can't make objdet output directory";
+    qDebug() << mOutputBaseDir << mMarkedDir << mDetectedFacesDir;
+    if ( ! mMarkedDir.cd(options().markedDir.path()))
+        qCritical() << "Can't set marked output directory";
+    if ( ! mNoFaceDir.cd(options().noFaceDir.path()))
+        qCritical() << "Can't set no faces detected output directory";
+    if ( ! mDetectedFacesDir.cd(options().detectedFacesDir.path()))
+        qCritical() << "Can't set detected faces output directory";
+    if ( ! mFrontalObjDetDir.cd(options().frontalObjdetDir.path()))
+        qCritical() << "Can't set objdet output directory";
+    qDebug() << mOutputBaseDir << mMarkedDir << mDetectedFacesDir;
+    app()->win()->clearPixmaps();
 
-    int i = 0;
-    foreach (EigenFaceSearchPerson res, resList)
+    QTimer::singleShot(0, this, SLOT(pulse()));
+} // run()
+
+
+void IfSearchEngine::pulse(void)
+{
+    qDebug() << Q_FUNC_INFO;
+
+    if (mInputFiles.isEmpty())
     {
-        if (i > 11)
-            break;
-        QImage enrolledNormImage = faceBase->enrolledImage(res.bestFaceKey())
-                .convertToFormat(QImage::Format_RGB32);
-        if ( ! enrolledNormImage.isNull())
-        {
-            QImage thumbImage = enrolledNormImage.scaled(thumbSize, Qt::KeepAspectRatio);
-            ImageMarker thumbMarker(&thumbImage);
-            QString id = faceBase->personId(res.getPersonKey());
-            if (id.isEmpty())
-                id = faceBase->faceId(res.bestFaceKey());
-            thumbMarker.title(tr("M%1%3 %2")
-                              .arg(res.getConfidence())
-                              .arg(id)
-                              .arg(res.getTier().indicator()));
-            thumbMarker.score(res.getConfidence(), 4, res.getTier().color(),
-                              Qt::white, Qt::black);
-            thumbMarker.end();
-            outputMarker.drawImage(QPoint(pos[i] % 4 * thumbSize.width(),
-                                          pos[i] / 4 * thumbSize.height()), thumbImage);
-        }
-        ++i;
+        if (options().finishedQuit)
+            QTimer::singleShot(10, qApp, SLOT(quit()));
+        else if (options().loop)
+            getInputFiles();
+        else if (getInputFiles())
+            QTimer::singleShot(options().sampleMsec, this, SLOT(pulse()));
+        else if (options().waitingMsec)
+            QTimer::singleShot(options().waitingMsec, this, SLOT(pulse()));
+        return;
     }
-    outputMarker.end();
-//    fwpImage->write(outputImage, idGenerator.face("Image"));
-    return Return();
-} // writeOutputImage()
-#endif
+    QFileInfo tInputFile = mInputFiles.takeFirst();
+    processEval(tInputFile);
+    QTimer::singleShot(options().sampleMsec, this, SLOT(pulse()));
+}
+
+int IfSearchEngine::getInputFiles()
+{
+    mInputDir.cd(app()->exeFileInfo().dir().absolutePath());
+    if ( ! mInputDir.cd(options().inputDir.path()))
+        qCritical() << "No input directory at:" << mInputDir.absolutePath();
+    static const QStringList scNameFilter = QStringList() << "*.JPG" << "*.PNG";
+    mInputFiles = mInputDir.entryInfoList(scNameFilter);
+    if (mInputFiles.isEmpty())
+        qCritical() << "No input files in:" << mInputDir.absolutePath();
+    return mInputFiles.count();
+}
+
+void IfSearchEngine::processEval(const QFileInfo fi)
+{
+    qInfo() << Q_FUNC_INFO << fi.baseName();
+    const QImage cRawImage(fi.filePath());
+    mCurrentInputImage = createInputImage(cRawImage);
+    if (mCurrentInputImage.isNull())
+        qCritical() << "Image skipped:" << fi.absoluteFilePath()
+                    << cRawImage.format();
+    Q_ASSERT(mpFrontal);
+    app()->win()->clearPixmaps();
+    mpFrontal->clear();
+    ObjdetRawArguments tRaw;
+    tRaw.factor(1.100), tRaw.neighbors(3), tRaw.flags(0),
+        tRaw.set(ObjdetRawArguments::ForceRaw),
+        tRaw.minSize(QSize()), tRaw.maxSize(QSize()),
+        tRaw.inputSize(mCurrentInputImage.size());
+    mpFrontal->inputImage(mCurrentInputImage);
+    mpFrontal->set(tRaw);
+    if ( ! mpFrontal->processCascadeClassifier(true))
+        qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
+    mResults = mpFrontal->resultList();
+    QImage tMarkedImage = mpFrontal->markedImage(500);
+    const QFileInfo tMarkedFI(mMarkedDir, fi.baseName() + ".png");
+    if (tMarkedImage.save(tMarkedFI.absoluteFilePath()))
+        qInfo() << tMarkedFI.absoluteFilePath() << tMarkedImage;
+    QImage tDetectImage = mpFrontal->detectImage(500);
+    const QFileInfo tDetectFI(mFrontalObjDetDir, fi.baseName() + ".png");
+    if (tDetectImage.save(tDetectFI.absoluteFilePath()))
+        qInfo() << tDetectFI.absoluteFilePath() << tDetectImage;
+    app()->win()->clearFacePixmaps();
+    app()->win()->setMarked(tMarkedImage);
+    app()->win()->setDetect(tDetectImage);
+    if (mResults.count() == 0)
+    {
+        const QFileInfo tNoFaceFI(mNoFaceDir, fi.baseName() + ".png");
+        if (tMarkedImage.save(tNoFaceFI.absoluteFilePath()))
+            qInfo() << tNoFaceFI.absoluteFilePath() << tMarkedImage;
+        app()->win()->clearFacePixmaps();
+    }
+    extractDetectedFaceImages(fi);
+    if (options().deleteAfter)
+    {
+        QFile tInputFile(fi.filePath());
+        tInputFile.remove();
+        qDebug() << fi.absoluteFilePath() << "removed";
+    }
+
+}
+
+QImage IfSearchEngine::createInputImage(const QImage raw)
+{
+    QImage result;
+    const QSize cInputSize(raw.width() & 0xFFF0, raw.height() & 0xFFF0);
+    const QRect cInputRect(QPoint((raw.width() - cInputSize.width()) / 2,
+                                  (raw.height() - cInputSize.height()) / 2),
+                           cInputSize);
+    result = raw.copy(cInputRect);
+    switch (result.format())
+    {
+    case QImage::Format_Grayscale16:
+    case QImage::Format_Indexed8:
+        result.convertTo(QImage::Format_Grayscale8);
+        // Q_FALLTHROUGH();
+    case QImage::Format_Grayscale8: // As is Greyscale
+        break;
+
+    case QImage::Format_BGR888: // TODO others as needed
+    case QImage::Format_RGB32:
+    case QImage::Format_ARGB32_Premultiplied:
+        result.convertTo(QImage::Format_ARGB32);
+        // Q_FALLTHROUGH();
+    case QImage::Format_ARGB32: // As is Color
+        break;
+
+    case QImage::Format_Invalid:
+    case QImage::Format_Mono:
+    case QImage::Format_MonoLSB:
+    default:
+        qWarning() << "Unsupported input image format" << result.format();
+        result = QImage();
+    }
+    return result;
+}
+
+void IfSearchEngine::extractDetectedFaceImages(const QFileInfo &inputFI,
+                                               const int minQuality)
+{
+    qInfo() << Q_FUNC_INFO << mResults.count();
+    app()->win()->clearFacePixmaps();
+    foreach (const DetectorResult cResult, mResults.rankedList())
+    {
+        const int cQuality = cResult.quality();
+        if (cQuality < minQuality) break;               /*-----*/
+        const QRect cDetectRect = cResult.rect();
+        const QRect cCropRect = cDetectRect; // TODO?
+        const int cRank = cResult.rank();
+        const QImage cFaceImage = mCurrentInputImage.copy(cCropRect);
+        mDetectedFaces.append(cFaceImage);
+        const QString cFaceFileName
+            = QString("./Q%1/#%2q%3x%4y%5w%6e%7-%8.png")
+                  .arg(cQuality/100*100, 3, 10, QChar('0'))     // 1
+                  .arg(cRank, 2, 10, QChar('0'))                // 2
+                  .arg(cQuality, 3, 10, QChar('0'))             // 3
+                  .arg(cDetectRect.x(), 4, 10, QChar('0'))      // 4
+                  .arg(cDetectRect.y(), 4, 10, QChar('0'))      // 5
+                  .arg(cDetectRect.width(), 3, 10,QChar('0'))   // 6
+                  .arg(0, 3, 10, QChar('0'))                    // 7
+                  .arg(inputFI.baseName());                     // 8
+        const QFileInfo cFaceFI(mDetectedFacesDir, cFaceFileName);
+        cFaceFI.dir().mkpath(".");
+        qInfo() << cFaceFI.absoluteFilePath()
+                << cFaceImage.save(cFaceFI.filePath(), "PNG", 90);
+        app()->win()->appendFace(cFaceImage);
+    }
+
+}
