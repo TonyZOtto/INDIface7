@@ -14,6 +14,7 @@
 #include "VersionInfo.h"
 
 class ObjdetCatalog;
+class ObjdetEyes;
 class ObjdetFrontal;
 
 class IfSearchEngine : public QObject
@@ -25,10 +26,11 @@ public:
     ~IfSearchEngine();
 
 private:
-    void processEval(const QFileInfo fi);
-    QImage createInputImage(const QImage raw);
-    void extractDetectedFaceImages(const QFileInfo &inputFI,
-                                   const int minQuality=500);
+    void processFrame(const QFileInfo &fi);
+    QImage createInputImage(const QFileInfo &fi);
+    void processFaces(const QImage &inputImage,
+                      const QFileInfo &inputFI,
+                      const int minQuality=500);
     IfSearchApplication * app() const;
     IfSearchApplication::Options options() const;
 
@@ -43,6 +45,7 @@ private:
     IfSearchApplication * mpApplication=nullptr;
     ObjdetCatalog * mpObjdetCatalog=nullptr;
     ObjdetFrontal * mpFrontal=nullptr;
+    ObjdetEyes * mpEyes=nullptr;
     QDateTime mBaseTimestamp;
     QDir mInputDir;
     QDir mOutputBaseDir;
@@ -50,10 +53,9 @@ private:
     QDir mNoFaceDir;
     QDir mDetectedFacesDir;
     QDir mFrontalObjDetDir;
+    QDir mEyesObjDetDir;
     QFileInfoList mInputFiles;
-    QImage mCurrentInputImage;
     DetectorResultList mResults;
-    QList<QImage> mDetectedFaces;
 
 private:
 

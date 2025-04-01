@@ -12,6 +12,7 @@
 #include "DetectorResult.h"
 #include "DetectorResultList.h"
 #include "ObjdetRawArguments.h"
+#include "SCRect.h"
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/objdetect.hpp>
@@ -41,7 +42,6 @@ public: // ctors
     ~Objdet();
 protected:
     Objdet(const Class objcls, QObject * parent=0);
-//    Objdet(const QString & classname, QObject * parent=0);
 
 public slots:
     void loadDetectorName(const QString & name) { Q_UNUSED(name); } // TODO
@@ -52,29 +52,26 @@ signals:
     void selected(const QFileInfo &fi);
     void error(QString message);
 
+protected:
 
 public: // const
     QString className() const;
-    QImage inputImage(void) const;
     ObjdetRawArguments raw() const { return mRawParms; }
-
+    QImage inputImage(void) const;
     QString performanceString(void) const;
     DetectorResultList resultList(void) const { return mResultList; }
-    QList<QRect> allRects(void) const { return mAllRects; }
+    QList<SCRect> allRects(void) const { return mAllRects; }
     QList<QSize> detectorSizes(void) const;
     bool isDetectorLoaded(void);
     QFileInfo detectorFileInfo() const;
     QString methodString(void);
-    QSize sizeFromXml(const QString & fileName);
+    QSize sizeFromDetectorXml(const QString & fileName);
     QSize minObjectSize(void) const;
     QSize maxObjectSize(void) const;
-    QImage markedImage(const int minQuality,
-                       int showQuality=-1) const;
-    QImage detectImage(const int minQuality) const;
 
 public: // non-const
     void set(const ObjdetRawArguments raw);
-    void inputImage(const QImage &inputImage);
+    void inputImage(const QImage &img);
     void clear();
     bool processCascadeClassifier(const bool returnAll=false);
     bool processResults(const std::vector<cv::Rect> rects,
@@ -100,8 +97,8 @@ public:
 protected slots:
 
 private:
-    QList<QRect> mAllRects;
-    QList<QRect> mOrphanRects;
+    QList<SCRect> mAllRects;
+    QList<SCRect> mOrphanRects;
     DetectorResultList mResultList;
     const Class cmClass=$nullClass;
     QFileInfo mCascadeFileInfo;

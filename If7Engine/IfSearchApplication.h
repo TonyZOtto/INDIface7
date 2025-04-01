@@ -33,7 +33,7 @@ public: // types
         bool        deleteAfter = false;
         bool        finishedQuit = false;
         QFileInfo   detectorsXmlFI = QFileInfo("./detectors/Detectors.XML");
-        QString     frontalDetectorName;
+        QString     frontalDetectorName = QString("{default}");
         int         frontalFactor = 100;
         QDir        markedDir = QDir("./Marked");
         QDir        noFaceDir = QDir("./NoFace");

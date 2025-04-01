@@ -27,8 +27,8 @@ public slots:
     void setMarked(const QImage &img);
     void setDetect(const QImage &img);
     void appendFace(const QImage &faceImage,
-                    const QImage &eyesImage,
-                    const QImage &normImage);
+                    const QImage &eyesImage=QImage(),
+                    const QImage &normImage=QImage());
     void setMessage(const QString &s);
 
 signals:
@@ -40,7 +40,7 @@ public: // non-const
 public: // pointers
     IfSearchApplication * app();
 
-private: // static
+public: // static
     static int maxFrameDim();
     static QSize faceThumbSize();
     static QPixmap scaledPixmap(const QImage &img, const int dim);
@@ -63,6 +63,6 @@ private:
 
 inline IfSearchApplication *IfSearchWindow::app() { Q_ASSERT(mpIfsApp); return mpIfsApp; }
 inline int IfSearchWindow::maxFrameDim() { return 512; }
-inline QSize IfSearchWindow::faceThumbSize() { return QSize(128, 128); }
+inline QSize IfSearchWindow::faceThumbSize() { return QSize(192, 192); }
 
 

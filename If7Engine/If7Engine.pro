@@ -19,6 +19,7 @@ SOURCES += \
     Objdet.cpp \
     ObjdetCatalog.cpp \
     ObjdetCatalogItem.cpp \
+    ObjdetEyes.cpp \
     ObjdetFrontal.cpp \
     ObjdetParameters.cpp \
     ObjdetParametersEyes.cpp \
@@ -27,10 +28,14 @@ SOURCES += \
     ObjdetResource.cpp \
     ObjdetResult.cpp \
     ObjdetResultMap.cpp \
+    SCRect.cpp \
     VersionInfo.cpp \
     main.cpp \
 
 DISTFILES += \
+    ../../../bin/DbgWin64-Qt6CV4-v7.91A/detectors/Aim8A001-32-NoSplit.xml \
+    ../../../bin/DbgWin64-Qt6CV4-v7.91A/detectors/Detectors.xml \
+    ../../../bin/DbgWin64-Qt6CV4-v7.91A/detectors/haarcascade_eye.xml \
     ../../../bin/detectors/detectors/Aim8A001-32-NoSplit.xml \
     ../../ottoZcode/doc/desktop/INDIface/Settings2.txt \
     ../../ottoZcode/doc/desktop/INDIface/detect2.txt \
@@ -52,6 +57,7 @@ HEADERS += \
     Objdet.h \
     ObjdetCatalog.h \
     ObjdetCatalogItem.h \
+    ObjdetEyes.h \
     ObjdetFrontal.h \
     ObjdetParameters.h \
     ObjdetParametersEyes.h \
@@ -60,6 +66,7 @@ HEADERS += \
     ObjdetResource.h \
     ObjdetResult.h \
     ObjdetResultMap.h \
+    SCRect.h \
     VersionInfo.h \
     version.h
 

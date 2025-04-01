@@ -6,20 +6,23 @@
 #include <QRect>
 #include <QSizeF>
 
+#include "SCRect.h"
+
 class DetectorResult
 {
 public: // types
     typedef QList<DetectorResult> List;
 
 public: // ctors
-    DetectorResult(const QRect rect, const int count=0);
+    DetectorResult(const QRect rect=QRect(), const int count=0);
 
 public: // const
     int rank(void) const { return mRank; }
     int quality(void) const { return mQuality; }
-    QRect rect(void) const { return mResultRect; }
+    SCRect rect(void) const { return mResultRect; }
     int count(void) const { return mResultCount; }
-    QList<QRect> includedRects(void) const { return mIncludedRects; }
+    QList<SCRect> includedRects(void) const { return mIncludedRects; }
+    QList<QRect> includedQRects(void) const;
     QColor qualityColor(const int midQuality) const;
     QColor qualityTextColor(const int midQuality) const;
 
@@ -27,12 +30,12 @@ public: // non-const
     void rank(const int r) { mRank = r; }
     void quality(const int q) { mQuality = q; }
     void count(const int k) { mResultCount = k; }
-    QList<QRect> takeIncludedRects(const QList<QRect> ar);
+    QList<SCRect> takeIncludedRects(const QList<SCRect> ar);
 
 private:
     int mRank;
     int mQuality;
-    QRect mResultRect;
+    SCRect mResultRect;
     int mResultCount;
-    QList<QRect> mIncludedRects;
+    QList<SCRect> mIncludedRects;
 };

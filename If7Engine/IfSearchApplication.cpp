@@ -150,10 +150,10 @@ void IfSearchApplication::parseOptions(QApplication *app)
     const int cFrontalFactor = parser().value("sampleMsec").toInt();
     if (cFrontalFactor >= 10 && cFrontalFactor < 5000)
         options().frontalFactor = cFrontalFactor;
-    options().markedDir = QDir(options().baseOutputDir.path() + "./Marked");
-    options().noFaceDir = QDir(options().baseOutputDir.path() + "./NoFace");
-    options().detectedFacesDir = QDir(options().baseOutputDir.path() + "./DetectedFaces");
-    options().frontalObjdetDir = QDir(options().baseOutputDir.path() + "./FrontalObjdet");
-    options().logFI = QFileInfo(options().baseOutputDir, parser().value("logFile"));
+    options().markedDir = QDir("./Marked");
+    options().noFaceDir = QDir("./NoFace");
+    options().detectedFacesDir = QDir("./DetectedFaces");
+    options().frontalObjdetDir = QDir("./FrontalObjdet");
+    options().logFI = QFileInfo(parser().value("logFile"));
 }
 

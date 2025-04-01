@@ -27,10 +27,11 @@ public: // const
     DetectorResult at(const int ix) const;
     DetectorResult best() const;
     DetectorResult::List rankedList() const;
-    QList<QRect> allRectList() const;
-    QList<QRect> orphanList() const;
-    QList<QRect> includedRects(const DetectorResult &result,
-                               const QList<QRect> &rects);
+    QList<SCRect> allRectList() const;
+    QList<SCRect> orphanList() const;
+    QList<QRect> orphanQRects() const;
+    QList<SCRect> includedRects(const DetectorResult &result,
+                               const QList<SCRect> &rects);
 
 public: // non-const
     void process(const ObjdetRawArguments raw,
@@ -40,7 +41,7 @@ public: // non-const
                     =std::vector<cv::Rect>());
     void calculate(const ObjdetRawArguments raw);
     void addRanked(const DetectorResult &dr);
-    void orphanList(const QList<QRect> ol);
+    void orphanList(const QList<SCRect> ol);
     void clearAll();
     void clearInputs();
     void clearResults();
@@ -50,16 +51,16 @@ private:
     std::vector<int> mCvCounts;
     std::vector<cv::Rect> mAllCvRects;
     DetectorResult::List mRankedList;
-    QList<QRect> mAllRectList;
-    QList<QRect> mOrphanRectList;
+    QList<SCRect> mAllRectList;
+    QList<SCRect> mOrphanRectList;
 };
 
 inline int DetectorResultList::count() const { return mRankedList.count(); }
 inline DetectorResult DetectorResultList::at(const int ix) const { return rankedList().at(ix); }
 inline DetectorResult DetectorResultList::best() const { return rankedList().first(); }
 inline DetectorResult::List DetectorResultList::rankedList() const { return mRankedList; }
-inline QList<QRect> DetectorResultList::allRectList() const { return mAllRectList; }
-inline QList<QRect> DetectorResultList::orphanList() const { return mOrphanRectList; }
-inline void DetectorResultList::orphanList(const QList<QRect> ol) { mOrphanRectList = ol; }
+inline QList<SCRect> DetectorResultList::allRectList() const { return mAllRectList; }
+inline QList<SCRect> DetectorResultList::orphanList() const { return mOrphanRectList; }
+inline void DetectorResultList::orphanList(const QList<SCRect> ol) { mOrphanRectList = ol; }
 
 

@@ -89,7 +89,7 @@ void IfSearchWindow::appendFace(const QImage &img,
                                 const QImage &normImage)
 {
     const int cColumn = mFacePixmaps.count();
-    const QPixmap cFacePixmap = scaledPixmap(img, 128);
+    const QPixmap cFacePixmap = scaledPixmap(img, faceThumbSize().width());
     const QPixmap cEyesPixmap = QPixmap::fromImage(eyesImage);
     const QPixmap cNormPixmap = QPixmap::fromImage(normImage);
     mFacePixmaps.append(cFacePixmap);

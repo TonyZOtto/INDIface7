@@ -8,14 +8,16 @@
 
 #include "IfSearchApplication.h"
 #include "IfSearchWindow.h"
+#include "ObjdetEyes.h"
 #include "ObjdetFrontal.h"
+#include "SCRect.h"
 
 IfSearchEngine::IfSearchEngine(IfSearchApplication *parent)
     : QObject(parent)
     , mpApplication(parent)
 {
     setObjectName("IfSearchEngine");
-    QTimer::singleShot(0, this, SLOT(init()));
+    QTimer::singleShot(100, this, SLOT(init()));
 } // c'tor
 
 IfSearchEngine::~IfSearchEngine()
@@ -26,6 +28,7 @@ void IfSearchEngine::init(void)
 {
     qDebug() << Q_FUNC_INFO;
     mBaseTimestamp = QDateTime::currentDateTime();
+    QTimer::singleShot(100, this, SLOT(start()));
 }
 
 void IfSearchEngine::start(void)
@@ -34,7 +37,26 @@ void IfSearchEngine::start(void)
     const QString cDetectorsXmlName("./detectors/Detectors.XML");
     const QString cDetectorClassName("FaceFrontal");
     const QString cDetectorName(""); // blank=default
-    QTimer::singleShot(0, this, SLOT(run()));
+    if (mpFrontal)
+    {
+        mpFrontal->unloadDetector();
+        mpFrontal->deleteLater();
+    }
+    mpFrontal = new ObjdetFrontal(this);
+    mpFrontal->loadDetectorXml("./detectors/Aim8A001-32-NoSplit.xml");
+    if ( ! mpFrontal->isDetectorLoaded())
+        qCritical() << "Failed to load frontal:" << mpFrontal->detectorFileInfo();
+    if (mpEyes)
+    {
+        mpEyes->unloadDetector();
+        mpEyes->deleteLater();
+    }
+    mpEyes = new ObjdetEyes(this);
+    mpEyes->loadDetectorXml("./detectors/haarcascade_eye.xml");
+    if ( ! mpEyes->isDetectorLoaded())
+        qCritical() << "Failed to load eyes:" << mpEyes->detectorFileInfo();
+
+    QTimer::singleShot(100, this, SLOT(run()));
 } // start()
 
 void IfSearchEngine::run(void)
@@ -73,7 +95,7 @@ void IfSearchEngine::run(void)
     qDebug() << mOutputBaseDir << mMarkedDir << mDetectedFacesDir;
     app()->win()->clearPixmaps();
 
-    QTimer::singleShot(0, this, SLOT(pulse()));
+    QTimer::singleShot(100, this, SLOT(pulse()));
 } // run()
 
 
@@ -84,17 +106,18 @@ void IfSearchEngine::pulse(void)
     if (mInputFiles.isEmpty())
     {
         if (options().finishedQuit)
-            QTimer::singleShot(10, qApp, SLOT(quit()));
+            QTimer::singleShot(100, qApp, SLOT(quit()));
         else if (options().loop)
-            getInputFiles();
-        else if (getInputFiles())
-            QTimer::singleShot(options().sampleMsec, this, SLOT(pulse()));
+        {
+            if (getInputFiles())
+                QTimer::singleShot(options().sampleMsec, this, SLOT(pulse()));
+        }
         else if (options().waitingMsec)
             QTimer::singleShot(options().waitingMsec, this, SLOT(pulse()));
         return;
     }
     QFileInfo tInputFile = mInputFiles.takeFirst();
-    processEval(tInputFile);
+    processFrame(tInputFile);
     QTimer::singleShot(options().sampleMsec, this, SLOT(pulse()));
 }
 
@@ -110,14 +133,12 @@ int IfSearchEngine::getInputFiles()
     return mInputFiles.count();
 }
 
-void IfSearchEngine::processEval(const QFileInfo fi)
+void IfSearchEngine::processFrame(const QFileInfo &fi)
 {
     qInfo() << Q_FUNC_INFO << fi.baseName();
-    const QImage cRawImage(fi.filePath());
-    mCurrentInputImage = createInputImage(cRawImage);
-    if (mCurrentInputImage.isNull())
-        qCritical() << "Image skipped:" << fi.absoluteFilePath()
-                    << cRawImage.format();
+    const QImage cInputImage = createInputImage(fi);
+    if (cInputImage.isNull())
+        qCritical() << "Image skipped:" << fi.absoluteFilePath();
     Q_ASSERT(mpFrontal);
     app()->win()->clearPixmaps();
     mpFrontal->clear();
@@ -125,8 +146,8 @@ void IfSearchEngine::processEval(const QFileInfo fi)
     tRaw.factor(1.100), tRaw.neighbors(3), tRaw.flags(0),
         tRaw.set(ObjdetRawArguments::ForceRaw),
         tRaw.minSize(QSize()), tRaw.maxSize(QSize()),
-        tRaw.inputSize(mCurrentInputImage.size());
-    mpFrontal->inputImage(mCurrentInputImage);
+        tRaw.inputSize(cInputImage.size());
+    mpFrontal->inputImage(cInputImage);
     mpFrontal->set(tRaw);
     if ( ! mpFrontal->processCascadeClassifier(true))
         qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
@@ -149,7 +170,7 @@ void IfSearchEngine::processEval(const QFileInfo fi)
             qInfo() << tNoFaceFI.absoluteFilePath() << tMarkedImage;
         app()->win()->clearFacePixmaps();
     }
-    extractDetectedFaceImages(fi);
+    processFaces(cInputImage, fi, options().minQuality);
     if (options().deleteAfter)
     {
         QFile tInputFile(fi.filePath());
@@ -159,55 +180,36 @@ void IfSearchEngine::processEval(const QFileInfo fi)
 
 }
 
-QImage IfSearchEngine::createInputImage(const QImage raw)
+QImage IfSearchEngine::createInputImage(const QFileInfo &fi)
 {
     QImage result;
-    const QSize cInputSize(raw.width() & 0xFFF0, raw.height() & 0xFFF0);
-    const QRect cInputRect(QPoint((raw.width() - cInputSize.width()) / 2,
-                                  (raw.height() - cInputSize.height()) / 2),
+    const QImage cInput(fi.filePath());
+    const QSize cInputSize(cInput.width() & 0xFFF0, cInput.height() & 0xFFF0);
+    const QRect cInputRect(QPoint((cInput.width() - cInputSize.width()) / 2,
+                                  (cInput.height() - cInputSize.height()) / 2),
                            cInputSize);
-    result = raw.copy(cInputRect);
-    switch (result.format())
-    {
-    case QImage::Format_Grayscale16:
-    case QImage::Format_Indexed8:
-        result.convertTo(QImage::Format_Grayscale8);
-        // Q_FALLTHROUGH();
-    case QImage::Format_Grayscale8: // As is Greyscale
-        break;
-
-    case QImage::Format_BGR888: // TODO others as needed
-    case QImage::Format_RGB32:
-    case QImage::Format_ARGB32_Premultiplied:
-        result.convertTo(QImage::Format_ARGB32);
-        // Q_FALLTHROUGH();
-    case QImage::Format_ARGB32: // As is Color
-        break;
-
-    case QImage::Format_Invalid:
-    case QImage::Format_Mono:
-    case QImage::Format_MonoLSB:
-    default:
-        qWarning() << "Unsupported input image format" << result.format();
-        result = QImage();
-    }
+    result = cInput.copy(cInputRect).convertedTo(QImage::Format_ARGB32);
+    if (result.isNull())
+        qWarning() << "Null input image" << cInput << result;
     return result;
 }
 
-void IfSearchEngine::extractDetectedFaceImages(const QFileInfo &inputFI,
-                                               const int minQuality)
+void IfSearchEngine::processFaces(const QImage &inputImage,
+                                  const QFileInfo &inputFI,
+                                  const int minQuality)
 {
     qInfo() << Q_FUNC_INFO << mResults.count();
     app()->win()->clearFacePixmaps();
     foreach (const DetectorResult cResult, mResults.rankedList())
     {
         const int cQuality = cResult.quality();
-        if (cQuality < minQuality) break;               /*-----*/
-        const QRect cDetectRect = cResult.rect();
-        const QRect cCropRect = cDetectRect; // TODO?
+        const SCRect cDetectRect = cResult.rect();
+        SCRect tCropRect = (cDetectRect * 1.25).trimmed(16);
         const int cRank = cResult.rank();
-        const QImage cFaceImage = mCurrentInputImage.copy(cCropRect);
-        mDetectedFaces.append(cFaceImage);
+        const QImage cFaceImage = inputImage.copy(tCropRect);
+  //      mDetectedFaces.append(cFaceImage);
+//        Q_ASSERT(cRank == mDetectedFaces.count());
+        if (cQuality < minQuality)  continue;               /*-----*/
         const QString cFaceFileName
             = QString("./Q%1/#%2q%3x%4y%5w%6e%7-%8.png")
                   .arg(cQuality/100*100, 3, 10, QChar('0'))     // 1

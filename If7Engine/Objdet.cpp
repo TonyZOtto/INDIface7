@@ -2,7 +2,6 @@
 
 #include <QMetaEnum>
 #include <QMetaObject>
-#include <QPainter>
 
 #include <opencv2/opencv.hpp>
 
@@ -78,93 +77,6 @@ QImage Objdet::inputImage() const
     return mInputImage;
 }
 
-QImage Objdet::markedImage(const int minQuality, int showQuality) const
-{
-    QImage result = mInputImage;
-    if (showQuality < 0) showQuality = minQuality / 2;
-    QPainter tPainter;
-    tPainter.begin(&result);
-    tPainter.setFont(QFont("helvetica", 16));
-    DetectorResult::List tResultList = resultList().rankedList();
-    qDebug() << Q_FUNC_INFO << mInputImage << tResultList.count()
-             << (tResultList.isEmpty() ? 0 : tResultList.first().quality());
-    while ( ! tResultList.isEmpty())
-    {
-        const DetectorResult cResult = tResultList.takeLast();
-        const QRect cRect = cResult.rect();
-        const int cRank = cResult.rank();
-        const int cQuality = cResult.quality();
-        if (cQuality >= showQuality)
-        {
-            const QString cTitle
-                = QString("#%1 Q%2")
-                      .arg(cRank)
-                      .arg(cQuality, 3, 10, QChar('0'));
-            const QColor cColor = cResult.qualityColor(minQuality);
-            QPen tPen(QBrush(cColor), 7);
-            tPainter.setPen(tPen);
-            tPainter.drawRect(cRect);
-            const QRect cTitleRect(QPoint(cRect.left() - 4,
-                                          cRect.top() - 24),
-                                   QPoint(cRect.right() + 4,
-                                          cRect.top()));
-            tPainter.fillRect(cTitleRect, cColor);
-            tPainter.setPen(cResult.qualityTextColor(minQuality));
-//            tPainter.setBackground(cColor);
-            tPainter.drawText(cTitleRect.bottomLeft(), cTitle);
-        }
-    }
-    tPainter.end();
-    return result;
-}
-
-QImage Objdet::detectImage(const int minQuality) const
-{
-    QImage result = mInputImage
-            .convertedTo(QImage::Format_Grayscale8)
-            .convertedTo(QImage::Format_ARGB32);
-    QPainter tPainter;
-    tPainter.begin(&result);
-    tPainter.setPen(Qt::magenta);
-    tPainter.drawRects(resultList().orphanList());
-    tPainter.setFont(QFont("helvetica", 16));
-    DetectorResult::List tResultList = resultList().rankedList();
-    qDebug() << Q_FUNC_INFO << mInputImage.size() << tResultList.count()
-             << (tResultList.isEmpty() ? 0 : tResultList.first().quality())
-             << resultList().orphanList().count();
-    while ( ! tResultList.isEmpty())
-    {
-        const DetectorResult cResult = tResultList.takeLast();
-        const QRect cRect = cResult.rect();
-        const int cRank = cResult.rank();
-        const int cQuality = cResult.quality();
-        const int cCount = cResult.count();
-        const QString cTitle
-            = QString("#%1 Q%2 K%3 W%4")
-                  .arg(cRank)
-                  .arg(cQuality, 3, 10, QChar('0'))
-                  .arg(cCount)
-                  .arg(cRect.width());
-        const QColor cColor = cResult.qualityColor(minQuality);
-        QPen tPen(QBrush(cColor), 1);
-        tPainter.setPen(tPen);
-        tPainter.drawRects(cResult.includedRects());
-        tPen.setWidth(7);
-        tPainter.setPen(tPen);
-        tPainter.drawRect(cRect);
-        const QRect cTitleRect(QPoint(cRect.left() - 4,
-                                      cRect.top() - 24),
-                               QPoint(cRect.right() + 4,
-                                      cRect.top()));
-        tPainter.fillRect(cTitleRect, cColor);
-        tPainter.setPen(cResult.qualityTextColor(minQuality));
-        tPainter.setBackground(cColor);
-        tPainter.drawText(cTitleRect.bottomLeft(), cTitle);
-    }
-    tPainter.end();
-    return result;
-}
-
 void Objdet::set(const ObjdetRawArguments raw)
 {
     qDebug() << Q_FUNC_INFO << raw.factor() << raw.neighbors()
@@ -173,14 +85,14 @@ void Objdet::set(const ObjdetRawArguments raw)
     mRawParms = raw;
 }
 
-void Objdet::inputImage(const QImage &inputImage)
+void Objdet::inputImage(const QImage &img)
 {
-    qDebug() << Q_FUNC_INFO << inputImage;
-    if (inputImage.isGrayscale())
-        Q_ASSERT(QImage::Format_Grayscale8 == inputImage.format());
+    qDebug() << Q_FUNC_INFO << img;
+    if (img.isGrayscale())
+        Q_ASSERT(QImage::Format_Grayscale8 == img.format());
     else
-        Q_ASSERT(QImage::Format_ARGB32 == inputImage.format());
-    mInputImage = inputImage;
+        Q_ASSERT(QImage::Format_ARGB32 == img.format());
+    mInputImage = img;
 }
 
 void Objdet::clear()
@@ -312,7 +224,7 @@ bool Objdet::processResults(const std::vector<cv::Rect> rects,
                           cCvRect.width, cCvRect.height);
         mAllRects.append(cRect);
     }
-    QList<QRect> tRectList = mAllRects;
+    QList<SCRect> tRectList = mAllRects;
     QMultiMap<int, DetectorResult> tQualityResultMap;
     for (unsigned ix = 0; ix < rects.size(); ++ix)
     {
