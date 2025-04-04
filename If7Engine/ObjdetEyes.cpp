@@ -5,7 +5,7 @@
 ObjdetEyes::ObjdetEyes(QObject *parent)
     : Objdet{Objdet::Eyes, parent}
 {
-    setObjectName("ObjdetEyes");
+    setObjectName("ObjdetEyes:Null");
 }
 
 ObjdetEyes::ObjdetEyes(const Objdet::Class eye,
@@ -17,7 +17,15 @@ ObjdetEyes::ObjdetEyes(const Objdet::Class eye,
     , mInputFrame(frame)
     , mFaceResult(faceDR)
 {
-    setObjectName("ObjdetEyes");
+    setObjectName("ObjdetEyes:" + (EyeRight == mWhichEye) ? "Right" : "Left");
+}
+
+void ObjdetEyes::detectEye()
+{
+    clear();
+    generateDetectImage();
+    processCascadeClassifier(true);
+
 }
 
 void ObjdetEyes::generateDetectImage()

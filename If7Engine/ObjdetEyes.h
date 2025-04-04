@@ -19,6 +19,7 @@ public: // ctors
                         QObject *parent = nullptr);
 
 public slots:
+    void detectEye();
 
 public: // const
 

@@ -31,6 +31,8 @@ private:
     void processFaces(const QImage &inputImage,
                       const QFileInfo &inputFI,
                       const int minQuality=500);
+    void findEyes(const int ix1, const QImage &frameImage,
+                  const DetectorResult cFaceResult);
     IfSearchApplication * app() const;
     IfSearchApplication::Options options() const;
 

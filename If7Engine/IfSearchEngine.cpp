@@ -207,9 +207,8 @@ void IfSearchEngine::processFaces(const QImage &inputImage,
         SCRect tCropRect = (cDetectRect * 1.25).trimmed(16);
         const int cRank = cResult.rank();
         const QImage cFaceImage = inputImage.copy(tCropRect);
-  //      mDetectedFaces.append(cFaceImage);
-//        Q_ASSERT(cRank == mDetectedFaces.count());
         if (cQuality < minQuality)  continue;               /*-----*/
+        findEyes(cRank, inputImage, cResult);
         const QString cFaceFileName
             = QString("./Q%1/#%2q%3x%4y%5w%6e%7-%8.png")
                   .arg(cQuality/100*100, 3, 10, QChar('0'))     // 1
@@ -226,5 +225,11 @@ void IfSearchEngine::processFaces(const QImage &inputImage,
                 << cFaceImage.save(cFaceFI.filePath(), "PNG", 90);
         app()->win()->appendFace(cFaceImage);
     }
+
+}
+
+void IfSearchEngine::findEyes(const int ix1, const QImage &frameImage,
+                              const DetectorResult cFaceResult)
+{
 
 }
