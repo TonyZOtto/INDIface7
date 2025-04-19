@@ -24,6 +24,7 @@ public: // const
     int y() const;
     int top() const;
     int left() const;
+    int right() const;
     int height() const;
     int width() const;
     QPoint topLeft() const;
@@ -35,14 +36,18 @@ public: // const
     SCRect trimmed(const int i) const;
     SCRect intersected(const SCRect other) const;
     SCRect operator * (const qreal f) const;
+    SCRect operator &= (const SCRect other) const;
     operator QRect () const;
 
 public: // non-const
     void height(const int h);
     void width(const int w);
     void size(const int w, const int h);
+    SCRect scale(const qreal f);
+    SCRect offset(const QPoint pt);
 
-public:
+public: // debug
+    QString toDebugString() const;
 
 private:
     QSize mSize;
@@ -60,7 +65,8 @@ inline QPoint SCRect::topLeft() const { return QPoint(left(), top()); }
 inline bool SCRect::isEmpty() const { return size().isEmpty(); }
 inline bool SCRect::isNull() const { return size().isNull(); }
 inline QRect SCRect::toQRect() const { return QRect(topLeft(), size()); }
-inline SCRect SCRect::operator *(const qreal f) const { return scaled(f); }
+inline SCRect SCRect::operator * (const qreal f) const { return scaled(f); }
+inline SCRect SCRect::operator &= (const SCRect other) const { return intersected(other); }
 inline SCRect::operator QRect() const { return toQRect(); }
 inline void SCRect::height(const int h) { mSize.setHeight(h); }
 inline void SCRect::width(const int w) { mSize.setWidth(w); }

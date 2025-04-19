@@ -216,7 +216,6 @@ bool Objdet::processResults(const std::vector<cv::Rect> rects,
                             const std::vector<cv::Rect> allrects,
                             const qreal factor)
 {
-//    const qreal cFactor = raw().factor();
     for (unsigned ix = 0; ix < allrects.size(); ++ix)
     {
         const cv::Rect cCvRect = allrects.at(ix);
@@ -250,7 +249,7 @@ bool Objdet::processResults(const std::vector<cv::Rect> rects,
         dr.rank(++tRank);
         mResultList.addRanked(dr);
     }
-    qDebug() << Q_FUNC_INFO << mAllRects.count()
+    qDebug() << Q_FUNC_INFO << cmClass << mAllRects.count()
              << mOrphanRects.count()
              << mResultList.rankedList().count();
     return true;

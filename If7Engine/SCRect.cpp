@@ -11,6 +11,11 @@ int SCRect::top() const
 
 int SCRect::left() const
 {
+    return center().x() - size().width() / 2;
+}
+
+int SCRect::right() const
+{
     return center().x() + size().width() / 2;
 }
 
@@ -36,5 +41,22 @@ SCRect SCRect::trimmed(const int i) const
 SCRect SCRect::intersected(const SCRect other) const
 {
     return SCRect(toQRect().intersected(other.toQRect()));
+}
+
+SCRect SCRect::scale(const qreal f)
+{
+    return *this = scaled(f);
+}
+
+SCRect SCRect::offset(const QPoint pt)
+{
+    mCenter += pt;
+    return *this;
+}
+
+QString SCRect::toDebugString() const
+{
+    return QString("{SCRect: %1x%2 @C%3,%4}")
+        .arg(width()).arg(height()).arg(x()).arg(y());
 }
 

@@ -69,6 +69,26 @@ void DetectorResultList::addRanked(const DetectorResult &dr)
     mRankedList.append(dr);
 }
 
+void DetectorResultList::adjustRanked(const SCRect rcOffset, const int scale)
+{
+    DetectorResult::List result;
+    foreach (DetectorResult dr, rankedList())
+    {
+        dr.rect().scale(1.0 / qreal(scale));
+        dr.rect().offset(rcOffset.center());
+        QList<SCRect> included;
+        foreach(SCRect rc, dr.includedRects())
+        {
+            rc.scale(1.0 / qreal(scale));
+            rc.offset(rcOffset.center());
+            included << rc;
+        }
+        dr.includedRects(included);
+        result << dr;
+    }
+    rankedList(result);
+}
+
 void DetectorResultList::clearAll()
 {
     clearInputs(), clearResults();
@@ -81,5 +101,17 @@ void DetectorResultList::clearInputs()
 
 void DetectorResultList::clearResults()
 {
-    mRankedList.clear(), mOrphanRectList.clear();
+    mRankedList.clear(), mAllRectList.clear(), mOrphanRectList.clear();
+}
+
+QStringList DetectorResultList::toDebugStrings(const bool all)
+{
+    QStringList result;
+    result << "===DetectorResultList: {";
+    const int nList = mRankedList.count();
+    for (int ix = 0; ix < nList; ++ix)
+        result << QString("   %1. %2").arg(ix + 1, 2)
+                      .arg(at(ix).toDebugStrings(all).join(QChar('\n')));
+    result << "===}";
+    return result;
 }

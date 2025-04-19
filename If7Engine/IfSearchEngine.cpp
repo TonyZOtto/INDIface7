@@ -34,9 +34,6 @@ void IfSearchEngine::init(void)
 void IfSearchEngine::start(void)
 {
     qDebug() << Q_FUNC_INFO;
-    const QString cDetectorsXmlName("./detectors/Detectors.XML");
-    const QString cDetectorClassName("FaceFrontal");
-    const QString cDetectorName(""); // blank=default
     if (mpFrontal)
     {
         mpFrontal->unloadDetector();
@@ -46,15 +43,24 @@ void IfSearchEngine::start(void)
     mpFrontal->loadDetectorXml("./detectors/Aim8A001-32-NoSplit.xml");
     if ( ! mpFrontal->isDetectorLoaded())
         qCritical() << "Failed to load frontal:" << mpFrontal->detectorFileInfo();
-    if (mpEyes)
+    if (mpLEyes)
     {
-        mpEyes->unloadDetector();
-        mpEyes->deleteLater();
+        mpLEyes->unloadDetector();
+        mpLEyes->deleteLater();
     }
-    mpEyes = new ObjdetEyes(this);
-    mpEyes->loadDetectorXml("./detectors/haarcascade_eye.xml");
-    if ( ! mpEyes->isDetectorLoaded())
-        qCritical() << "Failed to load eyes:" << mpEyes->detectorFileInfo();
+    if (mpREyes)
+    {
+        mpREyes->unloadDetector();
+        mpREyes->deleteLater();
+    }
+    mpLEyes = new ObjdetEyes(Objdet::EyeLeft, this);
+    mpLEyes->loadDetectorXml("./detectors/haarcascade_eye.xml");
+    if ( ! mpLEyes->isDetectorLoaded())
+        qCritical() << "Failed to load left eyes:" << mpLEyes->detectorFileInfo();
+    mpREyes = new ObjdetEyes(Objdet::EyeRight, this);
+    mpREyes->loadDetectorXml("./detectors/haarcascade_eye.xml");
+    if ( ! mpREyes->isDetectorLoaded())
+        qCritical() << "Failed to load right eyes:" << mpREyes->detectorFileInfo();
 
     QTimer::singleShot(100, this, SLOT(run()));
 } // start()
@@ -151,7 +157,7 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
     mpFrontal->set(tRaw);
     if ( ! mpFrontal->processCascadeClassifier(true))
         qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
-    mResults = mpFrontal->resultList();
+    mFaceResults = mpFrontal->resultList();
     QImage tMarkedImage = mpFrontal->markedImage(500);
     const QFileInfo tMarkedFI(mMarkedDir, fi.baseName() + ".png");
     if (tMarkedImage.save(tMarkedFI.absoluteFilePath()))
@@ -163,7 +169,7 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
     app()->win()->clearFacePixmaps();
     app()->win()->setMarked(tMarkedImage);
     app()->win()->setDetect(tDetectImage);
-    if (mResults.count() == 0)
+    if (mFaceResults.count() == 0)
     {
         const QFileInfo tNoFaceFI(mNoFaceDir, fi.baseName() + ".png");
         if (tMarkedImage.save(tNoFaceFI.absoluteFilePath()))
@@ -198,9 +204,9 @@ void IfSearchEngine::processFaces(const QImage &inputImage,
                                   const QFileInfo &inputFI,
                                   const int minQuality)
 {
-    qInfo() << Q_FUNC_INFO << mResults.count();
+    qInfo() << Q_FUNC_INFO << mFaceResults.count();
     app()->win()->clearFacePixmaps();
-    foreach (const DetectorResult cResult, mResults.rankedList())
+    foreach (const DetectorResult cResult, mFaceResults.rankedList())
     {
         const int cQuality = cResult.quality();
         const SCRect cDetectRect = cResult.rect();
@@ -208,7 +214,7 @@ void IfSearchEngine::processFaces(const QImage &inputImage,
         const int cRank = cResult.rank();
         const QImage cFaceImage = inputImage.copy(tCropRect);
         if (cQuality < minQuality)  continue;               /*-----*/
-        findEyes(cRank, inputImage, cResult);
+        findEyes(inputImage, cResult);
         const QString cFaceFileName
             = QString("./Q%1/#%2q%3x%4y%5w%6e%7-%8.png")
                   .arg(cQuality/100*100, 3, 10, QChar('0'))     // 1
@@ -228,8 +234,52 @@ void IfSearchEngine::processFaces(const QImage &inputImage,
 
 }
 
-void IfSearchEngine::findEyes(const int ix1, const QImage &frameImage,
-                              const DetectorResult cFaceResult)
+void IfSearchEngine::findEyes(const QImage &frameImage,
+                              const DetectorResult faceResult)
 {
+    const SCRect cFaceRect = faceResult.rect();
+    SCRect tLRoi(cFaceRect.size() * 0.5,
+                 QPoint(cFaceRect.left()  + cFaceRect.width()  / 2,
+                        cFaceRect.top()   +  cFaceRect.height() / 2));
+    SCRect tRRoi(cFaceRect.size() * 0.5,
+                 QPoint(cFaceRect.right() - cFaceRect.width()  / 2,
+                        cFaceRect.top()   + cFaceRect.height() / 2));
+    tLRoi &= SCRect(frameImage.rect());
+    tRRoi &= SCRect(frameImage.rect());
+    QImage tLEyeImage = frameImage.copy(tLRoi.toQRect());
+    QImage tREyeImage = frameImage.copy(tRRoi.toQRect());
+    int tLEyeScale = (tLEyeImage.width() >= 96) ? 1
+                         : qRound(96 / tLEyeImage.width() + 0.999);
+    int tREyeScale = (tREyeImage.width() >= 96) ? 1
+                         : qRound(96 / tREyeImage.width() + 0.999);
+    tLEyeImage = tLEyeImage.scaledToWidth(tLEyeImage.width() * tLEyeScale);
+    tREyeImage = tREyeImage.scaledToWidth(tREyeImage.width() * tREyeScale);
 
+    mLEyeResults.append(findEye(Objdet::EyeLeft,  tLEyeImage, tLRoi, tLEyeScale));
+    mREyeResults.append(findEye(Objdet::EyeRight, tREyeImage, tRRoi, tREyeScale));
+}
+
+DetectorResultList IfSearchEngine::findEye(const Objdet::Class objClass,
+                                            const QImage &eyeImage,
+                                            const SCRect eyeRoi,
+                                            const int eyeScale)
+{
+    qInfo() << Q_FUNC_INFO << objClass << eyeRoi << eyeScale;
+    DetectorResultList result;
+    ObjdetEyes * pEyes = (objClass == Objdet::EyeLeft)
+                            ? mpLEyes : mpREyes;
+    Q_ASSERT(pEyes);
+    Q_ASSERT(pEyes->isDetectorLoaded());
+    ObjdetRawArguments tRaw;
+    tRaw.factor(1.100), tRaw.neighbors(3), tRaw.flags(0),
+        tRaw.set(ObjdetRawArguments::ForceRaw),
+        tRaw.minSize(QSize()), tRaw.maxSize(QSize()),
+        tRaw.inputSize(eyeImage.size());
+    pEyes->inputImage(eyeImage);
+    pEyes->set(tRaw);
+    if ( ! pEyes->processCascadeClassifier(true))
+        qCritical() << "ObjDet eyes failed";
+    result = pEyes->resultList();
+    result.adjustRanked(eyeRoi, eyeScale);
+    return result;
 }

@@ -10,6 +10,12 @@ DetectorResult::DetectorResult(const QRect rect, const int count)
 
 }
 
+SCRect DetectorResult::includedRect(const int ix) const
+{
+    return (ix >= 0 && ix < includedRects().count())
+               ? includedRects().at(ix) : SCRect();
+}
+
 QList<QRect> DetectorResult::includedQRects() const
 {
     QList<QRect> result;
@@ -50,6 +56,24 @@ QList<SCRect> DetectorResult::takeIncludedRects(const QList<SCRect> ar)
             mIncludedRects << rc;
         else
             result << rc;
+    return result;
+}
+
+QStringList DetectorResult::toDebugStrings(const bool all)
+{
+    QStringList result;
+    result << "   ---DetectorResult: {";
+    result << QString("      #%1 Q%2 %3 K%4")
+                  .arg(rank(), 2, 10, QChar('0'))
+                  .arg(rank(), 3, 10, QChar('0'))
+                  .arg(rect().toDebugString())
+                  .arg(count());
+    const int kInc = includedRects().count();
+    if (all)
+        for(int ix = 0; ix < kInc; ++ix)
+            result << QString("      %1. %2").arg(ix, 3)
+                          .arg(includedRect(ix).toDebugString());
+    result << "   ---}";
     return result;
 }
 

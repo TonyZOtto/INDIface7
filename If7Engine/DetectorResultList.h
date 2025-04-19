@@ -14,7 +14,10 @@
 
 class DetectorResultList
 {
-public:
+public: // typedef
+    typedef QList<DetectorResultList> List;
+
+public: // ctors
     DetectorResultList();
     DetectorResultList(const ObjdetRawArguments raw,
                        const std::vector<cv::Rect> rects,
@@ -41,10 +44,15 @@ public: // non-const
                     =std::vector<cv::Rect>());
     void calculate(const ObjdetRawArguments raw);
     void addRanked(const DetectorResult &dr);
+    void rankedList(const DetectorResult::List rl);
     void orphanList(const QList<SCRect> ol);
+    void adjustRanked(const SCRect rcOffset, const int scale);
     void clearAll();
     void clearInputs();
     void clearResults();
+
+public: // debug
+    QStringList toDebugStrings(const bool all=false);
 
 private:
     std::vector<cv::Rect> mCvRects;
@@ -61,6 +69,7 @@ inline DetectorResult DetectorResultList::best() const { return rankedList().fir
 inline DetectorResult::List DetectorResultList::rankedList() const { return mRankedList; }
 inline QList<SCRect> DetectorResultList::allRectList() const { return mAllRectList; }
 inline QList<SCRect> DetectorResultList::orphanList() const { return mOrphanRectList; }
+inline void DetectorResultList::rankedList(const DetectorResult::List rl)  { mRankedList = rl; }
 inline void DetectorResultList::orphanList(const QList<SCRect> ol) { mOrphanRectList = ol; }
 
 

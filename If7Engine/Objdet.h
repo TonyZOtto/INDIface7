@@ -55,6 +55,7 @@ signals:
 protected:
 
 public: // const
+    Class objClass() const;
     QString className() const;
     ObjdetRawArguments raw() const { return mRawParms; }
     QImage inputImage(void) const;
@@ -74,6 +75,8 @@ public: // non-const
     void inputImage(const QImage &img);
     void clear();
     bool processCascadeClassifier(const bool returnAll=false);
+
+private:
     bool processResults(const std::vector<cv::Rect> rects,
                         const std::vector<int> counts,
                         const std::vector<cv::Rect> allrects, const qreal factor);
@@ -96,11 +99,13 @@ public:
 
 protected slots:
 
+protected:
+    const Class cmClass=$nullClass;
+
 private:
     QList<SCRect> mAllRects;
     QList<SCRect> mOrphanRects;
     DetectorResultList mResultList;
-    const Class cmClass=$nullClass;
     QFileInfo mCascadeFileInfo;
     cv::CascadeClassifier * mpCascade=nullptr;
     ObjdetRawArguments mRawParms;
@@ -110,6 +115,11 @@ private:
     cv::Mat mGreyMat;
     //int origScale;
 };
+
+inline Objdet::Class Objdet::objClass() const
+{
+    return cmClass;
+}
 
 inline bool Objdet::isDetectorLoaded()
 {

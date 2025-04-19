@@ -22,15 +22,21 @@ public: // const
     SCRect rect(void) const { return mResultRect; }
     int count(void) const { return mResultCount; }
     QList<SCRect> includedRects(void) const { return mIncludedRects; }
+    SCRect includedRect(const int ix) const;
     QList<QRect> includedQRects(void) const;
     QColor qualityColor(const int midQuality) const;
     QColor qualityTextColor(const int midQuality) const;
 
 public: // non-const
+    SCRect & rect() { return mResultRect; }
     void rank(const int r) { mRank = r; }
     void quality(const int q) { mQuality = q; }
     void count(const int k) { mResultCount = k; }
+    void includedRects(const QList<SCRect> inc) { mIncludedRects = inc; }
     QList<SCRect> takeIncludedRects(const QList<SCRect> ar);
+
+public: // debug
+    QStringList toDebugStrings(const bool all=false);
 
 private:
     int mRank;

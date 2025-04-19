@@ -11,6 +11,7 @@
 
 #include "DetectorResultList.h"
 #include "IfSearchApplication.h"
+#include "Objdet.h"
 #include "VersionInfo.h"
 
 class ObjdetCatalog;
@@ -31,8 +32,12 @@ private:
     void processFaces(const QImage &inputImage,
                       const QFileInfo &inputFI,
                       const int minQuality=500);
-    void findEyes(const int ix1, const QImage &frameImage,
-                  const DetectorResult cFaceResult);
+    void findEyes(const QImage &frameImage,
+                  const DetectorResult faceResult);
+    DetectorResultList findEye(const Objdet::Class objClass,
+                               const QImage &eyeImage,
+                               const SCRect eyeRoi,
+                               const int eyeScale);
     IfSearchApplication * app() const;
     IfSearchApplication::Options options() const;
 
@@ -47,7 +52,8 @@ private:
     IfSearchApplication * mpApplication=nullptr;
     ObjdetCatalog * mpObjdetCatalog=nullptr;
     ObjdetFrontal * mpFrontal=nullptr;
-    ObjdetEyes * mpEyes=nullptr;
+    ObjdetEyes * mpLEyes=nullptr;
+    ObjdetEyes * mpREyes=nullptr;
     QDateTime mBaseTimestamp;
     QDir mInputDir;
     QDir mOutputBaseDir;
@@ -57,7 +63,9 @@ private:
     QDir mFrontalObjDetDir;
     QDir mEyesObjDetDir;
     QFileInfoList mInputFiles;
-    DetectorResultList mResults;
+    DetectorResultList mFaceResults;
+    DetectorResultList::List mLEyeResults;
+    DetectorResultList::List mREyeResults;
 
 private:
 

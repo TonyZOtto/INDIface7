@@ -12,8 +12,10 @@ class ObjdetEyes : public Objdet
 {
     Q_OBJECT
 public: // ctors
-    explicit ObjdetEyes(QObject *parent = nullptr);
-    explicit ObjdetEyes(const Objdet::Class eye,
+//    explicit ObjdetEyes(QObject *parent = nullptr);
+    ObjdetEyes(const Objdet::Class eye,
+                        QObject *parent = nullptr);
+    ObjdetEyes(const Objdet::Class eye,
                         const QImage &frame,
                         const DetectorResult &faceDR,
                         QObject *parent = nullptr);
@@ -22,18 +24,21 @@ public slots:
     void detectEye();
 
 public: // const
+    QImage eyeImage() const;
+    QImage detectImage() const;
 
 public: // non-const
-    void generateDetectImage();
+    void generateEyeImage();
 
 public: // pointers
 
 private:
-    Objdet::Class mWhichEye=Objdet::$nullClass;
     QImage mInputFrame;
     DetectorResult mFaceResult;
-    QImage mDetectImage;
-    SCRect mDetectRect;
+    QImage mEyeImage;
+    SCRect mFaceEyeRoi;
     int mDetectScale=0;
-    DetectorResultList mEyeResults;
 };
+
+inline QImage ObjdetEyes::eyeImage() const { return mEyeImage; }
+
