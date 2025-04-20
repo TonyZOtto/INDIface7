@@ -25,7 +25,6 @@ public slots:
 
 public: // const
     QImage eyeImage() const;
-    QImage detectImage() const;
 
 public: // non-const
     void generateEyeImage();

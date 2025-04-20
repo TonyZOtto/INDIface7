@@ -4,6 +4,8 @@
 #include <QHBoxLayout>
 #include <QImage>
 #include <QLabel>
+#include <QPainter>
+#include <QRect>
 #include <QTextEdit>
 #include <QTimer>
 #include <QWidget>
@@ -107,6 +109,23 @@ void IfSearchWindow::appendFace(const QImage &img,
     mpFaceLayout->addWidget(pFaceLabel, 0, cColumn);
     mpFaceLayout->addWidget(pFaceLabel, 1, cColumn);
     mpFaceLayout->addWidget(pNormLabel, 2, cColumn);
+}
+
+void IfSearchWindow::appendEyes(const QImage &eyeLImage, const QImage &eyeRImage)
+{
+    const int cColumn = mEyesPixmaps.count();
+    static const int scThumbWidth = faceThumbSize().width();
+    QPainter tPainter;
+    QPixmap tEyesPixmap;
+    tPainter.begin(&tEyesPixmap);
+    tPainter.drawImage(0, 0, eyeLImage);
+    tPainter.drawImage(scThumbWidth / 2, 0, eyeRImage);
+    tPainter.end();
+    mEyesPixmaps.append(tEyesPixmap);
+    QLabel * pEyesLabel = new QLabel;
+    Q_ASSERT(pEyesLabel);
+    pEyesLabel->setPixmap(tEyesPixmap);
+    mpFaceLayout->addWidget(pEyesLabel, 1, cColumn);
 }
 
 void IfSearchWindow::setMessage(const QString &s)

@@ -24,8 +24,9 @@ public: // const
     QList<SCRect> includedRects(void) const { return mIncludedRects; }
     SCRect includedRect(const int ix) const;
     QList<QRect> includedQRects(void) const;
-    QColor qualityColor(const int midQuality) const;
-    QColor qualityTextColor(const int midQuality) const;
+    QColor frontalQualityColor(const int midQuality=500) const;
+    QColor frontalQualityTextColor(const int midQuality=500) const;
+    QColor eyeQualityColor(const int midQuality=500) const;
 
 public: // non-const
     SCRect & rect() { return mResultRect; }

@@ -40,7 +40,7 @@ QImage ObjdetFrontal::markedImage(int minQuality, int showQuality) const
                 = QString("#%1 Q%2")
                       .arg(cRank)
                       .arg(cQuality, 3, 10, QChar('0'));
-            const QColor cColor = cResult.qualityColor(minQuality);
+            const QColor cColor = cResult.frontalQualityColor(minQuality);
             QPen tPen(QBrush(cColor), 7);
             tPainter.setPen(tPen);
             tPainter.drawRect(cRect);
@@ -49,7 +49,7 @@ QImage ObjdetFrontal::markedImage(int minQuality, int showQuality) const
                                    QPoint(cRect.right() + 4,
                                           cRect.top()));
             tPainter.fillRect(cTitleRect, cColor);
-            tPainter.setPen(cResult.qualityTextColor(minQuality));
+            tPainter.setPen(cResult.frontalQualityTextColor(minQuality));
             //            tPainter.setBackground(cColor);
             tPainter.drawText(cTitleRect.bottomLeft(), cTitle);
         }
@@ -85,7 +85,7 @@ QImage ObjdetFrontal::detectImage(const int minQuality) const
                   .arg(cQuality, 3, 10, QChar('0'))
                   .arg(cCount)
                   .arg(cRect.width());
-        const QColor cColor = cResult.qualityColor(minQuality);
+        const QColor cColor = cResult.frontalQualityColor(minQuality);
         QPen tPen(QBrush(cColor), 1);
         tPainter.setPen(tPen);
         tPainter.drawRects(cResult.includedQRects());
@@ -97,7 +97,7 @@ QImage ObjdetFrontal::detectImage(const int minQuality) const
                                QPoint(cRect.right() + 4,
                                       cRect.top()));
         tPainter.fillRect(cTitleRect, cColor);
-        tPainter.setPen(cResult.qualityTextColor(minQuality));
+        tPainter.setPen(cResult.frontalQualityTextColor(minQuality));
         tPainter.setBackground(cColor);
         tPainter.drawText(cTitleRect.bottomLeft(), cTitle);
     }

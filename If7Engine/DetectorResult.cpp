@@ -24,7 +24,7 @@ QList<QRect> DetectorResult::includedQRects() const
     return result;
 }
 
-QColor DetectorResult::qualityColor(const int midQuality) const
+QColor DetectorResult::frontalQualityColor(const int midQuality) const
 {
     QColor result(Qt::black);
     if (quality() > midQuality)
@@ -34,13 +34,23 @@ QColor DetectorResult::qualityColor(const int midQuality) const
     return result;
 }
 
-QColor DetectorResult::qualityTextColor(const int midQuality) const
+QColor DetectorResult::frontalQualityTextColor(const int midQuality) const
 {
     QColor result(Qt::black);
     if (quality() > midQuality)
         result = QColor(Qt::darkYellow);
     else
         result = QColor(Qt::yellow);
+    return result;
+}
+
+QColor DetectorResult::eyeQualityColor(const int midQuality) const
+{
+    QColor result(Qt::black);
+    if (quality() > midQuality)
+        result = QColor(Qt::yellow).lighter(100 + ((quality() - midQuality) / 10));
+    else
+        result = QColor(Qt::darkYellow).darker(100 + ((midQuality - quality()) / 10));
     return result;
 }
 

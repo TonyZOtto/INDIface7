@@ -33,11 +33,6 @@ void ObjdetEyes::detectEye()
 
 }
 
-QImage ObjdetEyes::detectImage() const
-{
-
-}
-
 void ObjdetEyes::generateEyeImage()
 {
     const SCRect cFaceRect = mFaceResult.rect();

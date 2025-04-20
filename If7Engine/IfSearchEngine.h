@@ -32,12 +32,21 @@ private:
     void processFaces(const QImage &inputImage,
                       const QFileInfo &inputFI,
                       const int minQuality=500);
+    QImage writeFaceImage(const QFileInfo inputFI,
+                          const QImage &inputImage,
+                          const DetectorResult faceResult);
     void findEyes(const QImage &frameImage,
+                  const QFileInfo inputFI,
                   const DetectorResult faceResult);
     DetectorResultList findEye(const Objdet::Class objClass,
                                const QImage &eyeImage,
                                const SCRect eyeRoi,
                                const int eyeScale);
+    QImage writeEyeImage(const bool isRight,
+                         const QFileInfo inputFI,
+                         const QImage eyeImage,
+                         const DetectorResult faceDR,
+                         const DetectorResultList eyeDRL);
     IfSearchApplication * app() const;
     IfSearchApplication::Options options() const;
 

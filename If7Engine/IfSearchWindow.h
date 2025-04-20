@@ -29,6 +29,8 @@ public slots:
     void appendFace(const QImage &faceImage,
                     const QImage &eyesImage=QImage(),
                     const QImage &normImage=QImage());
+    void appendEyes(const QImage &eyeLImage,
+                    const QImage &eyeRImage);
     void setMessage(const QString &s);
 
 signals:

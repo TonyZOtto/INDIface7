@@ -2,6 +2,8 @@
 #include "version.h"
 
 #include <QtDebug>
+#include <QPainter>
+#include <QPen>
 #include <QRect>
 #include <QSize>
 #include <QTimer>
@@ -209,32 +211,44 @@ void IfSearchEngine::processFaces(const QImage &inputImage,
     foreach (const DetectorResult cResult, mFaceResults.rankedList())
     {
         const int cQuality = cResult.quality();
-        const SCRect cDetectRect = cResult.rect();
-        SCRect tCropRect = (cDetectRect * 1.25).trimmed(16);
-        const int cRank = cResult.rank();
-        const QImage cFaceImage = inputImage.copy(tCropRect);
-        if (cQuality < minQuality)  continue;               /*-----*/
-        findEyes(inputImage, cResult);
-        const QString cFaceFileName
-            = QString("./Q%1/#%2q%3x%4y%5w%6e%7-%8.png")
-                  .arg(cQuality/100*100, 3, 10, QChar('0'))     // 1
-                  .arg(cRank, 2, 10, QChar('0'))                // 2
-                  .arg(cQuality, 3, 10, QChar('0'))             // 3
-                  .arg(cDetectRect.x(), 4, 10, QChar('0'))      // 4
-                  .arg(cDetectRect.y(), 4, 10, QChar('0'))      // 5
-                  .arg(cDetectRect.width(), 3, 10,QChar('0'))   // 6
-                  .arg(0, 3, 10, QChar('0'))                    // 7
-                  .arg(inputFI.baseName());                     // 8
-        const QFileInfo cFaceFI(mDetectedFacesDir, cFaceFileName);
-        cFaceFI.dir().mkpath(".");
-        qInfo() << cFaceFI.absoluteFilePath()
-                << cFaceImage.save(cFaceFI.filePath(), "PNG", 90);
-        app()->win()->appendFace(cFaceImage);
+        if (cQuality >= minQuality)
+        {
+            const QImage cFaceImage
+                = writeFaceImage(inputFI, inputImage, cResult);
+            findEyes(cFaceImage, inputFI, cResult);
+        }
     }
+}
 
+QImage IfSearchEngine::writeFaceImage(const QFileInfo inputFI,
+                                      const QImage &inputImage,
+                                      const DetectorResult faceResult)
+{
+    const SCRect cDetectRect = faceResult.rect();
+    SCRect tCropRect = (cDetectRect * 1.25).trimmed(16);
+    const int cRank = faceResult.rank();
+    const int cQuality = faceResult.quality();
+    const QImage cFaceImage = inputImage.copy(tCropRect);
+    const QString cFaceFileName
+        = QString("./Q%1/#%2q%3x%4y%5w%6e%7-%8.png")
+              .arg(cQuality/100*100, 3, 10, QChar('0'))     // 1
+              .arg(cRank, 2, 10, QChar('0'))                // 2
+              .arg(cQuality, 3, 10, QChar('0'))             // 3
+              .arg(cDetectRect.x(), 4, 10, QChar('0'))      // 4
+              .arg(cDetectRect.y(), 4, 10, QChar('0'))      // 5
+              .arg(cDetectRect.width(), 3, 10,QChar('0'))   // 6
+              .arg(0, 3, 10, QChar('0'))                    // 7
+              .arg(inputFI.baseName());                     // 8
+    const QFileInfo cFaceFI(mDetectedFacesDir, cFaceFileName);
+    cFaceFI.dir().mkpath(".");
+    qInfo() << cFaceFI.absoluteFilePath()
+            << cFaceImage.save(cFaceFI.filePath(), "PNG", 90);
+    app()->win()->appendFace(cFaceImage);
+    return cFaceImage;
 }
 
 void IfSearchEngine::findEyes(const QImage &frameImage,
+                              const QFileInfo inputFI,
                               const DetectorResult faceResult)
 {
     const SCRect cFaceRect = faceResult.rect();
@@ -254,9 +268,17 @@ void IfSearchEngine::findEyes(const QImage &frameImage,
                          : qRound(96 / tREyeImage.width() + 0.999);
     tLEyeImage = tLEyeImage.scaledToWidth(tLEyeImage.width() * tLEyeScale);
     tREyeImage = tREyeImage.scaledToWidth(tREyeImage.width() * tREyeScale);
-
-    mLEyeResults.append(findEye(Objdet::EyeLeft,  tLEyeImage, tLRoi, tLEyeScale));
-    mREyeResults.append(findEye(Objdet::EyeRight, tREyeImage, tRRoi, tREyeScale));
+    const DetectorResultList cLEyeResults
+        = findEye(Objdet::EyeLeft,  tLEyeImage, tLRoi, tLEyeScale);
+    const DetectorResultList cREyeResults
+        = findEye(Objdet::EyeRight, tREyeImage, tRRoi, tREyeScale);
+    mLEyeResults.append(cLEyeResults);
+    mREyeResults.append(cREyeResults);
+    const QImage cLEyeImage
+        = writeEyeImage(false, inputFI, tLEyeImage, faceResult, cLEyeResults);
+    const QImage cREyeImage
+        = writeEyeImage(true,  inputFI, tREyeImage, faceResult, cREyeResults);
+    app()->win()->appendEyes(cLEyeImage, cREyeImage);
 }
 
 DetectorResultList IfSearchEngine::findEye(const Objdet::Class objClass,
@@ -281,5 +303,35 @@ DetectorResultList IfSearchEngine::findEye(const Objdet::Class objClass,
         qCritical() << "ObjDet eyes failed";
     result = pEyes->resultList();
     result.adjustRanked(eyeRoi, eyeScale);
+    return result;
+}
+
+QImage IfSearchEngine::writeEyeImage(const bool isRight,
+                                     const QFileInfo inputFI,
+                                     const QImage eyeImage,
+                                     const DetectorResult faceDR,
+                                     const DetectorResultList eyeDRL)
+{
+    static const int scThumbWidth = IfSearchWindow::faceThumbSize().width();
+    QImage result = eyeImage.scaledToWidth(scThumbWidth / 2);
+    const qreal cScaleF = qreal(scThumbWidth) / qreal(eyeImage.width());
+    QPainter tPainter;
+    tPainter.begin(&result);
+    foreach (const DetectorResult cDR, eyeDRL.rankedList())
+    {
+        const SCRect cRect = cDR.rect();
+        QPen tPen(cDR.eyeQualityColor());
+        tPainter.setPen(tPen);
+        tPainter.drawRect((cRect * cScaleF).toQRect());
+    }
+    tPainter.end();
+    const QString cEyeFileName
+        = QString("./#%1%2eye-%3.png")
+              .arg(faceDR.rank(), 2, 10, QChar('0'))                // 1
+              .arg(isRight ? "R" : "L")                             // 2
+              .arg(inputFI.baseName());                             // 3
+    const QFileInfo cEyeFI(mEyesObjDetDir, cEyeFileName);
+    qInfo() << cEyeFI.absoluteFilePath()
+            << result.save(cEyeFI.filePath(), "png", 90);
     return result;
 }
