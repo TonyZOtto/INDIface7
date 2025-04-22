@@ -23,6 +23,7 @@ public: // const
     int x() const;
     int y() const;
     int top() const;
+    int bottom() const;
     int left() const;
     int right() const;
     int height() const;

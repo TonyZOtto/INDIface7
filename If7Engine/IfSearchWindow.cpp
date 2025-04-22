@@ -44,11 +44,12 @@ void IfSearchWindow::setup()
     mpFrameGrid->setColumnMinimumWidth(0, maxFrameDim());
     mpFrameGrid->setColumnMinimumWidth(1, maxFrameDim());
     mpFaceLayout->setRowMinimumHeight(0, faceThumbSize().height());
+    qDebug() << mpFaceLayout->columnCount();
     mpFrameGrid->addWidget(mpMarkedLabel, 0, 0,
                            Qt::AlignTop | Qt::AlignHCenter);
     mpFrameGrid->addWidget(mpDetectLabel, 0, 1,
                            Qt::AlignTop | Qt::AlignHCenter);
-#if 0
+#if 1
     QImage tEircImage(":/png/doc/art/logos/EclipseIRLogo.png");
     QImage tIndiImage(":/png/doc/art/logos/INDI200.png");
     QImage tFaceImage(":/png/doc/art/RonOtto1952Thumb.png");
@@ -61,6 +62,7 @@ void IfSearchWindow::setup()
 
 void IfSearchWindow::clearPixmaps()
 {
+    qInfo() << Q_FUNC_INFO;
     setMarked(QImage());
     setDetect(QImage());
     clearFacePixmaps();
@@ -69,49 +71,42 @@ void IfSearchWindow::clearPixmaps()
 
 void IfSearchWindow::clearFacePixmaps()
 {
-    for (int col = 0; col < mpFaceLayout->columnCount(); ++col)
-        mpFaceLayout->removeItem(mpFaceLayout->itemAtPosition(0, col));
+    qInfo() << Q_FUNC_INFO << mFacePixmaps.count()
+            << mpFaceLayout->count();
+    for (int ix = 0; ix < mpFaceLayout->count(); ++ix)
+        mpFaceLayout->removeItem(mpFaceLayout->itemAt(ix));
     mFacePixmaps.clear();
 }
 
 void IfSearchWindow::setMarked(const QImage &img)
 {
+    qInfo() << Q_FUNC_INFO << img;
     mMarkedPixmap = scaledPixmap(img, maxFrameDim());
     mpMarkedLabel->setPixmap(mMarkedPixmap);
 }
 
 void IfSearchWindow::setDetect(const QImage &img)
 {
+    qInfo() << Q_FUNC_INFO << img;
     mDetectPixmap = scaledPixmap(img, maxFrameDim());
     mpDetectLabel->setPixmap(mDetectPixmap);
 }
 
-void IfSearchWindow::appendFace(const QImage &img,
-                                const QImage &eyesImage,
-                                const QImage &normImage)
+void IfSearchWindow::appendFace(const QImage &img)
 {
     const int cColumn = mFacePixmaps.count();
-    const QPixmap cFacePixmap = scaledPixmap(img, faceThumbSize().width());
-    const QPixmap cEyesPixmap = QPixmap::fromImage(eyesImage);
-    const QPixmap cNormPixmap = QPixmap::fromImage(normImage);
+    qInfo() << Q_FUNC_INFO << img.size() << cColumn
+            << mpFaceLayout->columnCount();
+    const QPixmap cFacePixmap = QPixmap::fromImage(img);
     mFacePixmaps.append(cFacePixmap);
-    mEyesPixmaps.append(cEyesPixmap);
-    mNormPixmaps.append(cNormPixmap);
     QLabel * pFaceLabel = new QLabel;
-    QLabel * pEyesLabel = new QLabel;
-    QLabel * pNormLabel = new QLabel;
     Q_ASSERT(pFaceLabel);
-    Q_ASSERT(pEyesLabel);
-    Q_ASSERT(pNormLabel);
     pFaceLabel->setPixmap(cFacePixmap);
-    pEyesLabel->setPixmap(cEyesPixmap);
-    pNormLabel->setPixmap(cEyesPixmap);
     mpFaceLayout->addWidget(pFaceLabel, 0, cColumn);
-    mpFaceLayout->addWidget(pFaceLabel, 1, cColumn);
-    mpFaceLayout->addWidget(pNormLabel, 2, cColumn);
 }
 
-void IfSearchWindow::appendEyes(const QImage &eyeLImage, const QImage &eyeRImage)
+void IfSearchWindow::appendEyes(const QImage &eyeLImage,
+                                const QImage &eyeRImage)
 {
     const int cColumn = mEyesPixmaps.count();
     static const int scThumbWidth = faceThumbSize().width();
@@ -121,6 +116,7 @@ void IfSearchWindow::appendEyes(const QImage &eyeLImage, const QImage &eyeRImage
     tPainter.drawImage(0, 0, eyeLImage);
     tPainter.drawImage(scThumbWidth / 2, 0, eyeRImage);
     tPainter.end();
+    qInfo() << Q_FUNC_INFO << eyeLImage << eyeRImage << tEyesPixmap;
     mEyesPixmaps.append(tEyesPixmap);
     QLabel * pEyesLabel = new QLabel;
     Q_ASSERT(pEyesLabel);
@@ -141,10 +137,13 @@ QPixmap IfSearchWindow::scaledPixmap(const QImage &img,
                                      const int dim)
 {
     QPixmap result;
-    if (img.width() > img.height())
+    if (img.isNull())
+        result = QPixmap(dim, dim);
+    else if (img.width() > img.height())
         result = QPixmap::fromImage(img.scaledToWidth(dim));
     else
         result = QPixmap::fromImage(img.scaledToHeight(dim));
+    qInfo() << Q_FUNC_INFO << dim << img << result;
     return result;
 }
 

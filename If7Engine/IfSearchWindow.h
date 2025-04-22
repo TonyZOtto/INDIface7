@@ -22,13 +22,11 @@ public: // ctors
 
 public slots:
     void setup();
-    void clearPixmaps(); // private?
-    void clearFacePixmaps(); // private?
+    void clearPixmaps();
+    void clearFacePixmaps();
     void setMarked(const QImage &img);
     void setDetect(const QImage &img);
-    void appendFace(const QImage &faceImage,
-                    const QImage &eyesImage=QImage(),
-                    const QImage &normImage=QImage());
+    void appendFace(const QImage &faceImage);
     void appendEyes(const QImage &eyeLImage,
                     const QImage &eyeRImage);
     void setMessage(const QString &s);

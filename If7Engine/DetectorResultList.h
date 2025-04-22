@@ -27,6 +27,7 @@ public: // ctors
 
 public: // const
     int count() const;
+    int count(const int minQuality) const;
     DetectorResult at(const int ix) const;
     DetectorResult best() const;
     DetectorResult::List rankedList() const;

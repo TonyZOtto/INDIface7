@@ -26,14 +26,14 @@ QImage ObjdetFrontal::markedImage(int minQuality, int showQuality) const
     tPainter.begin(&result);
     tPainter.setFont(QFont("helvetica", 16));
     DetectorResult::List tResultList = resultList().rankedList();
-    qDebug() << Q_FUNC_INFO << inputImage() << tResultList.count()
-             << (tResultList.isEmpty() ? 0 : tResultList.first().quality());
+    qInfo() << Q_FUNC_INFO << inputImage().size() << tResultList.count();
     while ( ! tResultList.isEmpty())
     {
         const DetectorResult cResult = tResultList.takeLast();
         const QRect cRect = cResult.rect();
         const int cRank = cResult.rank();
         const int cQuality = cResult.quality();
+        qDebug() << cRank << cQuality << cResult.rect().toDebugString();
         if (cQuality >= showQuality)
         {
             const QString cTitle

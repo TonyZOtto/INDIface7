@@ -28,7 +28,7 @@ public: // types
         int         minQuality = 500;
         int         sampleMsec = 1000;
         int         waitingMsec = 60000;
-        ShowOption  show = Normalized;
+        ShowOption  show = Maximized;
         bool        loop = false;
         bool        deleteAfter = false;
         bool        finishedQuit = false;

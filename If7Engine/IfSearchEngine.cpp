@@ -101,9 +101,8 @@ void IfSearchEngine::run(void)
     if ( ! mFrontalObjDetDir.cd(options().frontalObjdetDir.path()))
         qCritical() << "Can't set objdet output directory";
     qDebug() << mOutputBaseDir << mMarkedDir << mDetectedFacesDir;
-    app()->win()->clearPixmaps();
 
-    QTimer::singleShot(100, this, SLOT(pulse()));
+    QTimer::singleShot(1000, this, SLOT(pulse()));
 } // run()
 
 
@@ -149,6 +148,7 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
         qCritical() << "Image skipped:" << fi.absoluteFilePath();
     Q_ASSERT(mpFrontal);
     app()->win()->clearPixmaps();
+    app()->win()->clearFacePixmaps();
     mpFrontal->clear();
     ObjdetRawArguments tRaw;
     tRaw.factor(1.100), tRaw.neighbors(3), tRaw.flags(0),
@@ -171,7 +171,7 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
     app()->win()->clearFacePixmaps();
     app()->win()->setMarked(tMarkedImage);
     app()->win()->setDetect(tDetectImage);
-    if (mFaceResults.count() == 0)
+    if (mFaceResults.count(500) == 0) // MUSTDO minQuality parameter
     {
         const QFileInfo tNoFaceFI(mNoFaceDir, fi.baseName() + ".png");
         if (tMarkedImage.save(tNoFaceFI.absoluteFilePath()))
@@ -215,7 +215,7 @@ void IfSearchEngine::processFaces(const QImage &inputImage,
         {
             const QImage cFaceImage
                 = writeFaceImage(inputFI, inputImage, cResult);
-            findEyes(cFaceImage, inputFI, cResult);
+//            findEyes(cFaceImage, inputFI, cResult);
         }
     }
 }
@@ -226,6 +226,9 @@ QImage IfSearchEngine::writeFaceImage(const QFileInfo inputFI,
 {
     const SCRect cDetectRect = faceResult.rect();
     SCRect tCropRect = (cDetectRect * 1.25).trimmed(16);
+    qInfo() << Q_FUNC_INFO << inputFI.baseName() << inputImage.size()
+            << faceResult.rect().toDebugString()
+            << tCropRect.toDebugString();
     const int cRank = faceResult.rank();
     const int cQuality = faceResult.quality();
     const QImage cFaceImage = inputImage.copy(tCropRect);
@@ -243,7 +246,7 @@ QImage IfSearchEngine::writeFaceImage(const QFileInfo inputFI,
     cFaceFI.dir().mkpath(".");
     qInfo() << cFaceFI.absoluteFilePath()
             << cFaceImage.save(cFaceFI.filePath(), "PNG", 90);
-    app()->win()->appendFace(cFaceImage);
+    app()->win()->appendFace(cFaceImage.scaled(IfSearchWindow::faceThumbSize()));
     return cFaceImage;
 }
 

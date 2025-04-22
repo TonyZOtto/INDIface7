@@ -9,7 +9,7 @@ public:
     explicit ObjdetFrontal(QObject *parent = nullptr);
 
 public: // const
-    QImage markedImage(int minQuality=0, int showQuality=0) const;
+    QImage markedImage(int minQuality=500, int showQuality=0) const;
     QImage detectImage(const int minQuality) const;
     QSize minSize();
     QSize maxSize();

@@ -17,6 +17,14 @@ DetectorResultList::DetectorResultList(const ObjdetRawArguments raw,
     calculate(raw);
 }
 
+int DetectorResultList::count(const int minQuality) const
+{
+    int result = 0;
+    foreach (const DetectorResult cDR, mRankedList)
+        if (cDR.quality() >= minQuality) ++result;
+    return result;
+}
+
 QList<QRect> DetectorResultList::orphanQRects() const
 {
     QList<QRect> result;

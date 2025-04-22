@@ -6,6 +6,11 @@ SCRect::SCRect(const QRect qrc) : mSize(qrc.size()), mCenter(qrc.center())  {;}
 
 int SCRect::top() const
 {
+    return center().y() - size().height() / 2;
+}
+
+int SCRect::bottom() const
+{
     return center().y() + size().height() / 2;
 }
 
@@ -33,7 +38,7 @@ SCRect SCRect::trimmed(const int i) const
 {
     SCRect result(*this);
     const int cMask = i - 1;
-    result.width(width() & cMask),
+    result.width(width() & ~ cMask),
         result.height(height() & ~ cMask);
     return result;
 }

@@ -88,11 +88,7 @@ void Objdet::set(const ObjdetRawArguments raw)
 void Objdet::inputImage(const QImage &img)
 {
     qDebug() << Q_FUNC_INFO << img;
-    if (img.isGrayscale())
-        Q_ASSERT(QImage::Format_Grayscale8 == img.format());
-    else
-        Q_ASSERT(QImage::Format_ARGB32 == img.format());
-    mInputImage = img;
+    mInputImage = img.convertedTo(QImage::Format_ARGB32);
 }
 
 void Objdet::clear()
@@ -104,78 +100,8 @@ void Objdet::clear()
     mGreyMat = cv::Mat();
 }
 
-
-
-
-
-// -------------------------- static ------------------------
-
-VersionInfo Objdet::cvVersion()
-{
-    VersionInfo ver(CV_MAJOR_VERSION,
-                    CV_MINOR_VERSION,
-                    CV_SUBMINOR_VERSION,
-                    0,
-                    CV_VERSION,
-                    "Copyright (c) 2000-2008, Intel Corporation. "
-                    "Copyright (C) 2015-2024, OpenCV Foundation, all rights reserved."
-                    "Thank you to huihut.com for prebuilt MINGW libraries.",
-                    "OpenCV",
-                    "Computer Vision Library");
-    return ver;
-}
-
-bool Objdet::isValid(const Class objcls)
-{
-    return objcls > $nullClass && objcls < $maxClass;
-}
-
-Objdet::Class Objdet::objectClass(const QString name)
-{
-    Class result = $nullClass;
-    Objdet tOD;
-    const QMetaObject * pQMO = tOD.metaObject();
-    const int cCount = pQMO->enumeratorCount();
-    int tIndex = 0;
-    while (tIndex < cCount && $nullClass == result)
-    {
-        const QMetaEnum cQME = pQMO->enumerator(tIndex);
-        const QString cEnumName(cQME.enumName());
-        if ("Class" == cEnumName)
-        {
-            bool tOK = false;
-            int tInt = $nullClass;
-            tInt = cQME.keyToValue(qPrintable(name), &tOK);
-            if (tOK) result = Class(tInt);
-            break;                                      /*v-1-v*/
-        }
-        ++tIndex;
-    }                                                   /*--1--*/
-    return result;
-}
-
-QString Objdet::className(const Class objcls)
-{
-    QString result("Null");
-    Objdet tOD(objcls);
-    if (isValid(objcls))
-    {
-        const QMetaObject * pQMO = tOD.metaObject();
-        const int cCount = pQMO->enumeratorCount();
-        int tIndex = 0;
-        while (tIndex < cCount && result.isEmpty())
-        {
-            const QMetaEnum cQME = pQMO->enumerator(tIndex);
-            const QString cEnumName(cQME.enumName());
-            if ("Class" == cEnumName)
-                result =  cQME.valueToKey(objcls);
-            ++tIndex;
-        }
-    }
-    return result;
-}
-
 bool Objdet::processCascadeClassifier(const bool returnAll)
+
 {
     bool result = false;
 
@@ -267,5 +193,72 @@ int Objdet::calculateQuality(const int neighborCount,
                  * 500.0 * factor * factor);
     result = qBound(1, result, 999);
     //qDebug() << Q_FUNC_INFO << neighborCount << detectWidth << result;
+    return result;
+}
+
+// -------------------------- static ------------------------
+
+VersionInfo Objdet::cvVersion()
+{
+    VersionInfo ver(CV_MAJOR_VERSION,
+                    CV_MINOR_VERSION,
+                    CV_SUBMINOR_VERSION,
+                    0,
+                    CV_VERSION,
+                    "Copyright (c) 2000-2008, Intel Corporation. "
+                    "Copyright (C) 2015-2024, OpenCV Foundation, all rights reserved."
+                    "Thank you to huihut.com for prebuilt MINGW libraries.",
+                    "OpenCV",
+                    "Computer Vision Library");
+    return ver;
+}
+
+bool Objdet::isValid(const Class objcls)
+{
+    return objcls > $nullClass && objcls < $maxClass;
+}
+
+Objdet::Class Objdet::objectClass(const QString name)
+{
+    Class result = $nullClass;
+    Objdet tOD;
+    const QMetaObject * pQMO = tOD.metaObject();
+    const int cCount = pQMO->enumeratorCount();
+    int tIndex = 0;
+    while (tIndex < cCount && $nullClass == result)
+    {
+        const QMetaEnum cQME = pQMO->enumerator(tIndex);
+        const QString cEnumName(cQME.enumName());
+        if ("Class" == cEnumName)
+        {
+            bool tOK = false;
+            int tInt = $nullClass;
+            tInt = cQME.keyToValue(qPrintable(name), &tOK);
+            if (tOK) result = Class(tInt);
+            break;                                      /*v-1-v*/
+        }
+        ++tIndex;
+    }                                                   /*--1--*/
+    return result;
+}
+
+QString Objdet::className(const Class objcls)
+{
+    QString result("Null");
+    Objdet tOD(objcls);
+    if (isValid(objcls))
+    {
+        const QMetaObject * pQMO = tOD.metaObject();
+        const int cCount = pQMO->enumeratorCount();
+        int tIndex = 0;
+        while (tIndex < cCount && result.isEmpty())
+        {
+            const QMetaEnum cQME = pQMO->enumerator(tIndex);
+            const QString cEnumName(cQME.enumName());
+            if ("Class" == cEnumName)
+                result =  cQME.valueToKey(objcls);
+            ++tIndex;
+        }
+    }
     return result;
 }
