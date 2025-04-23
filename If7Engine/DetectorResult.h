@@ -37,7 +37,7 @@ public: // non-const
     QList<SCRect> takeIncludedRects(const QList<SCRect> ar);
 
 public: // debug
-    QStringList toDebugStrings(const bool all=false);
+    QStringList toDebugStrings(const bool all=false) const;
 
 private:
     int mRank;

@@ -69,7 +69,7 @@ QList<SCRect> DetectorResult::takeIncludedRects(const QList<SCRect> ar)
     return result;
 }
 
-QStringList DetectorResult::toDebugStrings(const bool all)
+QStringList DetectorResult::toDebugStrings(const bool all) const
 {
     QStringList result;
     result << "   ---DetectorResult: {";

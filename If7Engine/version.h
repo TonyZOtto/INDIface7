@@ -1,11 +1,11 @@
 #ifndef VERSION_H
 #define VERSION_H
 
-#define VER_STRING      "v7.91-Beta"
+#define VER_STRING      "v7.91-Beta1"
 #define VER_MAJOR       7
 #define VER_MINOR       91
 #define VER_BRANCH      0
-#define VER_RELEASE     0xB0
+#define VER_RELEASE     0xB1
 
 #define VER_FILETYPE    VFT_APP
 #define VER_APPNAME     "INDIface"

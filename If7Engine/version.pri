@@ -1,1 +1,2 @@
-VER_STRING = "v7.91-Beta"
+VER_STRING = "v7.91-Beta1"
+VERSION = 7.91.177.0

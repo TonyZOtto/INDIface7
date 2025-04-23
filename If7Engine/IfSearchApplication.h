@@ -24,7 +24,6 @@ public: // types
     {
         QDir        inputDir = QDir("./input");
         QDir        baseOutputDir = QDir("./output/@");
-//        bool        supressMarked = false;
         int         minQuality = 500;
         int         sampleMsec = 1000;
         int         waitingMsec = 60000;
@@ -39,6 +38,7 @@ public: // types
         QDir        noFaceDir = QDir("./NoFace");
         QDir        detectedFacesDir = QDir("./DetectedFaces");
         QDir        frontalObjdetDir = QDir("./FrontalObjdet");
+        QDir        eyesObjdetDir = QDir("./EyesObjdet");
         QFileInfo   logFI = QFileInfo("./IfSearch.log");
     };
 

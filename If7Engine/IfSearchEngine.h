@@ -69,8 +69,8 @@ private:
     QDir mMarkedDir;
     QDir mNoFaceDir;
     QDir mDetectedFacesDir;
-    QDir mFrontalObjDetDir;
-    QDir mEyesObjDetDir;
+    QDir mFrontalObjdetDir;
+    QDir mEyesObjdetDir;
     QFileInfoList mInputFiles;
     DetectorResultList mFaceResults;
     DetectorResultList::List mLEyeResults;

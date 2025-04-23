@@ -58,11 +58,9 @@ void IfSearchApplication::setupOptions()
     parser().addPositionalArgument("BaseOutputDirectory",
                                    "Destination Base Directory for Output Image Directories (@=timestamp) [default=./Output/@]");
     parser().addOption({"showmin", "Minimize Window."});
-    parser().addOption({"shownorm", "Show Normal Window. [default]"});
-    parser().addOption({"showmax", "Show Maximized Window."});
+    parser().addOption({"shownorm", "Show Normal Window."});
+    parser().addOption({"showmax", "Show Maximized Window. [default]"});
     parser().addOption({"showfull", "Show Full Screen."});
-    parser().addOption({{"s", "supressNoFaceMarked"},
-                       "Don't Output Marked Image If No Faces Detected."});
     parser().addOption({{"q", "minQuality"},
                         "Set Minimum Detected Face Quality. [default 500]",
                         "100~900",
@@ -109,6 +107,10 @@ void IfSearchApplication::setupOptions()
                        "Specify Diagnostic Frontal Face Object Detection Directory Name.",
                        "directory name",
                        defaultOptions().frontalObjdetDir.path()});
+    parser().addOption({{"l", "eyesObjdetDir"},
+                        "Specify Diagnostic Eyes Object Detection Directory Name.",
+                        "directory name",
+                        defaultOptions().eyesObjdetDir.path()});
     parser().addOption({{"g", "logFile"},
                        "Specify Destination File Name for Logging. [default ./IfSearch.log]",
                        "file name",
@@ -126,7 +128,6 @@ void IfSearchApplication::parseOptions(QApplication *app)
     if (cPositionalArgs.count() > 1)
         options().baseOutputDir = QDir(cPositionalArgs.at(1));
 
-//    options().supressMarked = parser().isSet("supressMarked");
     const int cMinQuality = parser().value("minQuality").toInt();
     if (cMinQuality >= 100 && cMinQuality < 1000)
         options().minQuality = cMinQuality;
@@ -154,6 +155,7 @@ void IfSearchApplication::parseOptions(QApplication *app)
     options().noFaceDir = QDir("./NoFace");
     options().detectedFacesDir = QDir("./DetectedFaces");
     options().frontalObjdetDir = QDir("./FrontalObjdet");
+    options().eyesObjdetDir = QDir("./EyesObjdet");
     options().logFI = QFileInfo(parser().value("logFile"));
 }
 

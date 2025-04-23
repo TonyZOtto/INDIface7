@@ -80,7 +80,7 @@ void IfSearchEngine::run(void)
     mOutputBaseDir.mkpath(tOutputBaseDirName);
     if ( ! mOutputBaseDir.cd(tOutputBaseDirName))
         qCritical() << "Can't set base output directory";
-    mMarkedDir = mNoFaceDir = mFrontalObjDetDir
+    mMarkedDir = mNoFaceDir = mFrontalObjdetDir = mEyesObjdetDir
         = mDetectedFacesDir = mOutputBaseDir;
     qDebug() << mOutputBaseDir << mMarkedDir << mDetectedFacesDir;
     if ( ! mMarkedDir.mkpath(options().markedDir.path()))
@@ -89,8 +89,10 @@ void IfSearchEngine::run(void)
         qCritical() << "Can't make no faces detected output directory";
     if ( ! mDetectedFacesDir.mkpath(options().detectedFacesDir.path()))
         qCritical() << "Can't make detected faces output directory";
-    if ( ! mFrontalObjDetDir.mkpath(options().frontalObjdetDir.path()))
-        qCritical() << "Can't make objdet output directory";
+    if ( ! mFrontalObjdetDir.mkpath(options().frontalObjdetDir.path()))
+        qCritical() << "Can't make frontal objdet output directory";
+    if ( ! mEyesObjdetDir.mkpath(options().eyesObjdetDir.path()))
+        qCritical() << "Can't make eyes objdet output directory";
     qDebug() << mOutputBaseDir << mMarkedDir << mDetectedFacesDir;
     if ( ! mMarkedDir.cd(options().markedDir.path()))
         qCritical() << "Can't set marked output directory";
@@ -98,7 +100,9 @@ void IfSearchEngine::run(void)
         qCritical() << "Can't set no faces detected output directory";
     if ( ! mDetectedFacesDir.cd(options().detectedFacesDir.path()))
         qCritical() << "Can't set detected faces output directory";
-    if ( ! mFrontalObjDetDir.cd(options().frontalObjdetDir.path()))
+    if ( ! mFrontalObjdetDir.cd(options().frontalObjdetDir.path()))
+        qCritical() << "Can't set objdet output directory";
+    if ( ! mEyesObjdetDir.cd(options().eyesObjdetDir.path()))
         qCritical() << "Can't set objdet output directory";
     qDebug() << mOutputBaseDir << mMarkedDir << mDetectedFacesDir;
 
@@ -165,7 +169,7 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
     if (tMarkedImage.save(tMarkedFI.absoluteFilePath()))
         qInfo() << tMarkedFI.absoluteFilePath() << tMarkedImage;
     QImage tDetectImage = mpFrontal->detectImage(500);
-    const QFileInfo tDetectFI(mFrontalObjDetDir, fi.baseName() + ".png");
+    const QFileInfo tDetectFI(mFrontalObjdetDir, fi.baseName() + ".png");
     if (tDetectImage.save(tDetectFI.absoluteFilePath()))
         qInfo() << tDetectFI.absoluteFilePath() << tDetectImage;
     app()->win()->clearFacePixmaps();
@@ -215,7 +219,7 @@ void IfSearchEngine::processFaces(const QImage &inputImage,
         {
             const QImage cFaceImage
                 = writeFaceImage(inputFI, inputImage, cResult);
-//            findEyes(cFaceImage, inputFI, cResult);
+            findEyes(cFaceImage, inputFI, cResult);
         }
     }
 }
@@ -318,6 +322,8 @@ QImage IfSearchEngine::writeEyeImage(const bool isRight,
     static const int scThumbWidth = IfSearchWindow::faceThumbSize().width();
     QImage result = eyeImage.scaledToWidth(scThumbWidth / 2);
     const qreal cScaleF = qreal(scThumbWidth) / qreal(eyeImage.width());
+    qInfo() << Q_FUNC_INFO << isRight << inputFI.baseName() << eyeImage.size()
+            << faceDR.toDebugStrings() << eyeDRL.best().toDebugStrings();
     QPainter tPainter;
     tPainter.begin(&result);
     foreach (const DetectorResult cDR, eyeDRL.rankedList())
@@ -333,7 +339,7 @@ QImage IfSearchEngine::writeEyeImage(const bool isRight,
               .arg(faceDR.rank(), 2, 10, QChar('0'))                // 1
               .arg(isRight ? "R" : "L")                             // 2
               .arg(inputFI.baseName());                             // 3
-    const QFileInfo cEyeFI(mEyesObjDetDir, cEyeFileName);
+    const QFileInfo cEyeFI(mEyesObjdetDir, cEyeFileName);
     qInfo() << cEyeFI.absoluteFilePath()
             << result.save(cEyeFI.filePath(), "png", 90);
     return result;
