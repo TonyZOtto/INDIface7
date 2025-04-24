@@ -22,9 +22,17 @@ class IfSearchEngine : public QObject
 {
     Q_OBJECT
 
-public:
+public: // ctors
     IfSearchEngine(IfSearchApplication * parent=nullptr);
     ~IfSearchEngine();
+
+public: // const
+
+public: // non-const
+
+public: // pointers
+    IfSearchApplication * app();
+
 
 private:
     void processFrame(const QFileInfo &fi);
@@ -81,6 +89,7 @@ private:
 private:
 };
 
+inline IfSearchApplication *IfSearchEngine::app() { return mpApplication; }
 inline IfSearchApplication *IfSearchEngine::app() const {  Q_ASSERT(mpApplication); return mpApplication; }
 inline IfSearchApplication::Options IfSearchEngine::options() const { return app()->options(); }
 

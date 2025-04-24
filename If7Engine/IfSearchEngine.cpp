@@ -147,6 +147,7 @@ int IfSearchEngine::getInputFiles()
 void IfSearchEngine::processFrame(const QFileInfo &fi)
 {
     qInfo() << Q_FUNC_INFO << fi.baseName();
+    const int cMinQuality = options().minQuality;
     const QImage cInputImage = createInputImage(fi);
     if (cInputImage.isNull())
         qCritical() << "Image skipped:" << fi.absoluteFilePath();
@@ -164,18 +165,18 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
     if ( ! mpFrontal->processCascadeClassifier(true))
         qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
     mFaceResults = mpFrontal->resultList();
-    QImage tMarkedImage = mpFrontal->markedImage(500);
+    QImage tMarkedImage = mpFrontal->markedImage(cMinQuality);
     const QFileInfo tMarkedFI(mMarkedDir, fi.baseName() + ".png");
     if (tMarkedImage.save(tMarkedFI.absoluteFilePath()))
         qInfo() << tMarkedFI.absoluteFilePath() << tMarkedImage;
-    QImage tDetectImage = mpFrontal->detectImage(500);
+    QImage tDetectImage = mpFrontal->detectImage(cMinQuality);
     const QFileInfo tDetectFI(mFrontalObjdetDir, fi.baseName() + ".png");
     if (tDetectImage.save(tDetectFI.absoluteFilePath()))
         qInfo() << tDetectFI.absoluteFilePath() << tDetectImage;
     app()->win()->clearFacePixmaps();
     app()->win()->setMarked(tMarkedImage);
     app()->win()->setDetect(tDetectImage);
-    if (mFaceResults.count(500) == 0) // MUSTDO minQuality parameter
+    if (mFaceResults.count(cMinQuality) == 0)
     {
         const QFileInfo tNoFaceFI(mNoFaceDir, fi.baseName() + ".png");
         if (tMarkedImage.save(tNoFaceFI.absoluteFilePath()))
@@ -219,7 +220,9 @@ void IfSearchEngine::processFaces(const QImage &inputImage,
         {
             const QImage cFaceImage
                 = writeFaceImage(inputFI, inputImage, cResult);
+#ifdef EYEFIND
             findEyes(cFaceImage, inputFI, cResult);
+#endif
         }
     }
 }
