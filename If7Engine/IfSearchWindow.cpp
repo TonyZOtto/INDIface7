@@ -23,6 +23,7 @@ IfSearchWindow::IfSearchWindow(IfSearchApplication *ifsApp)
     , mpMessageWidget(new QTextEdit)
 {
     setObjectName("IfSearchWindow");
+    app()->set(this);
     QTimer::singleShot(100, this, &IfSearchWindow::setup);
 }
 

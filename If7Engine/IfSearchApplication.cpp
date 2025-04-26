@@ -21,9 +21,8 @@ IfSearchApplication::IfSearchApplication(int &argc, char **argv,
     setApplicationVersion(version().toString());
 }
 
-void IfSearchApplication::show(IfSearchWindow *wgt)
+void IfSearchApplication::show()
 {
-    mpWindow = wgt;
     if (options().show <= $null || options().show >= $max)
         options().show = Normalized;
     qInfo() << Q_FUNC_INFO << options().show;
@@ -41,6 +40,7 @@ void IfSearchApplication::start()
 {
     setupOptions();
     parseOptions();
+    show();
     parseDetectors();
     traceOptions();
     mpEngine = new IfSearchEngine(this);

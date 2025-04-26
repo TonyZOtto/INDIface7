@@ -47,7 +47,7 @@ public: // ctors
                         const VersionInfo vi);
 
 public slots:
-    void show(IfSearchWindow *wgt);
+    void show();
     void start();
 
 public: // const
@@ -56,8 +56,7 @@ public: // const
     Options options() const;
 
 public: // non-const
-    Options & options();
-    QCommandLineParser & parser();
+    void set(IfSearchWindow * win);
     void setupOptions();
     void parseOptions();
     void parseDetectors();
@@ -65,6 +64,8 @@ public: // non-const
 
 
 public: // pointers
+    Options & options();
+    QCommandLineParser & parser();
     IfSearchWindow * win();
     IfSearchEngine * eng();
 
@@ -82,6 +83,7 @@ private:
 };
 
 inline VersionInfo IfSearchApplication::version() const { return cmVersion; }
+inline void IfSearchApplication::set(IfSearchWindow *win) { mpWindow = win; }
 inline IfSearchApplication::Options IfSearchApplication::options() const { return mOptions; }
 inline IfSearchApplication::Options IfSearchApplication::defaultOptions() { return Options(); }
 inline IfSearchApplication::Options & IfSearchApplication::options() { return mOptions; }

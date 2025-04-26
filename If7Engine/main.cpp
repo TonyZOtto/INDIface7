@@ -10,7 +10,6 @@ int main(int argc, char *argv[])
                    VER_STRING, VER_COPYRIGHT, VER_ORGNAME, VER_APPNAME);
     IfSearchApplication app(argc, argv, vi);
     IfSearchWindow window(&app);
-    app.show(&window);
     app.start();
     return app.exec();
 }
