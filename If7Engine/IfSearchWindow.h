@@ -23,7 +23,7 @@ public: // ctors
 public slots:
     void setup();
     void clearPixmaps();
-    void clearFacePixmaps();
+    void clearFaces();
     void setMarked(const QImage &img);
     void setDetect(const QImage &img);
     void appendFace(const QImage &faceImage);
@@ -55,6 +55,7 @@ private:
     QPixmap mDetectPixmap;
     QLabel * mpMarkedLabel;
     QLabel * mpDetectLabel;
+    QList<QLabel *> mFaceLabels;
     QList<QPixmap> mFacePixmaps;
     QList<QPixmap> mEyesPixmaps;
     QList<QPixmap> mNormPixmaps;

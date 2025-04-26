@@ -24,16 +24,16 @@ public: // types
     {
         QDir        inputDir = QDir("./input");
         QDir        baseOutputDir = QDir("./output/@");
-        int         minQuality = 500;
-        int         sampleMsec = 1000;
-        int         waitingMsec = 60000;
-        ShowOption  show = Maximized;
+        unsigned    minQuality = 500;
+        unsigned    sampleMsec = 1000;
+        unsigned    waitingMsec = 60000;
+        ShowOption  show = $null;
         bool        loop = false;
         bool        deleteAfter = false;
         bool        finishedQuit = false;
-        QFileInfo   detectorsXmlFI = QFileInfo("./detectors/Detectors.XML");
-        QString     frontalDetectorName = QString("{default}");
-        int         frontalFactor = 100;
+        QFileInfo   frontalDetectorFI = QFileInfo("./Aim8A001-32-NoSplit.xml");
+        QFileInfo   eyesDetectorFI = QFileInfo("./haarcascade_eye.xml");
+        unsigned    frontalFactor = 100;
         QDir        markedDir = QDir("./Marked");
         QDir        noFaceDir = QDir("./NoFace");
         QDir        detectedFacesDir = QDir("./DetectedFaces");
@@ -59,7 +59,10 @@ public: // non-const
     Options & options();
     QCommandLineParser & parser();
     void setupOptions();
-    void parseOptions(QApplication * app);
+    void parseOptions();
+    void parseDetectors();
+    void traceOptions();
+
 
 public: // pointers
     IfSearchWindow * win();
@@ -70,6 +73,8 @@ public: // static
 
 private:
     const VersionInfo cmVersion;
+    const QStringList cmCommandLine;
+    const QFileInfo cmExeFI;
     IfSearchWindow * mpWindow=nullptr;
     IfSearchEngine * mpEngine=nullptr;
     QCommandLineParser mParser;

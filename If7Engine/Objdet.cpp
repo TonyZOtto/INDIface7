@@ -39,17 +39,10 @@ void Objdet::loadDetectorXml(const QString &fileName)
         emit error(tErrMsg);
         qCritical() << tErrMsg;
     }
-#if 0
-    const std::__cxx11::basic_string<char,
-                                     std::char_traits<char>,
-                                     std::allocator<char> >
-        cStdCascadeXmlName = tFI.absoluteFilePath().toStdString();
-#else
     std::basic_string<char,
                            std::char_traits<char>,
                            std::allocator<char> > const&
         cStdCascadeXmlName = tFI.absoluteFilePath().toStdString();
-#endif
 
     Q_ASSERT(mpCascade);
     if ( ! mpCascade->load(cStdCascadeXmlName))
@@ -72,55 +65,65 @@ void Objdet::unloadDetector()
     Q_ASSERT(mpCascade->empty());
 }
 
-QImage Objdet::inputImage() const
+QStringList Objdet::info() const
 {
-    return mInputImage;
+    QStringList result;
+    result << "Object Detector Information:";
+    result << QString("   Class: %1").arg(className());
+    result << QString("   Name: %1").arg(detectorFileInfo().baseName());
+    // TODO ObjdetParameters
+    result << "---Raw Arguments:";
+    result << raw().toStrings();
+    return result;
 }
+
+
 
 void Objdet::set(const ObjdetRawArguments raw)
 {
     qDebug() << Q_FUNC_INFO << raw.factor() << raw.neighbors()
              << raw.flags() << raw.minSize() << raw.minSize()
              << raw.inputSize();
-    mRawParms = raw;
+    mRawArgs = raw;
 }
 
 void Objdet::inputImage(const QImage &img)
 {
-    qDebug() << Q_FUNC_INFO << img;
+    qInfo() << Q_FUNC_INFO << img;
     mInputImage = img.convertedTo(QImage::Format_ARGB32);
+    mGreyImage = inputImage().convertedTo(QImage::Format_Grayscale8);
+    mGreyMat = cv::Mat(mGreyImage.height(),
+                       mGreyImage.width(), CV_8U);
+    const int cGreyMatBytes = mGreyMat.total();
+    qDebug() << mGreyImage.size()
+             << mGreyImage.sizeInBytes() << cGreyMatBytes;
+    Q_ASSERT(mGreyImage.sizeInBytes() == cGreyMatBytes);
+    memcpy(mGreyMat.ptr(0), mGreyImage.bits(), cGreyMatBytes);
+    raw().inputSize(mInputImage.size());
 }
 
 void Objdet::clear()
 {
     mAllRects.clear(), mOrphanRects.clear(),
         mResultList.clearResults();
-    mInputImage = QImage(), mGreyImage = QImage();
+    inputImage(QImage());
     mGreyMat.deallocate();
     mGreyMat = cv::Mat();
 }
 
 bool Objdet::processCascadeClassifier(const bool returnAll)
-
 {
+    qInfo() << Q_FUNC_INFO << returnAll << inputImage().size();
+    foreach (const QString cs, info()) qDebug() << cs;
     bool result = false;
-
-    Q_ASSERT(mpCascade);
     if ( ! isDetectorLoaded())
         return result;                                  /*=====*/
     if (inputImage().isNull())
         return result;                                  /*=====*/
-    mGreyImage = inputImage().convertedTo(QImage::Format_Grayscale8);
-    mGreyMat = cv::Mat(mGreyImage.height(),
-                       mGreyImage.width(), CV_8U);
-    const int tGreyMatBytes = mGreyMat.total();
-    qDebug() << Q_FUNC_INFO << returnAll << mGreyImage.size()
-             << mGreyImage.sizeInBytes() << tGreyMatBytes;
-    Q_ASSERT(mGreyImage.sizeInBytes() == tGreyMatBytes);
-    memcpy(mGreyMat.ptr(0), mGreyImage.bits(), tGreyMatBytes);
     std::vector<cv::Rect> tRectVector;
     std::vector<int> tCountVector;
     std::vector<cv::Rect> tAllRectVector;
+    Q_ASSERT(mpCascade);
     mpCascade->detectMultiScale(mGreyMat, tRectVector, tCountVector,
                                 raw().factor(), raw().neighbors(), raw().flags(),
                                 raw().cvMinSize(), raw().cvMaxSize());
@@ -187,7 +190,7 @@ int Objdet::calculateQuality(const int neighborCount,
 {
     int result = 0;
     Q_ASSERT(detectWidth);
-    if ( ! qFuzzyCompare(1.100, mRawParms.factor()))
+    if ( ! qFuzzyCompare(1.100, mRawArgs.factor()))
         qWarning() << "Expected factor 1.100";
     result = int((qreal(neighborCount) / qreal(detectWidth))
                  * 500.0 * factor * factor);
@@ -242,9 +245,9 @@ Objdet::Class Objdet::objectClass(const QString name)
     return result;
 }
 
-QString Objdet::className(const Class objcls)
+QString Objdet::className(const Objdet::Class objcls) // TODO ObjectHelper
 {
-    QString result("Null");
+    QString result;
     Objdet tOD(objcls);
     if (isValid(objcls))
     {
@@ -259,6 +262,11 @@ QString Objdet::className(const Class objcls)
                 result =  cQME.valueToKey(objcls);
             ++tIndex;
         }
+        if (result.isDetached()) result = "Null";
+    }
+    else
+    {
+        result = "Invalid";
     }
     return result;
 }

@@ -4,6 +4,7 @@
 class ObjdetRawArgumentsData;
 
 #include <QSize>
+#include <QStringList>
 
 #include <opencv2/core.hpp>
 #include <opencv2/objdetect.hpp>
@@ -12,7 +13,7 @@ class ObjdetRawArgumentsData;
 class ObjdetRawArguments
 {
 public: // types
-    enum Flag
+    enum Flag // TODO Eliminate Flag/s
     {
         $null = 0,
         Canny = cv::CASCADE_DO_CANNY_PRUNING,
@@ -32,11 +33,16 @@ public: // const
     QSize inputSize() const;
     cv::Size cvMinSize() const;
     cv::Size cvMaxSize() const;
+    QStringList toStrings() const;
 
 public: // non-const
+    void ctor();
+    void setFactor(const unsigned u);
     void factor(const qreal f);
     void neighbors(const int n);
     void flags(const int f);
+    void minSize(const unsigned dim);
+    void maxSize(const unsigned dim);
     void minSize(const QSize sz);
     void maxSize(const QSize sz);
     void inputSize(const QSize sz);

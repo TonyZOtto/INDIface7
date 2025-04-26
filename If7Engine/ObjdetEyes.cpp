@@ -29,7 +29,6 @@ void ObjdetEyes::detectEye()
 {
     clear();
     generateEyeImage();
-    processCascadeClassifier(true);
 
 }
 

@@ -61,6 +61,8 @@ private:
 private slots:
     void init(void);
     void start(void);
+    void startFrontal(void);
+    void startEyes(void);
     void run(void);
     void pulse(void);
     int getInputFiles();

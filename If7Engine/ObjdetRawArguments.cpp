@@ -1,7 +1,5 @@
 #include "ObjdetRawArguments.h"
 
-#include <utility>
-
 class ObjdetRawArgumentsData : public QSharedData
 {
 public:
@@ -65,6 +63,34 @@ cv::Size ObjdetRawArguments::cvMaxSize() const
                 :  cv::Size(cSize.width(), cSize.height());
 }
 
+QStringList ObjdetRawArguments::toStrings() const
+{
+    QStringList results;
+    results << QString("   Factor:             %1").arg(factor(), 5, 3);
+    results << QString("   Neighbors (min):    %1").arg(neighbors());
+    results << QString("   Min Size:           %1x%2").arg(minSize().width()).arg(minSize().height());
+    results << QString("   Max Size:           %1x%2").arg(maxSize().width()).arg(maxSize().height());
+    results << QString("   Flags:              %1%2%3%4%5")
+                   .arg((flags() & Canny) ? "Canny " : "")
+                   .arg((flags() & Scale) ? "Scale " : "")
+                   .arg((flags() & Biggest) ? "Biggest " : "")
+                   .arg((flags() & Rough) ? "Rough " : "")
+                   .arg((flags() & ForceRaw) ? "ForceRaw " : "");
+    results << QString("   (Input Size):       %1x%2").arg(inputSize().width()).arg(inputSize().height());
+    return results;
+}
+
+void ObjdetRawArguments::ctor()
+{
+    factor(1.100), neighbors(1), flags($null), minSize(QSize()), maxSize(QSize());
+}
+
+void ObjdetRawArguments::setFactor(const unsigned int u)
+{
+    if (u > 10 && u < 5000)
+        factor(1.0 + qreal(u) / 1000.0);
+}
+
 void ObjdetRawArguments::factor(const qreal f)
 {
     Q_ASSERT(data);
@@ -81,6 +107,16 @@ void ObjdetRawArguments::flags(const int f)
 {
     Q_ASSERT(data);
     data->dFlags = f;
+}
+
+void ObjdetRawArguments::minSize(const unsigned int dim)
+{
+    minSize(QSize(dim, dim));
+}
+
+void ObjdetRawArguments::maxSize(const unsigned int dim)
+{
+    maxSize(QSize(dim, dim));
 }
 
 void ObjdetRawArguments::minSize(const QSize sz)
@@ -111,7 +147,7 @@ void ObjdetRawArguments::set(const Flag f)
 
 // -------------------- QSharedDataPointer ------------------------
 
-ObjdetRawArguments::ObjdetRawArguments() : data(new ObjdetRawArgumentsData) {;}
+ObjdetRawArguments::ObjdetRawArguments() : data(new ObjdetRawArgumentsData) { ctor();}
 ObjdetRawArguments::ObjdetRawArguments(const ObjdetRawArguments &rhs) : data{rhs.data} {;}
 ObjdetRawArguments::ObjdetRawArguments(ObjdetRawArguments &&rhs) : data{std::move(rhs.data)} {;}
 ObjdetRawArguments::~ObjdetRawArguments() {}

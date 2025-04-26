@@ -6,11 +6,14 @@
 
 #include "IfSearchEngine.h"
 #include "IfSearchWindow.h"
+#include "IfSearchWindow.h"
 
 IfSearchApplication::IfSearchApplication(int &argc, char **argv,
                                          const VersionInfo vi)
     : QApplication(argc, argv)
     , cmVersion(vi)
+    , cmCommandLine(arguments())
+    , cmExeFI(arguments().first())
 {
     setObjectName("IfSearchApplication");
     setOrganizationName(version().getOrgName());
@@ -37,7 +40,9 @@ void IfSearchApplication::show(IfSearchWindow *wgt)
 void IfSearchApplication::start()
 {
     setupOptions();
-    parseOptions(this);
+    parseOptions();
+    parseDetectors();
+    traceOptions();
     mpEngine = new IfSearchEngine(this);
 }
 
@@ -58,8 +63,8 @@ void IfSearchApplication::setupOptions()
     parser().addPositionalArgument("BaseOutputDirectory",
                                    "Destination Base Directory for Output Image Directories (@=timestamp) [default=./Output/@]");
     parser().addOption({"showmin", "Minimize Window."});
-    parser().addOption({"shownorm", "Show Normal Window."});
-    parser().addOption({"showmax", "Show Maximized Window. [default]"});
+    parser().addOption({"shownorm", "Show Normal Window. [default]"});
+    Q_ASSERT(parser().addOption({"showmax", "Show Maximized Window."}));
     parser().addOption({"showfull", "Show Full Screen."});
     parser().addOption({{"q", "minQuality"},
                         "Set Minimum Detected Face Quality. [default 500]",
@@ -79,15 +84,15 @@ void IfSearchApplication::setupOptions()
                         "Delete Images from Input Directory as Processed"});
     parser().addOption({{"e", "finishedQuit"},
                         "Quit after Processing Input Directory"});
-    parser().addOption({{"c", "detectorsXml"},
-                       "Specify Detector Catalog. [default ./detectors/Detectors.XML]"
-                       "filepath or blank",
-                       defaultOptions().detectorsXmlFI.filePath()});
-    parser().addOption({{"x", "frontalDetectorName"},
-                        "Select Frontal Detector by Name. [default class default]"
-                        "name",
-                        defaultOptions().frontalDetectorName});
-    parser().addOption({{"f", "frontalFactor"},
+    parser().addOption({{"f", "frontalDetector"},
+                        "Select Frontal Detector by Name or File. [default Aim8A]"
+                        "name/file",
+                        defaultOptions().frontalDetectorFI.fileName()});
+    parser().addOption({{"y", "eyesDetector"},
+                        "Select Frontal Detector by Name or File. [default hc_eye]"
+                        "name/file",
+                        defaultOptions().eyesDetectorFI.fileName()});
+    parser().addOption({{"x", "frontalFactor"},
                        "Set Frontal Detector Density Factor. [default 100]",
                        "10~5000",
                        QString::number(defaultOptions().frontalFactor)});
@@ -107,7 +112,7 @@ void IfSearchApplication::setupOptions()
                        "Specify Diagnostic Frontal Face Object Detection Directory Name.",
                        "directory name",
                        defaultOptions().frontalObjdetDir.path()});
-    parser().addOption({{"l", "eyesObjdetDir"},
+    parser().addOption({{"r", "eyesObjdetDir"},
                         "Specify Diagnostic Eyes Object Detection Directory Name.",
                         "directory name",
                         defaultOptions().eyesObjdetDir.path()});
@@ -117,10 +122,11 @@ void IfSearchApplication::setupOptions()
                        defaultOptions().logFI.filePath()});
 }
 
-void IfSearchApplication::parseOptions(QApplication *app)
+void IfSearchApplication::parseOptions()
 {
     qInfo() << Q_FUNC_INFO;
-    parser().process(*app);
+    if ( ! parser().parse(cmCommandLine))
+        qWarning() << "Parsing error";
 
     const QStringList cPositionalArgs = parser().positionalArguments();
     if (cPositionalArgs.count() > 0)
@@ -146,9 +152,7 @@ void IfSearchApplication::parseOptions(QApplication *app)
     options().loop = parser().isSet("loop");
     options().deleteAfter = parser().isSet("deleteAfter");
     options().finishedQuit = parser().isSet("finishedQuit");
-    options().detectorsXmlFI = QFileInfo(parser().value("detectorsXml"));
-    options().frontalDetectorName = parser().value("frontalDetectorName");
-    const int cFrontalFactor = parser().value("sampleMsec").toInt();
+    const int cFrontalFactor = parser().value("frontalFactor").toInt();
     if (cFrontalFactor >= 10 && cFrontalFactor < 5000)
         options().frontalFactor = cFrontalFactor;
     options().markedDir = QDir("./Marked");
@@ -157,5 +161,64 @@ void IfSearchApplication::parseOptions(QApplication *app)
     options().frontalObjdetDir = QDir("./FrontalObjdet");
     options().eyesObjdetDir = QDir("./EyesObjdet");
     options().logFI = QFileInfo(parser().value("logFile"));
+}
+
+void IfSearchApplication::parseDetectors()
+{
+    QString tFDName = parser().value("frontalDetector");
+    QString tEDName = parser().value("eyesDetector");
+    if (tFDName.isEmpty()) tFDName = defaultOptions().frontalDetectorFI.fileName();
+    if (tEDName.isEmpty()) tEDName = defaultOptions().eyesDetectorFI.fileName();
+    qInfo() << Q_FUNC_INFO << tFDName << tEDName;
+
+    if (tFDName.endsWith(".xml", Qt::CaseInsensitive))
+    {
+        QDir tDetectorDir = cmExeFI.dir();
+        if ( ! tDetectorDir.cd("detectors"))
+            qWarning() << "Unable to cd detectors: "
+                       << tDetectorDir.absolutePath();
+        options().frontalDetectorFI = QFileInfo(tDetectorDir, tFDName);
+    }
+    else
+    {
+        qCritical() << "Detector Names not yet supported";
+    }
+
+    if (tEDName.endsWith(".xml", Qt::CaseInsensitive))
+    {
+        QDir tDetectorDir = cmExeFI.dir();
+        if ( ! tDetectorDir.cd("detectors"))
+            qWarning() << "Unable to cd detectors: "
+                       << tDetectorDir.absolutePath();
+        options().eyesDetectorFI = QFileInfo(tDetectorDir, tEDName);
+    }
+    else
+    {
+        qCritical() << "Detector Names not yet supported";
+    }
+
+}
+
+void IfSearchApplication::traceOptions()
+{
+    const QStringList cPosArgs = parser().positionalArguments();
+    const QStringList cOptNames = parser().optionNames();
+    const QStringList cBadOpts = parser().unknownOptionNames();
+    qDebug() << "Executable:" << cmExeFI.absoluteFilePath();
+    qDebug() << "Positional Arguments:";
+    foreach (const QString cPA, cPosArgs)
+        qDebug() << "   " << cPA;
+    qDebug() << "Specified Options:";
+    foreach (const QString cON, cOptNames)
+        qDebug() << "   " << cON << "=" << parser().value(cON);
+    qDebug() << "Unrecognized Options:";
+    foreach (const QString cBO, cBadOpts)
+        qDebug() << "   " << cBO << "=" << parser().value(cBO);
+    qDebug() << "Frontal Detector:"
+             << options().frontalDetectorFI.absoluteFilePath()
+             << options().frontalDetectorFI.exists();
+    qDebug() << "Eyes Detector:"
+             << options().eyesDetectorFI.absoluteFilePath()
+             << options().eyesDetectorFI.exists();
 }
 

@@ -35,16 +35,37 @@ void IfSearchEngine::init(void)
 
 void IfSearchEngine::start(void)
 {
-    qDebug() << Q_FUNC_INFO;
+    startFrontal();
+    startEyes();
+    QTimer::singleShot(100, this, SLOT(run()));
+}
+
+void IfSearchEngine::startFrontal()
+{
+    const QString cFileName = options().frontalDetectorFI.absoluteFilePath();
+    const unsigned cFrontalFactor = options().frontalFactor;
+    qDebug() << Q_FUNC_INFO << cFileName << cFrontalFactor;
     if (mpFrontal)
     {
         mpFrontal->unloadDetector();
         mpFrontal->deleteLater();
     }
     mpFrontal = new ObjdetFrontal(this);
-    mpFrontal->loadDetectorXml("./detectors/Aim8A001-32-NoSplit.xml");
+    Q_ASSERT(mpFrontal);
+    mpFrontal->loadDetectorXml(cFileName);
     if ( ! mpFrontal->isDetectorLoaded())
         qCritical() << "Failed to load frontal:" << mpFrontal->detectorFileInfo();
+    ObjdetRawArguments tRaw;
+    tRaw.setFactor(cFrontalFactor), tRaw.neighbors(1),
+        tRaw.flags(0), tRaw.set(ObjdetRawArguments::ForceRaw),
+        tRaw.minSize(48), tRaw.maxSize(0);
+    mpFrontal->set(tRaw);
+    foreach (const QString cs, mpFrontal->info()) qDebug() << cs;
+}
+
+void IfSearchEngine::startEyes()
+{
+    qDebug() << Q_FUNC_INFO << options().frontalDetectorFI.absoluteFilePath();
     if (mpLEyes)
     {
         mpLEyes->unloadDetector();
@@ -63,9 +84,15 @@ void IfSearchEngine::start(void)
     mpREyes->loadDetectorXml("./detectors/haarcascade_eye.xml");
     if ( ! mpREyes->isDetectorLoaded())
         qCritical() << "Failed to load right eyes:" << mpREyes->detectorFileInfo();
-
-    QTimer::singleShot(100, this, SLOT(run()));
-} // start()
+    ObjdetRawArguments tRaw;
+    tRaw.setFactor(1.1), tRaw.neighbors(1), tRaw.flags(0),
+        tRaw.set(ObjdetRawArguments::ForceRaw),
+        tRaw.set(ObjdetRawArguments::Biggest),
+        tRaw.minSize(QSize()), tRaw.maxSize(QSize());
+    mpLEyes->set(tRaw);
+    mpREyes->set(tRaw);
+    foreach (const QString cs, mpLEyes->info()) qDebug() << cs;
+}
 
 void IfSearchEngine::run(void)
 {
@@ -152,16 +179,11 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
     if (cInputImage.isNull())
         qCritical() << "Image skipped:" << fi.absoluteFilePath();
     Q_ASSERT(mpFrontal);
+    Q_ASSERT(mpFrontal->isDetectorLoaded());
     app()->win()->clearPixmaps();
-    app()->win()->clearFacePixmaps();
+    app()->win()->clearFaces();
     mpFrontal->clear();
-    ObjdetRawArguments tRaw;
-    tRaw.factor(1.100), tRaw.neighbors(3), tRaw.flags(0),
-        tRaw.set(ObjdetRawArguments::ForceRaw),
-        tRaw.minSize(QSize()), tRaw.maxSize(QSize()),
-        tRaw.inputSize(cInputImage.size());
     mpFrontal->inputImage(cInputImage);
-    mpFrontal->set(tRaw);
     if ( ! mpFrontal->processCascadeClassifier(true))
         qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
     mFaceResults = mpFrontal->resultList();
@@ -173,7 +195,7 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
     const QFileInfo tDetectFI(mFrontalObjdetDir, fi.baseName() + ".png");
     if (tDetectImage.save(tDetectFI.absoluteFilePath()))
         qInfo() << tDetectFI.absoluteFilePath() << tDetectImage;
-    app()->win()->clearFacePixmaps();
+    app()->win()->clearFaces();
     app()->win()->setMarked(tMarkedImage);
     app()->win()->setDetect(tDetectImage);
     if (mFaceResults.count(cMinQuality) == 0)
@@ -181,7 +203,7 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
         const QFileInfo tNoFaceFI(mNoFaceDir, fi.baseName() + ".png");
         if (tMarkedImage.save(tNoFaceFI.absoluteFilePath()))
             qInfo() << tNoFaceFI.absoluteFilePath() << tMarkedImage;
-        app()->win()->clearFacePixmaps();
+        app()->win()->clearFaces();
     }
     processFaces(cInputImage, fi, options().minQuality);
     if (options().deleteAfter)
@@ -212,7 +234,7 @@ void IfSearchEngine::processFaces(const QImage &inputImage,
                                   const int minQuality)
 {
     qInfo() << Q_FUNC_INFO << mFaceResults.count();
-    app()->win()->clearFacePixmaps();
+    app()->win()->clearFaces();
     foreach (const DetectorResult cResult, mFaceResults.rankedList())
     {
         const int cQuality = cResult.quality();
@@ -302,13 +324,7 @@ DetectorResultList IfSearchEngine::findEye(const Objdet::Class objClass,
                             ? mpLEyes : mpREyes;
     Q_ASSERT(pEyes);
     Q_ASSERT(pEyes->isDetectorLoaded());
-    ObjdetRawArguments tRaw;
-    tRaw.factor(1.100), tRaw.neighbors(3), tRaw.flags(0),
-        tRaw.set(ObjdetRawArguments::ForceRaw),
-        tRaw.minSize(QSize()), tRaw.maxSize(QSize()),
-        tRaw.inputSize(eyeImage.size());
     pEyes->inputImage(eyeImage);
-    pEyes->set(tRaw);
     if ( ! pEyes->processCascadeClassifier(true))
         qCritical() << "ObjDet eyes failed";
     result = pEyes->resultList();

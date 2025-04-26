@@ -18,7 +18,6 @@ IfSearchWindow::IfSearchWindow(IfSearchApplication *ifsApp)
     , mpCentralWidget(new QWidget)
     , mpCentralGrid(new QGridLayout)
     , mpFrameGrid(new QGridLayout)
-    , mpFaceLayout(new QGridLayout)
     , mpMarkedLabel(new QLabel)
     , mpDetectLabel(new QLabel)
     , mpMessageWidget(new QTextEdit)
@@ -35,7 +34,6 @@ void IfSearchWindow::setup()
     mpCentralWidget->setLayout(mpCentralGrid);
     setCentralWidget(mpCentralWidget);
     mpCentralGrid->addLayout(mpFrameGrid, 0, 0, Qt::AlignHCenter);
-    mpCentralGrid->addLayout(mpFaceLayout, 1, 0, Qt::AlignHCenter);
     mpCentralGrid->addWidget(mpMessageWidget, 2, 0, Qt::AlignLeft);
     mpMessageWidget->setMinimumSize(1200, 800 - 640 - 40);
     mpMessageWidget->setFontFamily("courier");
@@ -43,12 +41,11 @@ void IfSearchWindow::setup()
     mpFrameGrid->setRowMinimumHeight(0, maxFrameDim());
     mpFrameGrid->setColumnMinimumWidth(0, maxFrameDim());
     mpFrameGrid->setColumnMinimumWidth(1, maxFrameDim());
-    mpFaceLayout->setRowMinimumHeight(0, faceThumbSize().height());
-    qDebug() << mpFaceLayout->columnCount();
     mpFrameGrid->addWidget(mpMarkedLabel, 0, 0,
                            Qt::AlignTop | Qt::AlignHCenter);
     mpFrameGrid->addWidget(mpDetectLabel, 0, 1,
                            Qt::AlignTop | Qt::AlignHCenter);
+    clearFaces();
 #if 1
     QImage tEircImage(":/png/doc/art/logos/EclipseIRLogo.png");
     QImage tIndiImage(":/png/doc/art/logos/INDI200.png");
@@ -65,16 +62,29 @@ void IfSearchWindow::clearPixmaps()
     qInfo() << Q_FUNC_INFO;
     setMarked(QImage());
     setDetect(QImage());
-    clearFacePixmaps();
+    clearFaces();
     update();
 }
 
-void IfSearchWindow::clearFacePixmaps()
+void IfSearchWindow::clearFaces()
 {
-    qInfo() << Q_FUNC_INFO << mFacePixmaps.count()
-            << mpFaceLayout->count();
-    for (int ix = 0; ix < mpFaceLayout->count(); ++ix)
-        mpFaceLayout->removeItem(mpFaceLayout->itemAt(ix));
+    qInfo() << Q_FUNC_INFO << mFacePixmaps.count();
+    Q_ASSERT(mpCentralGrid);
+    foreach (QLabel * pLabel, mFaceLabels)
+    {
+        Q_ASSERT(pLabel);
+        pLabel->setPixmap(QPixmap());
+        pLabel->update();
+        pLabel->deleteLater();
+    }
+    QLayoutItem * pFaceItem = mpCentralGrid->itemAtPosition(1, 0);
+    if (pFaceItem) mpCentralGrid->removeItem(pFaceItem);
+    if (mpFaceLayout) mpFaceLayout->deleteLater();
+    mpFaceLayout = new QGridLayout();
+    Q_ASSERT(mpFaceLayout);
+    mpCentralGrid->addLayout(mpFaceLayout, 1, 0, Qt::AlignHCenter);
+    mpFaceLayout->setRowMinimumHeight(0, faceThumbSize().height());
+    mFaceLabels.clear();
     mFacePixmaps.clear();
 }
 
@@ -98,11 +108,13 @@ void IfSearchWindow::appendFace(const QImage &img)
     qInfo() << Q_FUNC_INFO << img.size() << cColumn
             << mpFaceLayout->columnCount();
     const QPixmap cFacePixmap = QPixmap::fromImage(img);
-    mFacePixmaps.append(cFacePixmap);
     QLabel * pFaceLabel = new QLabel;
     Q_ASSERT(pFaceLabel);
     pFaceLabel->setPixmap(cFacePixmap);
     mpFaceLayout->addWidget(pFaceLabel, 0, cColumn);
+    mpFaceLayout->setColumnMinimumWidth(cColumn, faceThumbSize().width());
+    mFaceLabels.append(pFaceLabel);
+    mFacePixmaps.append(cFacePixmap);
 }
 
 void IfSearchWindow::appendEyes(const QImage &eyeLImage,
@@ -116,7 +128,8 @@ void IfSearchWindow::appendEyes(const QImage &eyeLImage,
     tPainter.drawImage(0, 0, eyeLImage);
     tPainter.drawImage(scThumbWidth / 2, 0, eyeRImage);
     tPainter.end();
-    qInfo() << Q_FUNC_INFO << eyeLImage << eyeRImage << tEyesPixmap;
+    qInfo() << Q_FUNC_INFO << eyeLImage.size() << eyeRImage.size()
+            << tEyesPixmap.size();
     mEyesPixmaps.append(tEyesPixmap);
     QLabel * pEyesLabel = new QLabel;
     Q_ASSERT(pEyesLabel);
