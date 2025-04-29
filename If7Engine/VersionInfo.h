@@ -17,7 +17,7 @@
         TND(QString,    Copyright,     QString()) \
         TND(quint8,     Major,         0) \
         TND(quint8,     Minor,         0) \
-        TND(quint8,     Branch,        0) \
+        TND(quint8,     Patch,         0) \
         TND(quint8,     Release,       0) \
 
 class VersionInfo
@@ -28,7 +28,7 @@ public:
     VersionInfo(void);
     VersionInfo(const unsigned char major,
                 const unsigned char minor,
-                const unsigned char branch,
+                const unsigned char patch,
                 const unsigned char release,
                 const QString & string,
                 const QString & copyright,
