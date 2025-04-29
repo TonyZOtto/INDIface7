@@ -1,12 +1,13 @@
 #pragma once
 
 #include <QObject>
+
 #include <QString>
 #include <QStringList>
 
 class ObjectHelper
 {
-public: // ctors
+public:
     ObjectHelper(const QObject * obj);
 
 public: // const

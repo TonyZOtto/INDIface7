@@ -1,10 +1,9 @@
 #include "ObjectHelper.h"
 
-#include <QByteArray>
-#include <QByteArrayList>
 #include <QMetaEnum>
 #include <QMetaObject>
-
+#include <QString>
+#include <QStringList>
 
 ObjectHelper::ObjectHelper(const QObject *obj) : cmpObject(obj) {;}
 
@@ -14,7 +13,6 @@ const QMetaObject * ObjectHelper::metaObject() const
     Q_CHECK_PTR(cmpObject);
     result = cmpObject->metaObject();
     Q_CHECK_PTR(result);
-    //INFO << cmpObject->objectName() << result->className();
     return result;
 }
 
@@ -22,11 +20,9 @@ const QMetaEnum ObjectHelper::metaEnum(const QString &enumName) const
 {
     QMetaEnum result;
     const QMetaObject * pMetaObject = metaObject();
-    const int cEnumIndex = pMetaObject->
-                    indexOfEnumerator(QByteArray(enumName.toLocal8Bit()));
+    const int cEnumIndex = pMetaObject->indexOfEnumerator(qPrintable(enumName));
     if (cEnumIndex >= 0)
         result = pMetaObject->enumerator(cEnumIndex);
-    //INFO << cmpObject->objectName() << cEnumIndex << result.enumName();
     return result;
 }
 
@@ -35,7 +31,7 @@ QStringList ObjectHelper::namesOfEnums(const bool all) const
     QStringList result;
     const QMetaObject * pMetaObject = metaObject();
     const unsigned cEnumCount = pMetaObject->enumeratorCount();
-    const signed cEnumBase = all ? 0 : pMetaObject->enumeratorOffset();
+    const unsigned cEnumBase = all ? 0 : pMetaObject->enumeratorOffset();
     for (unsigned ix = cEnumBase; ix < cEnumCount; ++ix)
         result << pMetaObject->enumerator(ix).name();
     return result;
@@ -71,7 +67,6 @@ QString ObjectHelper::enumKey(const QString &enumName, const int value) const
     const QMetaEnum cMetaEnum = metaEnum(enumName);
     if (cMetaEnum.isValid())
         result = cMetaEnum.valueToKey(value);
-    //INFO << enumName << value << result;
     return result;
 }
 
@@ -80,8 +75,7 @@ int ObjectHelper::enumValue(const QString &enumName, const QString &key) const
     int result = -2;
     const QMetaEnum cMetaEnum = metaEnum(enumName);
     if (cMetaEnum.isValid())
-        result = cMetaEnum.keyToValue(QByteArray(key.toLocal8Bit()));
-    //INFO << enumName << key << result;
+        result = cMetaEnum.keyToValue(qPrintable(key));
     return result;
 }
 
@@ -96,16 +90,14 @@ QStringList ObjectHelper::flagKeys(const QString &enumName, int flags, const boo
     if (cMetaEnum.isValid())
     {
         if ( ! isSet) flags = ~ flags;
-        QByteArray tKeys = cMetaEnum.valueToKeys(flags);
-        QByteArrayList tKeyList = tKeys.split('|');
-        foreach (QByteArray tBA, tKeyList)
-            result << QString(tBA);
+        QString tKeys = cMetaEnum.valueToKeys(flags);
+        result = tKeys.split('|');
     }
 #ifdef QT_DEBUG
     else
     {
         const QMetaType cMetaType = cMetaEnum.metaType();
-        qWarning() << "Type" << cMetaType.id() << cMetaType.name() << cMetaType.flags();
+        qDebug() << "Type" << cMetaType.id() << cMetaType.name() << cMetaType.flags();
     }
     qDebug() << Q_FUNC_INFO << "result" << result;
 #endif

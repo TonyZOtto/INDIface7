@@ -1,7 +1,8 @@
 #include "Objdet.h"
 
-#include <QMetaEnum>
-#include <QMetaObject>
+#include <QCoreApplication>
+#include <QDir>
+#include <QFile>
 
 #include <opencv2/opencv.hpp>
 
@@ -75,6 +76,17 @@ QStringList Objdet::info() const
     result << "---Raw Arguments:";
     result << raw().toStrings();
     return result;
+}
+
+bool Objdet::writeInfo(const QDir &dir) const
+{
+    QFileInfo tFI(dir, className() + "ObjDetInfo.txt");
+    QFile tFile(tFI.filePath());
+    if ( ! tFile.open(QIODevice::Text | QIODevice::WriteOnly)) return false;
+    foreach (const QString cQS, info())
+        tFile.write(qPrintable(cQS + "\n"));
+    tFile.close();
+    return true;
 }
 
 
@@ -223,50 +235,14 @@ bool Objdet::isValid(const Class objcls)
 
 Objdet::Class Objdet::objectClass(const QString name)
 {
-    Class result = $nullClass;
     Objdet tOD;
-    const QMetaObject * pQMO = tOD.metaObject();
-    const int cCount = pQMO->enumeratorCount();
-    int tIndex = 0;
-    while (tIndex < cCount && $nullClass == result)
-    {
-        const QMetaEnum cQME = pQMO->enumerator(tIndex);
-        const QString cEnumName(cQME.enumName());
-        if ("Class" == cEnumName)
-        {
-            bool tOK = false;
-            int tInt = $nullClass;
-            tInt = cQME.keyToValue(qPrintable(name), &tOK);
-            if (tOK) result = Class(tInt);
-            break;                                      /*v-1-v*/
-        }
-        ++tIndex;
-    }                                                   /*--1--*/
-    return result;
+    ObjectHelper tOH((QObject *)(&tOD));
+    return Objdet::Class(tOH.enumValue("Class", name));
 }
 
-QString Objdet::className(const Objdet::Class objcls) // TODO ObjectHelper
+QString Objdet::className(const Objdet::Class objcls)
 {
-    QString result;
-    Objdet tOD(objcls);
-    if (isValid(objcls))
-    {
-        const QMetaObject * pQMO = tOD.metaObject();
-        const int cCount = pQMO->enumeratorCount();
-        int tIndex = 0;
-        while (tIndex < cCount && result.isEmpty())
-        {
-            const QMetaEnum cQME = pQMO->enumerator(tIndex);
-            const QString cEnumName(cQME.enumName());
-            if ("Class" == cEnumName)
-                result =  cQME.valueToKey(objcls);
-            ++tIndex;
-        }
-        if (result.isDetached()) result = "Null";
-    }
-    else
-    {
-        result = "Invalid";
-    }
-    return result;
+    Objdet tOD;
+    ObjectHelper tOH((QObject *)(&tOD));
+    return tOH.enumKey("Class", objcls);
 }

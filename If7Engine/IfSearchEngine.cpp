@@ -132,6 +132,8 @@ void IfSearchEngine::run(void)
     if ( ! mEyesObjdetDir.cd(options().eyesObjdetDir.path()))
         qCritical() << "Can't set objdet output directory";
     qDebug() << mOutputBaseDir << mMarkedDir << mDetectedFacesDir;
+    Q_CHECK_PTR(mpFrontal);
+    Q_ASSERT(mpFrontal->writeInfo(mFrontalObjdetDir)); // TODO WEXPECT
 
     QTimer::singleShot(1000, this, SLOT(pulse()));
 } // run()

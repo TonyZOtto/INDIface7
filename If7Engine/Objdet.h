@@ -61,6 +61,7 @@ public: // const
     Class objClass() const;
     QString className() const;
     QStringList info() const;
+    bool writeInfo(const QDir &dir) const;
     ObjdetParameters parms() const;
     ObjdetRawArguments raw() const;
     QImage inputImage(void) const;
@@ -70,7 +71,6 @@ public: // const
     QList<QSize> detectorSizes(void) const;
     bool isDetectorLoaded(void);
     QFileInfo detectorFileInfo() const;
-    QString methodString(void);
     QSize sizeFromDetectorXml(const QString & fileName);
     QSize minObjectSize(void) const;
     QSize maxObjectSize(void) const;

@@ -29,6 +29,7 @@ SOURCES += \
     ObjdetResource.cpp \
     ObjdetResult.cpp \
     ObjdetResultMap.cpp \
+    ObjectHelper.cpp \
     SCRect.cpp \
     VersionInfo.cpp \
     main.cpp \
@@ -67,6 +68,7 @@ HEADERS += \
     ObjdetResource.h \
     ObjdetResult.h \
     ObjdetResultMap.h \
+    ObjectHelper.h \
     SCRect.h \
     VersionInfo.h \
     version.h

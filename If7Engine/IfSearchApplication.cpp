@@ -7,13 +7,14 @@
 #include "IfSearchEngine.h"
 #include "IfSearchWindow.h"
 #include "IfSearchWindow.h"
+#include "IfSearchWindow.h"
 
 IfSearchApplication::IfSearchApplication(int &argc, char **argv,
                                          const VersionInfo vi)
     : QApplication(argc, argv)
     , cmVersion(vi)
     , cmCommandLine(arguments())
-    , cmExeFI(arguments().first())
+    , cmExeFI(cmCommandLine.first())
 {
     setObjectName("IfSearchApplication");
     setOrganizationName(version().getOrgName());
@@ -23,16 +24,17 @@ IfSearchApplication::IfSearchApplication(int &argc, char **argv,
 
 void IfSearchApplication::show()
 {
-    if (options().show <= $null || options().show >= $max)
-        options().show = Normalized;
-    qInfo() << Q_FUNC_INFO << options().show;
-    switch (options().show)
+    ShowOption tSO = options().show;
+    if ($null == tSO) tSO = Default;
+    qInfo() << Q_FUNC_INFO << options().show << tSO;
+    switch (tSO)
     {
     case Minimized:    win()->showMinimized();      break;
     case Normalized:   win()->show();               break;
     case Maximized:    win()->showMaximized();      break;
     case FullScreen:   win()->showFullScreen();     break;
-    case $null: case $max: default: Q_ASSERT("options().show");
+    case NoShow:                                    break;
+    default: Q_ASSERT("options().show");            break;
     }
 }
 
@@ -44,12 +46,6 @@ void IfSearchApplication::start()
     parseDetectors();
     traceOptions();
     mpEngine = new IfSearchEngine(this);
-}
-
-QFileInfo IfSearchApplication::exeFileInfo() const
-{
-    const QStringList cArgs = QApplication::arguments();
-    return QFileInfo(cArgs.first());
 }
 
 void IfSearchApplication::setupOptions()
@@ -64,8 +60,9 @@ void IfSearchApplication::setupOptions()
                                    "Destination Base Directory for Output Image Directories (@=timestamp) [default=./Output/@]");
     parser().addOption({"showmin", "Minimize Window."});
     parser().addOption({"shownorm", "Show Normal Window. [default]"});
-    Q_ASSERT(parser().addOption({"showmax", "Show Maximized Window."}));
+    parser().addOption({"showmax", "Show Maximized Window."});
     parser().addOption({"showfull", "Show Full Screen."});
+    parser().addOption({"shownone", "Do Not Show Windwo."});
     parser().addOption({{"q", "minQuality"},
                         "Set Minimum Detected Face Quality. [default 500]",
                         "100~900",
@@ -148,6 +145,7 @@ void IfSearchApplication::parseOptions()
     else if (parser().isSet("shownorm")) tShow = Normalized;
     else if (parser().isSet("showmax")) tShow = Maximized;
     else if (parser().isSet("showfull")) tShow = FullScreen;
+    else if (parser().isSet("shownone")) tShow = NoShow;
     options().show = tShow;
     options().loop = parser().isSet("loop");
     options().deleteAfter = parser().isSet("deleteAfter");

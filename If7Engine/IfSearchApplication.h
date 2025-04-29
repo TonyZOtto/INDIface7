@@ -18,7 +18,14 @@ class IfSearchApplication : public QApplication
 public: // types
     enum ShowOption
     {
-        $null = 0, Minimized, Normalized, Maximized, FullScreen, $max
+        $null = 0,
+        Minimized,
+        Normalized,
+        Maximized,
+        FullScreen,
+        NoShow,
+        $max,
+        Default = Normalized,
     };
     struct Options
     {
@@ -83,6 +90,7 @@ private:
 };
 
 inline VersionInfo IfSearchApplication::version() const { return cmVersion; }
+inline QFileInfo IfSearchApplication::exeFileInfo() const { return cmExeFI; }
 inline void IfSearchApplication::set(IfSearchWindow *win) { mpWindow = win; }
 inline IfSearchApplication::Options IfSearchApplication::options() const { return mOptions; }
 inline IfSearchApplication::Options IfSearchApplication::defaultOptions() { return Options(); }
