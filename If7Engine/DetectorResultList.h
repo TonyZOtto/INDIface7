@@ -27,6 +27,7 @@ public: // ctors
 
 public: // const
     int count() const;
+    bool isEmpty() const;
     int count(const int minQuality) const;
     DetectorResult at(const int ix) const;
     DetectorResult best() const;
@@ -65,6 +66,7 @@ private:
 };
 
 inline int DetectorResultList::count() const { return mRankedList.count(); }
+inline bool DetectorResultList::isEmpty() const{ return 0 == count(); }
 inline DetectorResult DetectorResultList::at(const int ix) const { return rankedList().at(ix); }
 inline DetectorResult DetectorResultList::best() const { return rankedList().first(); }
 inline DetectorResult::List DetectorResultList::rankedList() const { return mRankedList; }

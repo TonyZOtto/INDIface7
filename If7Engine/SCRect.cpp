@@ -29,6 +29,11 @@ bool SCRect::contains(const QPoint pt) const
     return toQRect().contains(pt);
 }
 
+SCRect SCRect::scaled(const unsigned int u) const
+{
+    return SCRect(size() * u, center());
+}
+
 SCRect SCRect::scaled(const qreal f) const
 {
     return SCRect((sizeF() * f).toSize(), center());
@@ -46,6 +51,16 @@ SCRect SCRect::trimmed(const int i) const
 SCRect SCRect::intersected(const SCRect other) const
 {
     return SCRect(toQRect().intersected(other.toQRect()));
+}
+
+SCRect SCRect::trim(const int i)
+{
+    return *this = trimmed(i);
+}
+
+SCRect SCRect::scale(const unsigned int u)
+{
+    return *this = scaled(u);
 }
 
 SCRect SCRect::scale(const qreal f)

@@ -17,7 +17,8 @@ ObjdetFrontal::ObjdetFrontal(QObject *parent)
     setObjectName("ObjdetFrontal");
 }
 
-QImage ObjdetFrontal::markedImage(int minQuality, int showQuality) const
+QImage ObjdetFrontal::markedImage(const SCRect eyeLRect, const SCRect eyeRRect,
+                                  int minQuality, int showQuality) const
 {
     QImage result = inputImage();
     if (minQuality  <= 0) minQuality  = 500;
@@ -44,6 +45,10 @@ QImage ObjdetFrontal::markedImage(int minQuality, int showQuality) const
             QPen tPen(QBrush(cColor), 7);
             tPainter.setPen(tPen);
             tPainter.drawRect(cRect);
+            tPen = QPen(Qt::yellow, 1);
+            tPainter.setPen(tPen);
+            if ( ! eyeLRect.isNull()) tPainter.drawRect(eyeLRect.toQRect());
+            if ( ! eyeRRect.isNull()) tPainter.drawRect(eyeRRect.toQRect());
             const QRect cTitleRect(QPoint(cRect.left() - 4,
                                           cRect.top() - 24),
                                    QPoint(cRect.right() + 4,
@@ -58,7 +63,7 @@ QImage ObjdetFrontal::markedImage(int minQuality, int showQuality) const
     return result;
 }
 
-QImage ObjdetFrontal::detectImage(const int minQuality) const
+QImage ObjdetFrontal::detectImage(const unsigned minQuality) const
 {
     QImage result = inputImage()
                         .convertedTo(QImage::Format_Grayscale8)

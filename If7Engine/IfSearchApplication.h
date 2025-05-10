@@ -32,6 +32,7 @@ public: // types
         QDir        inputDir = QDir("./input");
         QDir        baseOutputDir = QDir("./output/@");
         unsigned    minQuality = 500;
+        unsigned    faceOverCrop = 125;
         unsigned    sampleMsec = 1000;
         unsigned    waitingMsec = 60000;
         ShowOption  show = $null;

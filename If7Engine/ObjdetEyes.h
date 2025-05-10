@@ -24,9 +24,12 @@ public slots:
     void detectEye();
 
 public: // const
+    bool isRight() const;
+    SCRect eyeRect() const;
     QImage eyeImage() const;
 
 public: // non-const
+    SCRect calculateEyeRoi(const unsigned int overCrop=0);
     void generateEyeImage();
 
 public: // pointers
@@ -35,9 +38,11 @@ private:
     QImage mInputFrame;
     DetectorResult mFaceResult;
     QImage mEyeImage;
-    SCRect mFaceEyeRoi;
+    SCRect mFaceEyeRect;
     int mDetectScale=0;
 };
 
+inline bool ObjdetEyes::isRight() const { return Objdet::EyeRight == cmClass; }
+inline SCRect ObjdetEyes::eyeRect() const { return mFaceEyeRect; }
 inline QImage ObjdetEyes::eyeImage() const { return mEyeImage; }
 

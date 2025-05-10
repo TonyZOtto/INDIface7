@@ -101,7 +101,7 @@ void Objdet::set(const ObjdetRawArguments raw)
 
 void Objdet::inputImage(const QImage &img)
 {
-    qInfo() << Q_FUNC_INFO << img;
+    qInfo() << Q_FUNC_INFO << img.size();
     mInputImage = img.convertedTo(QImage::Format_ARGB32);
     mGreyImage = inputImage().convertedTo(QImage::Format_Grayscale8);
     mGreyMat = cv::Mat(mGreyImage.height(),

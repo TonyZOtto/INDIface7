@@ -36,10 +36,11 @@ public: // pointers
 
 private:
     void processFrame(const QFileInfo &fi);
-    QImage createInputImage(const QFileInfo &fi);
-    void processFaces(const QImage &inputImage,
-                      const QFileInfo &inputFI,
-                      const int minQuality=500);
+    void processFaces();
+    int scanInputDirectory();
+    QImage readInputImage(const QFileInfo &fi);
+    void writeFrameImages();
+    SCRect calculateFaceRect(const DetectorResult faceDR);
     QImage writeFaceImage(const QFileInfo inputFI,
                           const QImage &inputImage,
                           const DetectorResult faceResult);
@@ -65,7 +66,6 @@ private slots:
     void startEyes(void);
     void run(void);
     void pulse(void);
-    int getInputFiles();
 
 private:
     IfSearchApplication * mpApplication=nullptr;
@@ -81,10 +81,18 @@ private:
     QDir mDetectedFacesDir;
     QDir mFrontalObjdetDir;
     QDir mEyesObjdetDir;
-    QFileInfoList mInputFiles;
-    DetectorResultList mFaceResults;
-    DetectorResultList::List mLEyeResults;
-    DetectorResultList::List mREyeResults;
+    QFileInfoList mInputFileList;
+    // current frame
+    QFileInfo mCurrentFrameFI;
+    QImage mCurrentFrameImage;
+    QImage mCurrentMarkedImage;
+    QImage mCurrentDetectImage;
+    DetectorResultList mFrameFaceResults;
+    // current face
+    DetectorResult mCurrentFaceDR;
+    SCRect mCurrentFaceRect;
+    DetectorResultList mCurrentFaceLEyeDRL;
+    DetectorResultList mCurrentFaceREyeDRL;
 
 private:
 

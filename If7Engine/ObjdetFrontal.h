@@ -2,6 +2,8 @@
 
 #include "Objdet.h"
 
+#include "SCRect.h"
+
 class ObjdetFrontal : public Objdet
 {
     Q_OBJECT
@@ -9,9 +11,11 @@ public:
     explicit ObjdetFrontal(QObject *parent = nullptr);
 
 public: // const
-    QImage markedImage(int minQuality=500,
+    QImage markedImage(const SCRect eyeLRect=SCRect(),
+                       const SCRect eyeRRect=SCRect(),
+                       int minQuality=500,
                        int showQuality=0) const;
-    QImage detectImage(const int minQuality) const;
+    QImage detectImage(const unsigned int minQuality) const;
 
     // ------------------ properties ---------------------
 private:
