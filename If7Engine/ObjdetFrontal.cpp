@@ -27,7 +27,8 @@ QImage ObjdetFrontal::markedImage(const SCRect eyeLRect, const SCRect eyeRRect,
     tPainter.begin(&result);
     tPainter.setFont(QFont("helvetica", 16));
     DetectorResult::List tResultList = resultList().rankedList();
-    qInfo() << Q_FUNC_INFO << inputImage().size() << tResultList.count();
+    qInfo() << Q_FUNC_INFO << inputImage().size() << tResultList.count()
+            << eyeLRect.toDebugString() << eyeRRect.toDebugString();
     while ( ! tResultList.isEmpty())
     {
         const DetectorResult cResult = tResultList.takeLast();

@@ -54,7 +54,7 @@ public: // non-const
     void clearResults();
 
 public: // debug
-    QStringList toDebugStrings(const bool all=false);
+    QStringList toDebugStrings(const bool all=false) const;
 
 private:
     std::vector<cv::Rect> mCvRects;
@@ -65,10 +65,12 @@ private:
     QList<SCRect> mOrphanRectList;
 };
 
+extern QDebug &operator<<(QDebug &stream, const DetectorResultList drl);
+
 inline int DetectorResultList::count() const { return mRankedList.count(); }
 inline bool DetectorResultList::isEmpty() const{ return 0 == count(); }
 inline DetectorResult DetectorResultList::at(const int ix) const { return rankedList().at(ix); }
-inline DetectorResult DetectorResultList::best() const { return rankedList().first(); }
+inline DetectorResult DetectorResultList::best() const { DetectorResult::List drl = rankedList(); return drl.first(); }
 inline DetectorResult::List DetectorResultList::rankedList() const { return mRankedList; }
 inline QList<SCRect> DetectorResultList::allRectList() const { return mAllRectList; }
 inline QList<SCRect> DetectorResultList::orphanList() const { return mOrphanRectList; }

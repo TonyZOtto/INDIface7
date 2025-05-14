@@ -178,7 +178,7 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
         qCritical() << "ObjDet failed:" << fi.absoluteFilePath();
     mCurrentFrameFI = fi;
     mCurrentFrameImage = cInputImage;
-    mFrameFaceResults = mpFrontal->resultList();
+    mFrameFaceDRL = mpFrontal->resultList();
 
     processFaces();
     writeFrameImages();
@@ -194,17 +194,23 @@ void IfSearchEngine::processFrame(const QFileInfo &fi)
 void IfSearchEngine::processFaces()
 {
     const unsigned cMinQuality = options().minQuality;
-    qInfo() << Q_FUNC_INFO << mFrameFaceResults.count() << cMinQuality;
+    qInfo() << Q_FUNC_INFO << mFrameFaceDRL.count() << cMinQuality;
     app()->win()->clearFaces();
-    foreach (const DetectorResult cFaceDR, mFrameFaceResults.rankedList())
+    foreach (const DetectorResult cFaceDR, mFrameFaceDRL.rankedList())
     {
+        mCurrentFaceDR = cFaceDR;
         const unsigned cQuality = cFaceDR.quality();
         if (cQuality >= cMinQuality)
         {
-            const QImage cFaceImage
-                = writeFaceImage(mCurrentFrameFI, mCurrentFrameImage, cFaceDR);
+            calculateFaceRect();
+            extractFaceImage();
+            writeFaceImage();
+            app()->win()->appendFace(mCurrentFaceImage.scaled(IfSearchWindow::faceThumbSize()));
 #ifndef NOEYEFIND
-            findEyes(cFaceImage, mCurrentFrameFI, cFaceDR);
+            calculateEyeRoi(Objdet::EyeLeft);
+            const DetectorResultList cLtEyeDRL = findEyeDRL(Objdet::EyeLeft);
+            const DetectorResultList cRtEyeDRL = findEyeDRL(Objdet::EyeRight);
+            selectBestEyes(cLtEyeDRL, cRtEyeDRL);
 #endif
         }
     }
@@ -228,8 +234,7 @@ QImage IfSearchEngine::readInputImage(const QFileInfo &fi)
     const QImage cInputImage(fi.filePath());
     SCRect tInputRect(cInputImage.rect());
     tInputRect.trim(16);
-    result = cInputImage.copy(tInputRect.toQRect())
-                        .convertedTo(QImage::Format_ARGB32);
+    result = QImage(cInputImage).copy(tInputRect);
     if (result.isNull())
         qWarning() << "Null input image" << fi.absoluteFilePath();
     return result;
@@ -246,12 +251,13 @@ void IfSearchEngine::writeFrameImages()
     app()->win()->setDetect(mCurrentDetectImage);
 
     Q_CHECK_PTR(mpLEyes); Q_CHECK_PTR(mpREyes);
-    mCurrentMarkedImage = mpFrontal->markedImage(mpLEyes->eyeRect(), mpREyes->eyeRect(), cMinQuality);
+    mCurrentMarkedImage = mpFrontal->markedImage(mpLEyes->eyeRect(),
+                                                 mpREyes->eyeRect(), cMinQuality);
     const QFileInfo tMarkedFI(mMarkedDir, cFileName);
     if (mCurrentMarkedImage.save(tMarkedFI.absoluteFilePath()))
         qInfo() << tMarkedFI.absoluteFilePath() << mCurrentMarkedImage.size();
     app()->win()->setMarked(mCurrentMarkedImage);
-    if (mFrameFaceResults.count(cMinQuality) == 0)
+    if (mFrameFaceDRL.count(cMinQuality) == 0)
     {
         const QFileInfo tNoFaceFI(mNoFaceDir, cFileName);
         if (mCurrentMarkedImage.save(tNoFaceFI.absoluteFilePath()))
@@ -259,33 +265,59 @@ void IfSearchEngine::writeFrameImages()
     }
 }
 
-SCRect IfSearchEngine::calculateFaceRect(const DetectorResult faceDR)
+SCRect IfSearchEngine::calculateFaceRect()
 {
-    const SCRect cDetectRect = faceDR.rect();
+    const SCRect cDetectRect = mCurrentFaceDR.rect();
     SCRect result = (cDetectRect * (qreal(options().faceOverCrop) / 100.0)).trimmed(16);
     qInfo() << Q_FUNC_INFO
-            << faceDR.rect().toDebugString()
+            << mCurrentFaceDR.rect().toDebugString()
             << result.toDebugString();
     return mCurrentFaceRect = result;
 }
 
-QImage IfSearchEngine::writeFaceImage(const QFileInfo inputFI,
-                                      const QImage &inputImage,
-                                      const DetectorResult faceResult)
+QImage IfSearchEngine::extractFaceImage()
 {
-    mCurrentFaceDR = faceResult;
-    const SCRect cFaceRect = calculateFaceRect(faceResult);
-    const int cRank = faceResult.rank();
-    const int cQuality = faceResult.quality();
-    const QImage cFaceImage = inputImage.copy(cFaceRect);
+    const QImage result = mCurrentFrameImage.copy(mCurrentFaceRect);
+    qInfo() << Q_FUNC_INFO << mCurrentFaceRect.toDebugString() << result.size();
+    return mCurrentFaceImage = result;
+}
+
+bool IfSearchEngine::writeFaceImage()
+{
+    const int cRank = mCurrentFaceDR.rank();
+    const int cQuality = mCurrentFaceDR.quality();
     const QString cFaceFileName
         = QString("./Q%1/#%2q%3x%4y%5w%6e%7-%8.png")
               .arg(cQuality/100*100, 3, 10, QChar('0'))     // 1
               .arg(cRank, 2, 10, QChar('0'))                // 2
               .arg(cQuality, 3, 10, QChar('0'))             // 3
-              .arg(cFaceRect.x(), 4, 10, QChar('0'))      // 4
-              .arg(cFaceRect.y(), 4, 10, QChar('0'))      // 5
-              .arg(cFaceRect.width(), 3, 10,QChar('0'))   // 6
+              .arg(mCurrentFaceRect.x(), 4, 10, QChar('0'))      // 4
+              .arg(mCurrentFaceRect.y(), 4, 10, QChar('0'))      // 5
+              .arg(mCurrentFaceRect.width(), 3, 10,QChar('0'))   // 6
+              .arg(0, 3, 10, QChar('0'))                    // 7
+              .arg(mCurrentFrameFI.baseName());                     // 8
+    const QFileInfo cFaceFI(mDetectedFacesDir, cFaceFileName);
+    cFaceFI.dir().mkpath(".");
+    const bool result = mCurrentFaceImage.save(cFaceFI.filePath(), "PNG", 90);
+    qInfo() << Q_FUNC_INFO << cFaceFI.absoluteFilePath()
+            << mCurrentFaceImage.size() << result;
+    return result;
+}
+/*
+QImage IfSearchEngine::writeFaceImage(const QFileInfo inputFI,
+                                      const QImage &inputImage,
+                                      const DetectorResult faceResult)
+{
+    const int cRank = faceResult.rank();
+    const int cQuality = faceResult.quality();
+    const QString cFaceFileName
+        = QString("./Q%1/#%2q%3x%4y%5w%6e%7-%8.png")
+              .arg(cQuality/100*100, 3, 10, QChar('0'))     // 1
+              .arg(cRank, 2, 10, QChar('0'))                // 2
+              .arg(cQuality, 3, 10, QChar('0'))             // 3
+              .arg(mCurrentFaceRect.x(), 4, 10, QChar('0'))      // 4
+              .arg(mCurrentFaceRect.y(), 4, 10, QChar('0'))      // 5
+              .arg(mCurrentFaceRect.width(), 3, 10,QChar('0'))   // 6
               .arg(0, 3, 10, QChar('0'))                    // 7
               .arg(inputFI.baseName());                     // 8
     const QFileInfo cFaceFI(mDetectedFacesDir, cFaceFileName);
@@ -295,8 +327,9 @@ QImage IfSearchEngine::writeFaceImage(const QFileInfo inputFI,
     app()->win()->appendFace(cFaceImage.scaled(IfSearchWindow::faceThumbSize()));
     return cFaceImage;
 }
-
-void IfSearchEngine::findEyes(const QImage &frameImage,
+*/
+/*
+void IfSearchEngine::findEyeDRL(const QImage &frameImage,
                               const QFileInfo inputFI,
                               const DetectorResult faceResult)
 {
@@ -323,7 +356,57 @@ void IfSearchEngine::findEyes(const QImage &frameImage,
         = writeEyeImage(true,  inputFI, tREyeImage, faceResult, cREyeResults);
     app()->win()->appendEyes(cLEyeImage, cREyeImage);
 }
+*/
+DetectorResultList IfSearchEngine::findEyeDRL(const Objdet::Class objcls)
+{
+    DetectorResultList result;
+    ObjdetEyes * pEyeObjdet = new ObjdetEyes(objcls,
+                                            mCurrentFrameImage,
+                                            mCurrentFaceDR, this);
+    const QImage * pImage = (Objdet::EyeLeft == objcls)
+                                ? &mLtEyeRoiImage
+                                : &mRtEyeRoiImage;
+    const SCRect cEyeRect = pEyeObjdet->eyeRect();
+    pEyeObjdet->inputImage(*pImage, cEyeRect);
+    pEyeObjdet->calculateEyeRoi();
 
+    // TODO detect
+
+    qInfo() << Q_FUNC_INFO << objcls << cEyeRect << result.toDebugStrings();
+    return result;
+}
+
+SCLine IfSearchEngine::selectBestEyes(const DetectorResultList ltDRL,
+                                      const DetectorResultList rtDRL)
+{
+    SCLine result;
+    mCurrentFaceLEyeDR = mCurrentFaceREyeDR = DetectorResult();
+    if ( ! ltDRL.isEmpty() &&  ! rtDRL.isEmpty())
+    { // TODO Smarter
+        mCurrentFaceLEyeDR = ltDRL.best();
+        mCurrentFaceREyeDR = rtDRL.best();
+        result.lt(mCurrentFaceLEyeDR.rect());
+        result.rt(mCurrentFaceLEyeDR.rect());
+    }
+    result = result.offsetBy(mCurrentFaceRect.center());
+    return mCurrentFrameEyeLine = result;
+}
+
+SCRect IfSearchEngine::calculateEyeRoi(const Objdet::Class objcls)
+{
+    ObjdetEyes * pODE = eyeObjdet(objcls);
+    SCRect result = pODE->eyeRect();
+    result.trim(16);
+    qInfo() << Q_FUNC_INFO << objcls << result.toDebugString();
+    return result;
+}
+
+void IfSearchEngine::extractEyeImages()
+{
+    mLtEyeRoiImage = mCurrentFrameImage.copy(mCurrentFrameEyeLine.lt());
+    mRtEyeRoiImage = mCurrentFrameImage.copy(mCurrentFrameEyeLine.rt());
+}
+/*
 DetectorResultList IfSearchEngine::findEye(const Objdet::Class objClass,
                                             const QImage &eyeImage,
                                             const SCRect eyeRoi,
@@ -331,9 +414,7 @@ DetectorResultList IfSearchEngine::findEye(const Objdet::Class objClass,
 {
     qInfo() << Q_FUNC_INFO << objClass << eyeRoi << eyeScale;
     DetectorResultList result;
-    ObjdetEyes * pEyes = (objClass == Objdet::EyeLeft)
-                            ? mpLEyes : mpREyes;
-    Q_ASSERT(pEyes);
+    ObjdetEyes * pEyes = eyeObjdet(objClass);
     Q_ASSERT(pEyes->isDetectorLoaded());
     pEyes->inputImage(eyeImage);
     if ( ! pEyes->processCascadeClassifier(true))
@@ -342,7 +423,16 @@ DetectorResultList IfSearchEngine::findEye(const Objdet::Class objClass,
     result.adjustRanked(eyeRoi, eyeScale);
     return result;
 }
+*/
+ObjdetEyes *IfSearchEngine::eyeObjdet(const Objdet::Class objcls)
+{
+    ObjdetEyes * result = (Objdet::EyeLeft == objcls) ? mpLEyes : mpREyes;
+    Q_CHECK_PTR(result);
+    return result;
+}
 
+
+/*
 QImage IfSearchEngine::writeEyeImage(const bool isRight,
                                      const QFileInfo inputFI,
                                      const QImage eyeImage,
@@ -377,3 +467,4 @@ QImage IfSearchEngine::writeEyeImage(const bool isRight,
             << result.save(cEyeFI.filePath(), "png", 90);
     return result;
 }
+*/

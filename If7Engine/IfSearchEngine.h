@@ -6,12 +6,14 @@
 #include <QDateTime>
 #include <QDir>
 #include <QFileInfoList>
-#include <QImage>
 #include <QList>
+#include <QImage>
 
 #include "DetectorResultList.h"
 #include "IfSearchApplication.h"
 #include "Objdet.h"
+#include "SCRect.h"
+#include "SCLine.h"
 #include "VersionInfo.h"
 
 class ObjdetCatalog;
@@ -27,12 +29,14 @@ public: // ctors
     ~IfSearchEngine();
 
 public: // const
+    IfSearchApplication::Options options() const;
 
 public: // non-const
 
 public: // pointers
     IfSearchApplication * app();
-
+    IfSearchApplication * app() const;
+    ObjdetEyes * eyeObjdet(const Objdet::Class objcls);
 
 private:
     void processFrame(const QFileInfo &fi);
@@ -40,24 +44,14 @@ private:
     int scanInputDirectory();
     QImage readInputImage(const QFileInfo &fi);
     void writeFrameImages();
-    SCRect calculateFaceRect(const DetectorResult faceDR);
-    QImage writeFaceImage(const QFileInfo inputFI,
-                          const QImage &inputImage,
-                          const DetectorResult faceResult);
-    void findEyes(const QImage &frameImage,
-                  const QFileInfo inputFI,
-                  const DetectorResult faceResult);
-    DetectorResultList findEye(const Objdet::Class objClass,
-                               const QImage &eyeImage,
-                               const SCRect eyeRoi,
-                               const int eyeScale);
-    QImage writeEyeImage(const bool isRight,
-                         const QFileInfo inputFI,
-                         const QImage eyeImage,
-                         const DetectorResult faceDR,
-                         const DetectorResultList eyeDRL);
-    IfSearchApplication * app() const;
-    IfSearchApplication::Options options() const;
+    SCRect calculateFaceRect();
+    QImage extractFaceImage();
+    bool writeFaceImage();
+    DetectorResultList findEyeDRL(const Objdet::Class objcls);
+    SCLine selectBestEyes(const DetectorResultList ltDRL,
+                          const DetectorResultList rtDRL);
+    SCRect calculateEyeRoi(const Objdet::Class objcls);
+    void extractEyeImages();
 
 private slots:
     void init(void);
@@ -87,12 +81,16 @@ private:
     QImage mCurrentFrameImage;
     QImage mCurrentMarkedImage;
     QImage mCurrentDetectImage;
-    DetectorResultList mFrameFaceResults;
+    DetectorResultList mFrameFaceDRL;
     // current face
     DetectorResult mCurrentFaceDR;
     SCRect mCurrentFaceRect;
-    DetectorResultList mCurrentFaceLEyeDRL;
-    DetectorResultList mCurrentFaceREyeDRL;
+    QImage mCurrentFaceImage;
+    DetectorResult mCurrentFaceLEyeDR;
+    DetectorResult mCurrentFaceREyeDR;
+    SCLine mCurrentFrameEyeLine;
+    QImage mLtEyeRoiImage;
+    QImage mRtEyeRoiImage;
 
 private:
 
@@ -100,6 +98,7 @@ private:
 };
 
 inline IfSearchApplication *IfSearchEngine::app() { return mpApplication; }
+
 inline IfSearchApplication *IfSearchEngine::app() const {  Q_ASSERT(mpApplication); return mpApplication; }
 inline IfSearchApplication::Options IfSearchEngine::options() const { return app()->options(); }
 

@@ -64,6 +64,6 @@ private:
 
 inline IfSearchApplication *IfSearchWindow::app() { Q_ASSERT(mpIfsApp); return mpIfsApp; }
 inline int IfSearchWindow::maxFrameDim() { return 512; }
-inline QSize IfSearchWindow::faceThumbSize() { return QSize(192, 192); }
+inline QSize IfSearchWindow::faceThumbSize() { return QSize(128, 128); }
 
 

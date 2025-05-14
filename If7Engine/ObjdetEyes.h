@@ -4,6 +4,7 @@
 #include "Objdet.h"
 
 #include <QImage>
+
 #include "DetectorResult.h"
 #include "DetectorResultList.h"
 #include "SCRect.h"
@@ -29,6 +30,7 @@ public: // const
     QImage eyeImage() const;
 
 public: // non-const
+//    void inputImage(const QImage &img, const QRect rc);
     SCRect calculateEyeRoi(const unsigned int overCrop=0);
     void generateEyeImage();
 
@@ -38,11 +40,11 @@ private:
     QImage mInputFrame;
     DetectorResult mFaceResult;
     QImage mEyeImage;
-    SCRect mFaceEyeRect;
+    SCRect mFrameEyeRect;
     int mDetectScale=0;
 };
 
 inline bool ObjdetEyes::isRight() const { return Objdet::EyeRight == cmClass; }
-inline SCRect ObjdetEyes::eyeRect() const { return mFaceEyeRect; }
+inline SCRect ObjdetEyes::eyeRect() const { return mFrameEyeRect; }
 inline QImage ObjdetEyes::eyeImage() const { return mEyeImage; }
 

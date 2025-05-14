@@ -112,7 +112,7 @@ void DetectorResultList::clearResults()
     mRankedList.clear(), mAllRectList.clear(), mOrphanRectList.clear();
 }
 
-QStringList DetectorResultList::toDebugStrings(const bool all)
+QStringList DetectorResultList::toDebugStrings(const bool all) const
 {
     QStringList result;
     result << "===DetectorResultList: {";
@@ -123,3 +123,10 @@ QStringList DetectorResultList::toDebugStrings(const bool all)
     result << "===}";
     return result;
 }
+
+QDebug &operator<<(QDebug &stream, const DetectorResultList drl)
+{
+    stream << drl.toDebugStrings().join('\n'); return stream;
+    return stream;
+}
+

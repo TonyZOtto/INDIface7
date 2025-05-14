@@ -1,5 +1,8 @@
 #include "SCRect.h"
 
+
+#include <QtDebug>
+
 SCRect::SCRect() : mSize(0,0), mCenter(0,0) {;}
 SCRect::SCRect(const QSize sz, const QPoint cpt) : mSize(sz), mCenter(cpt)  {;}
 SCRect::SCRect(const QRect qrc) : mSize(qrc.size()), mCenter(qrc.center())  {;}
@@ -53,6 +56,11 @@ SCRect SCRect::intersected(const SCRect other) const
     return SCRect(toQRect().intersected(other.toQRect()));
 }
 
+SCRect SCRect::intersected(const QRect qrc) const
+{
+    return SCRect(toQRect().intersected(qrc));
+}
+
 SCRect SCRect::trim(const int i)
 {
     return *this = trimmed(i);
@@ -74,9 +82,19 @@ SCRect SCRect::offset(const QPoint pt)
     return *this;
 }
 
+SCRect operator & (const SCRect scr, const QRect qrc)
+{
+    return scr.intersected(qrc);
+}
+
 QString SCRect::toDebugString() const
 {
     return QString("{SCRect: %1x%2 @C%3,%4}")
         .arg(width()).arg(height()).arg(x()).arg(y());
 }
 
+QDebug operator<<(QDebug &stream, const SCRect scr)
+{
+    stream << scr.toDebugString();
+    return stream;
+}

@@ -114,6 +114,12 @@ void Objdet::inputImage(const QImage &img)
     raw().inputSize(mInputImage.size());
 }
 
+void Objdet::inputImage(const QImage &img, const QRect rc)
+{
+    qInfo() << Q_FUNC_INFO << img.size() << rc;
+    inputImage(img.copy(rc));
+}
+
 void Objdet::clear()
 {
     mAllRects.clear(), mOrphanRects.clear(),

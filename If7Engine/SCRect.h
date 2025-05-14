@@ -37,6 +37,7 @@ public: // const
     SCRect scaled(const qreal f) const;
     SCRect trimmed(const int i) const;
     SCRect intersected(const SCRect other) const;
+    SCRect intersected(const QRect qrc) const;
     SCRect operator * (const unsigned u) const;
     SCRect operator * (const qreal f) const;
     SCRect operator &= (const SCRect other) const;
@@ -52,6 +53,8 @@ public: // non-const
     SCRect offset(const QPoint pt);
     SCRect operator *= (const unsigned u);
 
+    friend SCRect operator & (const SCRect scr, const QRect qrc);
+
 public: // debug
     QString toDebugString() const;
 
@@ -59,6 +62,8 @@ private:
     QSize mSize;
     QPoint mCenter;
 };
+
+extern QDebug operator<<(QDebug &stream, const SCRect scr);
 
 inline QSize SCRect::size() const { return mSize; }
 inline QSizeF SCRect::sizeF() const { return QSizeF(size()); }
@@ -78,6 +83,6 @@ inline SCRect::operator QRect() const { return toQRect(); }
 inline void SCRect::height(const int h) { mSize.setHeight(h); }
 inline void SCRect::width(const int w) { mSize.setWidth(w); }
 inline void SCRect::size(const int w, const int h) { width(w), height(h); }
-inline SCRect SCRect::operator *= (const unsigned u) { return scale(u); };
+inline SCRect SCRect::operator *= (const unsigned u) { return scale(u); }
 
 

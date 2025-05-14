@@ -6,7 +6,7 @@ CONFIG += c++17
 DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000
 #DEFINES += ENABLE_AVGFACE
 DEFINES += TODO0002
-#DEFINES += NOEYEFIND
+DEFINES += NOEYEFIND
 DEFINES += BUILD_OBJDET_EVAL
 
 include(DESTDIR.pri)
@@ -30,6 +30,7 @@ SOURCES += \
     ObjdetResult.cpp \
     ObjdetResultMap.cpp \
     ObjectHelper.cpp \
+    SCLine.cpp \
     SCRect.cpp \
     VersionInfo.cpp \
     main.cpp \
@@ -69,6 +70,7 @@ HEADERS += \
     ObjdetResult.h \
     ObjdetResultMap.h \
     ObjectHelper.h \
+    SCLine.h \
     SCRect.h \
     VersionInfo.h \
     version.h

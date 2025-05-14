@@ -294,16 +294,16 @@ void IfSearch::processFace(void)
             {
                 if (fwpsFaceColor.value(faceColorMatch+"-Marked")->isActive())
                 {
-                    QImage faceColorImage = grabRgb;
-                    ImageMarker marker(&faceColorImage);
+                    QImage faceQImage = grabRgb;
+                    ImageMarker marker(&faceQImage);
                     marker.rect(head, optMarkFaceColor->value<QColor>(), 3);
                     marker.end();
-                    RETURN(fwpsFaceColor.value(faceColorMatch+"-Marked")->write(faceColorImage, idGenerator.face("FaceColorMarked")));
+                    RETURN(fwpsFaceColor.value(faceColorMatch+"-Marked")->write(faceQImage, idGenerator.face("FaceColorMarked")));
                 }
                 if (fwpsFaceColor.value(faceColorMatch+"-Output")->isActive())
                 {
-                    QImage faceColorImage = normImage;
-                    ImageMarker marker(&faceColorImage);
+                    QImage faceQImage = normImage;
+                    ImageMarker marker(&faceQImage);
                     if ( ! faceSkinColor.isNull())
                     {
                         QString colorString = faceSkinColor.string()
@@ -314,22 +314,22 @@ void IfSearch::processFace(void)
                         marker.title(colorString, Qt::black, faceSkinColor.toQRgb());
                     }
                     marker.rects(skinMatcher->normalFaceRectagles(normalEyes), Qt::blue);
-                    RETURN(fwpsFaceColor.value(faceColorMatch+"-Output")->write(faceColorImage, idGenerator.face("FaceColor")));
+                    RETURN(fwpsFaceColor.value(faceColorMatch+"-Output")->write(faceQImage, idGenerator.face("FaceColor")));
                 }
             }
             else
             {
                 if (fwpNoFaceColor->isActive())
                 {
-                    QImage faceColorImage = normImage;
-                    ImageMarker marker(&faceColorImage);
+                    QImage faceQImage = normImage;
+                    ImageMarker marker(&faceQImage);
                     if ( ! faceSkinColor.isNull())
                     {
                         QString colorString = faceSkinColor.string();
                         marker.title(colorString, Qt::black, faceSkinColor.toQRgb());
                     }
                     marker.rects(skinMatcher->normalFaceRectagles(normalEyes), Qt::blue);
-                    RETURN(fwpNoFaceColor->write(faceColorImage, idGenerator.face("NoFaceColor")));
+                    RETURN(fwpNoFaceColor->write(faceQImage, idGenerator.face("NoFaceColor")));
                 }
                 DETAIL("FaceSkinColor=%1 No Match", faceSkinColor.string());
             }

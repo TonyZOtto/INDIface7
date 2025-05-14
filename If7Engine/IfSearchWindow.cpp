@@ -31,12 +31,14 @@ void IfSearchWindow::setup()
 {
     qInfo() << Q_FUNC_INFO;
     Q_ASSERT(mpCentralWidget); Q_ASSERT(mpCentralGrid);
-    setMinimumSize(1280, 800);
+    setMinimumSize(1792, 896);
     mpCentralWidget->setLayout(mpCentralGrid);
     setCentralWidget(mpCentralWidget);
     mpCentralGrid->addLayout(mpFrameGrid, 0, 0, Qt::AlignHCenter);
-    mpCentralGrid->addWidget(mpMessageWidget, 2, 0, Qt::AlignLeft);
-    mpMessageWidget->setMinimumSize(1200, 800 - 640 - 40);
+    mpCentralGrid->addWidget(mpMessageWidget, 2, 0,
+                             Qt::AlignHCenter | Qt::AlignBottom);
+    mpMessageWidget->setMinimumSize(1408, 48);
+    mpMessageWidget->setMaximumSize(1536, 64);
     mpMessageWidget->setFontFamily("courier");
     Q_ASSERT(mpFrameGrid);
     mpFrameGrid->setRowMinimumHeight(0, maxFrameDim());

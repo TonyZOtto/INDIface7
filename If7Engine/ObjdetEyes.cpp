@@ -32,30 +32,41 @@ void ObjdetEyes::detectEye()
     generateEyeImage();
 
 }
+/*
+void ObjdetEyes::inputImage(const QImage &img, const QRect rc)
+{
 
+}
+*/
 SCRect ObjdetEyes::calculateEyeRoi(const unsigned overCrop)
 {
     SCRect result;
     const SCRect cFaceRect = mFaceResult.rect();
-    const QPoint cEyeRoiCenter
-        = QPoint(cFaceRect.x() + cFaceRect.width() / 2 * isRight() ? +1 : -1,
+    const unsigned cHalfFaceWidth = cFaceRect.width() / 2;
+    const QPoint cFaceEyeRoiCenter
+        = QPoint(cFaceRect.x() + (isRight() ? +cHalfFaceWidth : -cHalfFaceWidth),
                  cFaceRect.y() - cFaceRect.height() / 2);
-    result = SCRect(cFaceRect.size() / 2, cEyeRoiCenter);
-    if (overCrop) result *= 1.0 + (qreal(overCrop) / 100.0);
-    result &= mInputFrame.rect();
-    return mFaceEyeRect = result;
+    SCRect tFaceEyeRect(cFaceRect.size() / 2, cFaceEyeRoiCenter);
+    if (overCrop) tFaceEyeRect *= 1.0 + (qreal(overCrop) / 100.0);
+    SCRect tFrameEyeRect(tFaceEyeRect.size(),
+                         cFaceRect.center() + tFaceEyeRect.center());
+    result = tFrameEyeRect; // & mInputFrame.rect();
+    qInfo() << Q_FUNC_INFO << isRight() << mInputFrame.rect()
+            << cFaceRect << cHalfFaceWidth << cFaceEyeRoiCenter
+            << tFaceEyeRect << tFrameEyeRect << result;
+    return mFrameEyeRect = result;
 }
 
 void ObjdetEyes::generateEyeImage()
 {
     const int cThumbWidth = IfSearchWindow::faceThumbSize().width();
-    mDetectScale = (mFaceEyeRect.width() > cThumbWidth) ? 1
-        : int(0.999 + qreal(cThumbWidth) / qreal(mFaceEyeRect.width()));
-    mFaceEyeRect *= mDetectScale;
-    mFaceEyeRect = mFaceEyeRect.trimmed(16);
+    mDetectScale = (mFrameEyeRect.width() > cThumbWidth) ? 1
+        : int(0.999 + qreal(cThumbWidth) / qreal(mFrameEyeRect.width()));
+    mFrameEyeRect *= mDetectScale;
+    mFrameEyeRect = mFrameEyeRect.trimmed(16);
     mEyeImage = mInputFrame.scaledToWidth(mInputFrame.width() * mDetectScale)
-                           .copy(mFaceEyeRect);
+                           .copy(mFrameEyeRect);
     qInfo() << Q_FUNC_INFO << mInputFrame.size() << mDetectScale
-            << mFaceEyeRect.toDebugString() << mEyeImage.size();
+            << mFrameEyeRect.toDebugString() << mEyeImage.size();
     Objdet::inputImage(mEyeImage);
 }

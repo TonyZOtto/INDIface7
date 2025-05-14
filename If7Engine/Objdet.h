@@ -78,6 +78,7 @@ public: // const
 public: // non-const
     void set(const ObjdetRawArguments raw);
     void inputImage(const QImage &img);
+    void inputImage(const QImage &img, const QRect rc);
     void clear();
     bool processCascadeClassifier(const bool returnAll=false);
 
