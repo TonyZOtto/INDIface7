@@ -66,7 +66,7 @@ cv::Size ObjdetRawArguments::cvMaxSize() const
 QStringList ObjdetRawArguments::toStrings() const
 {
     QStringList results;
-    results << QString("   Factor:             %1").arg(factor(), 5, 3);
+    results << QString("   Factor:             %1").arg(factor(), 5, 'g', 3);
     results << QString("   Neighbors (min):    %1").arg(neighbors());
     results << QString("   Min Size:           %1x%2").arg(minSize().width()).arg(minSize().height());
     results << QString("   Max Size:           %1x%2").arg(maxSize().width()).arg(maxSize().height());
